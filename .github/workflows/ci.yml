@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Menor privilégio possível; jobs de escrita declaram explicitamente
+permissions:
+  contents: read
+
+# Cancela runs anteriores do mesmo branch/PR ao fazer novo push
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PLUGINVAL_VERSION: v1.0.4
+
+jobs:
+  build-and-test:
+    name: Build + Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Cache FetchContent (JUCE + Catch2) ---
+      - name: Cache FetchContent
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt') }}
+          restore-keys: fetchcontent-${{ matrix.os }}-
+
+      # --- Dependências Linux ---
+      - name: Install Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libx11-dev libxext-dev libxrandr-dev \
+            libxinerama-dev libxcursor-dev libfreetype-dev \
+            libfontconfig1-dev libcurl4-openssl-dev xvfb
+
+      # --- Configurar ---
+      - name: Configure (Linux / Windows)
+        if: runner.os != 'macOS'
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Configure (macOS universal)
+        if: runner.os == 'macOS'
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      # --- Compilar ---
+      - name: Build
+        run: cmake --build build --config Release -j
+
+      # --- Testes (ctest) ---
+      - name: Run tests (Linux — headless)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a ctest --test-dir build --build-config Release --output-on-failure
+
+      - name: Run tests (macOS / Windows)
+        if: runner.os != 'Linux'
+        run: ctest --test-dir build --build-config Release --output-on-failure
+
+      # --- macOS: verificar universal binary e validar AU ---
+      - name: Assert universal binary (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          PLUGIN=$(find build -name "BAQUE" -type f | grep Standalone | head -1)
+          echo "Verificando: $PLUGIN"
+          lipo -info "$PLUGIN"
+          lipo -info "$PLUGIN" | grep -q "arm64" || (echo "ERRO: arm64 ausente" && exit 1)
+          lipo -info "$PLUGIN" | grep -q "x86_64" || (echo "ERRO: x86_64 ausente" && exit 1)
+          echo "Universal binary: OK"
+
+      - name: Validate AU (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          # Registra o plugin para o auval
+          COMPONENTS_DIR="$HOME/Library/Audio/Plug-Ins/Components"
+          AU_PATH=$(find build -name "BAQUE.component" -type d | head -1)
+          if [ -z "$AU_PATH" ]; then
+            echo "Aviso: BAQUE.component não encontrado — AU não construído nesta configuração"
+            exit 0
+          fi
+          cp -R "$AU_PATH" "$COMPONENTS_DIR/"
+          # Aguarda o AudioComponentRegistrar atualizar o cache
+          sleep 2
+          auval -v aumu Bqe1 Lvd0 || (echo "auval FALHOU" && exit 1)
+          echo "auval: OK"
+
+      # --- pluginval ---
+      - name: pluginval (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          curl -fsSL "https://github.com/Tracktion/pluginval/releases/download/${PLUGINVAL_VERSION}/pluginval_Linux.zip" \
+            -o /tmp/pluginval.zip
+          echo "c01c49d8063965c4c2dea8324468336768f5c9139e0b1caebde14c2400b55352  /tmp/pluginval.zip" | sha256sum -c -
+          unzip -q /tmp/pluginval.zip -d /tmp/pluginval-bin
+          chmod +x /tmp/pluginval-bin/pluginval
+          VST3=$(find build -name "BAQUE.vst3" -type d | head -1)
+          xvfb-run -a /tmp/pluginval-bin/pluginval \
+            --validate "$VST3" \
+            --strictness-level 5 \
+            --validate-in-process
+
+      - name: pluginval (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          curl -fsSL "https://github.com/Tracktion/pluginval/releases/download/${PLUGINVAL_VERSION}/pluginval_macOS.zip" \
+            -o /tmp/pluginval.zip
+          unzip -q /tmp/pluginval.zip -d /tmp/pluginval-bin
+          VST3=$(find build -name "BAQUE.vst3" -type d | head -1)
+          /tmp/pluginval-bin/pluginval.app/Contents/MacOS/pluginval \
+            --validate "$VST3" \
+            --strictness-level 5 \
+            --validate-in-process
+
+      - name: pluginval (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = $env:PLUGINVAL_VERSION
+          Invoke-WebRequest -Uri "https://github.com/Tracktion/pluginval/releases/download/$version/pluginval_Windows.zip" `
+            -OutFile "$env:TEMP\pluginval.zip"
+          Expand-Archive -Path "$env:TEMP\pluginval.zip" -DestinationPath "$env:TEMP\pluginval-bin" -Force
+          $vst3 = (Get-ChildItem -Path build -Filter "BAQUE.vst3" -Recurse -Directory | Select-Object -First 1).FullName
+          & "$env:TEMP\pluginval-bin\pluginval.exe" `
+            --validate "$vst3" `
+            --strictness-level 5 `
+            --validate-in-process
+
+  # --- Job de lint (clang-format) ---
+  lint:
+    name: Lint (clang-format)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: sudo apt-get install -y --no-install-recommends clang-format
+
+      - name: Check formatting
+        run: |
+          find src tests -name "*.cpp" -o -name "*.h" | \
+            xargs clang-format --dry-run --Werror

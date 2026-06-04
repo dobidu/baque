@@ -64,5 +64,6 @@ target_link_libraries(BAQUE
         juce::juce_recommended_warning_flags
 )
 
-# --- Testes (Catch2 adicionado no plano 01-02) ---
+# --- Testes ---
 enable_testing()
+add_subdirectory(tests)
