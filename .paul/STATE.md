@@ -17,20 +17,20 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 1 of 13 (Setup) — Planning
-Plan: 01-01 APPLY complete, ready for UNIFY
-Status: APPLY complete
-Last activity: 2026-06-04 — 01-01 executed: JUCE 8.0.13 builds, pluginval strictness 5 PASS
+Plan: 01-01 loop closed; 01-02 next
+Status: Ready for next PLAN
+Last activity: 2026-06-04 — 01-01 UNIFY complete; SUMMARY created
 
 Progress:
 - Milestone: [█░░░░░░░░░] 4%
-- Phase 1: [████░░░░░░] 50%
+- Phase 1: [█████░░░░░] 50%
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○     [01-01 applied, awaiting UNIFY]
+  ✓        ✓        ✓     [Loop complete — ready for 01-02 APPLY]
 ```
 
 ## Accumulated Context
@@ -61,12 +61,12 @@ None yet.
 
 Last session: 2026-06-04
 Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
-Next action: /paul:unify .paul/phases/01-setup/01-01-PLAN.md
-Resume file: .paul/HANDOFF-2026-06-04b.md
+Next action: /paul:apply .paul/phases/01-setup/01-02-PLAN.md
+Resume file: .paul/phases/01-setup/01-01-SUMMARY.md
 Resume context:
-- 01-01 APPLY done: JUCE 8.0.13 builds, pluginval strictness 5 PASS, 2 commits on main
-- plugin identity locked: br.ufpb.lavid.baque / 'Lvd0' / 'Bqe1'
-- 01-02 next after UNIFY: Catch2 + 3-OS CI, has human checkpoint (GitHub push)
+- 01-01 loop fully closed; skeleton builds, pluginval passes, git clean
+- 01-02: Catch2 + 3-OS CI (GitHub Actions) — contains human checkpoint (create repo, push, confirm "ci green")
+- auval (AU validation) + lipo (universal gate) required by audit; xvfb-run for Linux tests
 
 ---
 *STATE.md — Updated after every significant action*
