@@ -1,0 +1,46 @@
+# Build output
+build/
+out/
+
+# FetchContent / CMake cache
+_deps/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.suo
+.vs/
+
+# clangd / compile_commands
+.cache/
+compile_commands.json
+
+# macOS
+.DS_Store
+*.dSYM/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Linux generated
+*.o
+*.a
+*.so
+
+# JUCE build artefacts (also under build/)
+BAQUE_artefacts/
+
+# pluginval (downloaded by script, not committed)
+scripts/pluginval
+scripts/pluginval-linux
+
+# Editor backup files
+*~
+*.orig
+*.bak

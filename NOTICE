@@ -1,0 +1,44 @@
+BAQUE — Third-Party Notices
+============================
+
+This project incorporates the following open-source components.
+
+--------------------------------------------------------------------
+JUCE
+--------------------------------------------------------------------
+Copyright (c) Raw Material Software Limited
+Website: https://juce.com
+License: GNU General Public License v3 or later (GPL-3.0-or-later)
+         https://www.gnu.org/licenses/gpl-3.0.txt
+
+BAQUE is distributed under the GPL-3.0 license, which is compatible
+with JUCE's GPL-3.0 licensing terms.
+
+Version used: 8.0.13
+Source: https://github.com/juce-framework/JUCE/releases/tag/8.0.13
+
+--------------------------------------------------------------------
+SoundTouch (fork — separate repository)
+--------------------------------------------------------------------
+Copyright (c) Olli Parviainen
+Website: https://www.surina.net/soundtouch/
+License: GNU Lesser General Public License v2.1 (LGPL-2.1)
+         https://www.gnu.org/licenses/lgpl-2.1.txt
+
+BAQUE uses an optimized fork of SoundTouch for time-stretch and
+pitch-shift operations. The fork is maintained in a separate
+repository under LGPL-2.1. LGPL-2.1 is compatible with GPL-3.0.
+
+Note: The fork has not been integrated yet (planned for Phase 4).
+This notice is a placeholder as required by LGPL-2.1 §6.
+
+--------------------------------------------------------------------
+Catch2 (tests only — not distributed with plugin)
+--------------------------------------------------------------------
+Copyright (c) Two Blue Cubes Ltd. and Catch2 Contributors
+License: Boost Software License 1.0
+         https://www.boost.org/LICENSE_1_0.txt
+
+Used only in the test suite. Not linked into the distributed plugin.
+
+--------------------------------------------------------------------

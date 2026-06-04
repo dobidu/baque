@@ -1,0 +1,34 @@
+name = "BAQUE"
+version = "0.0.0"
+status = "active"
+path = "baque"
+tags = []
+
+[paul]
+version = "1.4"
+source = "https://chrisai.cv/skool"
+
+[milestone]
+name = "v1.0 Release"
+version = "1.0.0"
+status = "not_started"
+phases = 13
+
+[phase]
+number = 1
+name = "Setup"
+status = "planning"
+plans_completed = 0
+
+[loop]
+position = "PLAN"
+plan = "01-01"
+plan_path = "phases/01-setup/01-01-PLAN.md"
+
+[satellite]
+groom = true
+
+[stats]
+total_plans = 0
+total_phases = 13
+last_activity = "2026-06-04T00:00:00Z"
