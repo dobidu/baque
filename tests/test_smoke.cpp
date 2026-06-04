@@ -9,12 +9,12 @@ struct JuceFixture {
     juce::ScopedJuceInitialiser_GUI init;
 };
 
-TEST_CASE_METHOD(JuceFixture, "Framework wiring", "[smoke]") {
-    // Sanidade: o framework de testes está funcionando
+TEST_CASE_METHOD(JuceFixture, "framework wiring", "[smoke]") {
+    // Sanidade: o framework de testes esta funcionando
     REQUIRE(1 + 1 == 2);
 }
 
-TEST_CASE_METHOD(JuceFixture, "BaqueProcessor — processBlock produz silêncio", "[smoke][dsp]") {
+TEST_CASE_METHOD(JuceFixture, "BaqueProcessor processBlock outputs silence", "[smoke][dsp]") {
     // Instancia o processador diretamente (sem necessidade de dispositivo de áudio)
     BaqueProcessor processor;
 
