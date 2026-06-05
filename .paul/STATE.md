@@ -68,14 +68,14 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-04
-Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
+Last session: 2026-06-05
+Stopped at: Phase 3 transition complete; paused before Phase 4 planning
 Next action: /paul:plan (Phase 4 — Sample Engine: slice/chop, pitch, choke, velocity layers, reverse)
-Resume file: .paul/ROADMAP.md
+Resume file: .paul/HANDOFF-2026-06-05.md
 Resume context:
-- Phase 3 complete: step grid, swing, pattern switch, NoteTracker (21/21 tests)
-- Phase 4 DoD: chop-to-pads; varispeed + offline stretch (fork v1); choke working
-- Phase 4 DEPENDS on R&D-TS fork v1 (varispeed + offline stretch + RT-safety wrapper) — parallel track blocker
+- Phase 3 fully closed; 21/21 tests; pluginval green; commit fdf1571 on main
+- Phase 4 BLOCKS on R&D-TS SoundTouch fork v1 — flag during planning
+- CI Node.js 20 action upgrade due before June 16, 2026
 
 ---
 *STATE.md — Updated after every significant action*
