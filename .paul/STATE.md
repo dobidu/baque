@@ -17,9 +17,9 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 3 of 13 (Sequencer Base) — Planning
-Plan: 03-01 + 03-02 created, awaiting audit/approval
-Status: PLAN created, ready for AUDIT/APPLY
-Last activity: 2026-06-05 — Created 03-01 (StepPattern+StepClock) + 03-02 (swing+switch+notetracker)
+Plan: 03-01 + 03-02 created + audited, awaiting approval
+Status: PLAN audited, ready for APPLY
+Last activity: 2026-06-05 — Enterprise audit applied to both Phase 3 plans
 
 Progress:
 - Milestone: [██░░░░░░░░] 15%
@@ -50,6 +50,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-06-04: Enterprise audit on 02-01 (4 must-have + 2 strong applied, 1 deferred) and 02-02 (2 must-have + 3 strong applied, 2 deferred). Verdict both: conditionally acceptable → upgraded | Phase 2 | WAV header parsing via JUCE decoder; start_offset_ in 02-01 not 02-02; getPlayHead null-guard; steal never null |
 | Note-off per-note tracking deferred to Phase 3 | Phase 2 Scheduler note-off is no-op; Phase 3 needs note→voice map for correct stuck-note prevention | Phase 2 | Phase 3 must add MIDI note tracking |
 | MIDI channel ignored in Phase 2 | All channels trigger; Phase 3 needs channel routing for INT/EXT hybrid mode | Phase 2 | Phase 3 scope item |
+| 2026-06-05: Enterprise audit on 03-01 (3 must-have + 2 strong applied, 2 deferred) and 03-02 (4 must-have + 1 strong applied, 2 deferred). Verdict both: conditionally acceptable → upgraded | Phase 3 | MidiBuffer two-call approach, generate() algorithm, double-trigger guard, atomic pattern switch, memory_order for swing |
 
 ### Deferred Issues
 
