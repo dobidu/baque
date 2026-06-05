@@ -5,6 +5,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 
 #include <BinaryData.h>
+#include <algorithm>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
@@ -134,6 +135,121 @@ TEST_CASE("voice attack fade-in prevents click", "[voice]") {
 
     // Amostra 32 deve ter amplitude maior que a amostra 0 (fade-in em progresso)
     REQUIRE(left[32] > left[0]);
+}
+
+// --- Fase 4 (04-01): varispeed, reverso, pan, limites ---
+
+// Conta quantos frames a voz leva até desativar (processa em blocos)
+static int frames_until_inactive(SampleVoice& v, int max_frames) {
+    constexpr int block = 64;
+    std::vector<float> left(block), right(block);
+    int total = 0;
+    while (v.is_active() && total < max_frames) {
+        std::fill(left.begin(), left.end(), 0.0f);
+        std::fill(right.begin(), right.end(), 0.0f);
+        v.process(left.data(), right.data(), block);
+        total += block;
+    }
+    return total;
+}
+
+// A. AC-2: rate 2.0 desativa em metade dos frames de rate 1.0
+TEST_CASE("varispeed rate halves duration at plus 12 semitones", "[voice][varispeed]") {
+    auto sine = make_sine(1000);
+
+    SampleVoice v1;
+    v1.trigger(sine.data(), static_cast<int>(sine.size()), 1.0f, 1.0);
+    const int frames_normal = frames_until_inactive(v1, 4000);
+
+    SampleVoice v2;
+    v2.trigger(sine.data(), static_cast<int>(sine.size()), 1.0f, 2.0);
+    const int frames_double = frames_until_inactive(v2, 4000);
+
+    // rate 2.0 → metade da duração (tolerância de 2 blocos de 64)
+    REQUIRE(std::abs(frames_normal - 2 * frames_double) <= 192);
+}
+
+// B. AC-2 (auditoria): rate 4.0 em sample curto — sem leitura fora dos limites
+TEST_CASE("varispeed rate four no out of bounds on short sample", "[voice][varispeed]") {
+    auto sine = make_sine(100); // Sample curto
+
+    SampleVoice v;
+    v.trigger(sine.data(), static_cast<int>(sine.size()), 1.0f, 4.0);
+
+    constexpr int frames = 64;
+    std::vector<float> left(frames, 0.0f), right(frames, 0.0f);
+    v.process(left.data(), right.data(), frames);
+
+    // ~99/4 ≈ 24 frames até o fim → voz desativa dentro do primeiro bloco
+    REQUIRE(!v.is_active());
+
+    // Saída finita (sem lixo de leitura fora dos limites; jassert cobre debug)
+    for (int i = 0; i < frames; ++i)
+        REQUIRE(std::isfinite(left[static_cast<std::size_t>(i)]));
+}
+
+// C. AC-3: reverso reproduz o sample espelhado (rampa decrescente)
+TEST_CASE("reverse playback outputs mirrored ramp", "[voice][reverse]") {
+    // Rampa crescente 0..1
+    constexpr int n = 1000;
+    std::vector<float> ramp(n);
+    for (int i = 0; i < n; ++i)
+        ramp[static_cast<std::size_t>(i)] = static_cast<float>(i) / static_cast<float>(n);
+
+    SampleVoice v;
+    v.trigger(ramp.data(), n, 1.0f, 1.0, true); // reverse
+
+    constexpr int frames = 128;
+    std::vector<float> left(frames, 0.0f), right(frames, 0.0f);
+    v.process(left.data(), right.data(), frames);
+
+    // Após o fade-in (32 frames): valores decrescentes (lendo do fim para o início)
+    for (int i = 40; i < 60; ++i)
+        REQUIRE(left[static_cast<std::size_t>(i)] > left[static_cast<std::size_t>(i + 1)]);
+}
+
+// D. AC (auditoria): reverso + start_offset_ — silêncio nos primeiros N frames
+TEST_CASE("reverse with trigger offset stays silent before offset", "[voice][reverse]") {
+    constexpr int n = 1000;
+    std::vector<float> ramp(n);
+    for (int i = 0; i < n; ++i)
+        ramp[static_cast<std::size_t>(i)] = static_cast<float>(i) / static_cast<float>(n);
+
+    VoicePool pool;
+    constexpr int offset = 10;
+    pool.trigger_at(offset, ramp.data(), n, 1.0f, 1.0, true, 0.0f);
+
+    constexpr int frames = 64;
+    std::vector<float> left(frames), right(frames);
+    pool.process_all(left.data(), right.data(), frames);
+
+    // Frames 0..9: silêncio (semântica de offset relativa ao bloco, inalterada)
+    for (int i = 0; i < offset; ++i)
+        REQUIRE(std::abs(left[static_cast<std::size_t>(i)]) < 1e-10f);
+
+    // Frame do offset: primeiro frame renderizado (fim da rampa × fade 1/32)
+    REQUIRE(std::abs(left[offset]) > 1e-6f);
+}
+
+// E. Pan -1 silencia o canal direito (equal-power)
+TEST_CASE("pan hard left silences right channel", "[voice][pan]") {
+    auto sine = make_sine(1000);
+
+    SampleVoice v;
+    v.trigger(sine.data(), static_cast<int>(sine.size()), 1.0f, 1.0, false, -1.0f);
+
+    constexpr int frames = 128;
+    std::vector<float> left(frames, 0.0f), right(frames, 0.0f);
+    v.process(left.data(), right.data(), frames);
+
+    bool left_nonzero = false;
+    for (int i = 32; i < frames; ++i) {
+        if (std::abs(left[static_cast<std::size_t>(i)]) > 1e-6f)
+            left_nonzero = true;
+        // sin(0) = 0 → direita silenciosa em pan -1
+        REQUIRE(std::abs(right[static_cast<std::size_t>(i)]) < 1e-6f);
+    }
+    REQUIRE(left_nonzero);
 }
 
 // 5. processBlock não aloca memória no audio thread

@@ -26,8 +26,15 @@ class VoicePool {
 
     // Dispara uma voz com offset de início preciso em samples (para dispatch em 02-02).
     // start_offset = posição dentro do bloco atual a partir da qual a voz começa.
+    // Fase 4 (04-01): rate (varispeed), reverse e pan repassados à voz.
     // RT-safe: delega para allocate() + trigger() sem alocação.
-    void trigger_at(int start_offset, const float* sample_data, int num_samples, float gain) noexcept;
+    void trigger_at(int start_offset,
+                    const float* sample_data,
+                    int num_samples,
+                    float gain,
+                    double rate = 1.0,
+                    bool reverse = false,
+                    float pan = 0.0f) noexcept;
 
   private:
     std::array<SampleVoice, k_pool_size> voices_;

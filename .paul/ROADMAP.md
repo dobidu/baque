@@ -27,7 +27,7 @@ Phases: 3 of 13 complete
 | 1 | Setup (Fase 0) | 2 | ✅ Complete | 2026-06-04 |
 | 2 | Core Audio (Fase 1) | 2 | ✅ Complete | 2026-06-05 |
 | 3 | Sequencer Base (Fase 2) | 2 | ✅ Complete | 2026-06-05 |
-| 4 | Sample Engine (Fase 3) | TBD | Not started | - |
+| 4 | Sample Engine (Fase 3) | 4 | In progress (1/4) | - |
 | 5 | Feel Engine ⭐ (Fase 4) | TBD | Not started | - |
 | 6 | FX + P-locks (Fase 5) | TBD | Not started | - |
 | 7 | Lo-fi + Granular (Fase 6) | TBD | Not started | - |
@@ -74,10 +74,16 @@ Phases: 3 of 13 complete
 
 ### Phase 4: Sample Engine (Fase 3)
 **Goal:** Slice/chop, pitch, choke, velocity layers, reverse
-**Depends on:** Phase 3 + R&D-TS fork v1 (varispeed + offline stretch)
+**Depends on:** Phase 3 ✓ + R&D-TS fork v1 (offline stretch only — varispeed in-house, see 2026-06-05 decision)
 **Research:** Likely (SoundTouch fork integration, transient detection)
 **Research topics:** WSOLA params, transient detection for auto-slice, RT-safety wrapper
 **DoD:** Chop-to-pads; varispeed + offline stretch (fork v1); choke working
+
+**Plans (slice-around-fork strategy):**
+- [x] 04-01: Pad bank + per-pad playback — note→pad routing, varispeed, reverse, gain/pan (fork-free) ✅ 2026-06-05
+- [ ] 04-02: Choke groups + velocity layers + round-robin + ADSR/play modes (fork-free)
+- [ ] 04-03: Auto-slice (transient detection) + chop-to-pads (fork-free)
+- [ ] 04-04: R&D-TS fork v1 integration — offline time-stretch (blocked on fork repo bootstrap)
 
 ### Phase 5: Feel Engine ⭐ (Fase 4)
 **Goal:** Micro-timing, humanize, dual-grid, no-grid, feel presets — *product core*

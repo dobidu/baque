@@ -2,6 +2,7 @@
 // sample-accurate (Scheduler dispatches at MidiBuffer offset),
 // RT-safe (zero allocs, verified in test_voice.cpp AC-2)
 
+#include "audio/pad_bank.h"
 #include "audio/scheduler.h"
 #include "audio/voice_pool.h"
 #include "plugin_processor.h"
@@ -26,22 +27,31 @@ static std::vector<float> make_sample_data(int total, int nonzero_count, float v
     return buf;
 }
 
+// Carrega dados em um pad do banco (pad 0 = nota 36, convenção da Fase 4)
+static void load_pad(PadBank& bank, int pad_index, const std::vector<float>& data) {
+    auto& buf = bank.pad(pad_index).sample_buffer();
+    buf.setSize(1, static_cast<int>(data.size()));
+    buf.copyFrom(0, 0, data.data(), static_cast<int>(data.size()));
+}
+
 // 1. Scheduler despacha no offset correto de sample
 TEST_CASE("scheduler dispatches at correct sample offset", "[transport][scheduler]") {
     VoicePool pool;
     Scheduler sched;
 
-    // Sample data: amostras 0-99 = 1.0f, resto = 0
+    // Sample data: amostras 0-99 = 1.0f, resto = 0 — carregado no pad 0 (nota 36)
     auto data = make_sample_data(1000, 100, 1.0f);
+    PadBank bank;
+    load_pad(bank, 0, data);
 
     // Note-on no offset 256 dentro de um bloco de 512
     juce::MidiBuffer midi;
-    midi.addEvent(juce::MidiMessage::noteOn(1, 60, 0.8f), 256);
+    midi.addEvent(juce::MidiMessage::noteOn(1, PadBank::k_base_note, 0.8f), 256);
 
     constexpr int block_size = 512;
     std::vector<float> left(block_size, 0.0f), right(block_size, 0.0f);
 
-    sched.process(midi, pool, data.data(), static_cast<int>(data.size()), block_size);
+    sched.process(midi, pool, bank, block_size);
     pool.process_all(left.data(), right.data(), block_size);
 
     // Silêncio antes do offset (frames 0..255)
@@ -62,15 +72,17 @@ TEST_CASE("block-boundary silence before note-on", "[transport][scheduler]") {
     Scheduler sched;
 
     auto data = make_sample_data(1000, 1000, 1.0f);
+    PadBank bank;
+    load_pad(bank, 0, data);
 
     // Note-on no offset 500 dentro de um bloco de 512
     juce::MidiBuffer midi;
-    midi.addEvent(juce::MidiMessage::noteOn(1, 60, 1.0f), 500);
+    midi.addEvent(juce::MidiMessage::noteOn(1, PadBank::k_base_note, 1.0f), 500);
 
     constexpr int block_size = 512;
     std::vector<float> left(block_size, 0.0f), right(block_size, 0.0f);
 
-    sched.process(midi, pool, data.data(), static_cast<int>(data.size()), block_size);
+    sched.process(midi, pool, bank, block_size);
     pool.process_all(left.data(), right.data(), block_size);
 
     // Frames 0..499 devem ser silenciosos
@@ -84,14 +96,16 @@ TEST_CASE("note-off triggers voice fade-out", "[transport][scheduler]") {
     Scheduler sched;
 
     auto data = make_sample_data(5000, 5000, 1.0f);
+    PadBank bank;
+    load_pad(bank, 0, data);
 
     // Dispara voz manualmente e processa 100 frames (voz deve estar tocando)
     constexpr int first_block = 100;
     std::vector<float> left(first_block, 0.0f), right(first_block, 0.0f);
 
     juce::MidiBuffer note_on_midi;
-    note_on_midi.addEvent(juce::MidiMessage::noteOn(1, 60, 1.0f), 0);
-    sched.process(note_on_midi, pool, data.data(), static_cast<int>(data.size()), first_block);
+    note_on_midi.addEvent(juce::MidiMessage::noteOn(1, PadBank::k_base_note, 1.0f), 0);
+    sched.process(note_on_midi, pool, bank, first_block);
     pool.process_all(left.data(), right.data(), first_block);
 
     // Voz deve estar ativa após o primeiro bloco
@@ -108,10 +122,10 @@ TEST_CASE("note-off triggers voice fade-out", "[transport][scheduler]") {
     // (O teste de fade-in já cobre a lógica de atenuação em test_voice.cpp)
     // Aqui confirmamos que o scheduler processa note-off sem crash
     juce::MidiBuffer note_off_midi;
-    note_off_midi.addEvent(juce::MidiMessage::noteOff(1, 60), 0);
+    note_off_midi.addEvent(juce::MidiMessage::noteOff(1, PadBank::k_base_note), 0);
     constexpr int second_block = 64;
     std::vector<float> left2(second_block, 0.0f), right2(second_block, 0.0f);
-    sched.process(note_off_midi, pool, data.data(), static_cast<int>(data.size()), second_block);
+    sched.process(note_off_midi, pool, bank, second_block);
     // Deve processar sem crash (note-off no Fase 2 é no-op na Scheduler)
     pool.process_all(left2.data(), right2.data(), second_block);
     REQUIRE(true); // Chegou aqui sem crash

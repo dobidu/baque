@@ -21,11 +21,14 @@ BaqueProcessor::BaqueProcessor()
     , apvts_(*this, nullptr, "BAQUE_PARAMS", create_parameter_layout()) {}
 
 void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
-    // Reseta todas as vozes (seguro para chamar múltiplas vezes)
+    // PROTOCOLO DE LOAD SEGURO (auditoria 04-01): reset_all() ANTES de qualquer
+    // mutação de buffer de pad — nenhuma voz pode referenciar memória realocada.
+    // Seguro para chamar múltiplas vezes.
     voice_pool_.reset_all();
 
-    // Decodifica o sample de teste apenas uma vez (guarda de realocação)
-    if (!sample_loaded_) {
+    // Decodifica o sample de teste no pad 0 apenas uma vez (guarda de realocação).
+    // Preserva o comportamento da Fase 2: nota 36 dispara o sample carregado.
+    if (!pad0_loaded_) {
         auto stream =
             std::make_unique<juce::MemoryInputStream>(BinaryData::test_kick_wav, BinaryData::test_kick_wavSize, false);
         juce::WavAudioFormat format;
@@ -33,10 +36,11 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
 
         if (reader != nullptr) {
             const int num_samples = static_cast<int>(reader->lengthInSamples);
-            sample_buffer_.setSize(1, num_samples);
-            reader->read(&sample_buffer_, 0, num_samples, 0, true, false);
+            auto& pad_buffer = pad_bank_.pad(0).sample_buffer();
+            pad_buffer.setSize(1, num_samples);
+            reader->read(&pad_buffer, 0, num_samples, 0, true, false);
         }
-        sample_loaded_ = true;
+        pad0_loaded_ = true;
     }
 
     // Pré-aloca buffers de mixagem e buffer MIDI do sequenciador
@@ -92,12 +96,9 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     sequencer_.generate(transport_, midi_buffer_seq_, num_frames, getSampleRate());
 
     // Despacha sequenciador e MIDI externo — duas chamadas separadas (sem merge = sem alloc)
-    const float* sample_data = sample_buffer_.getReadPointer(0);
-    const int sample_count = sample_buffer_.getNumSamples();
-    if (sample_data != nullptr && sample_count > 0) {
-        scheduler_.process(midi_buffer_seq_, voice_pool_, sample_data, sample_count, num_frames);
-        scheduler_.process(midi_messages, voice_pool_, sample_data, sample_count, num_frames);
-    }
+    // Roteamento nota → pad dentro do Scheduler (pad vazio = ignora em silêncio)
+    scheduler_.process(midi_buffer_seq_, voice_pool_, pad_bank_, num_frames);
+    scheduler_.process(midi_messages, voice_pool_, pad_bank_, num_frames);
 
     // Processa o pool de vozes para os buffers temporários pré-alocados
     voice_pool_.process_all(mix_left_.data(), mix_right_.data(), num_frames);

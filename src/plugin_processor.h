@@ -1,5 +1,6 @@
 #pragma once
 
+#include "audio/pad_bank.h"
 #include "audio/scheduler.h"
 #include "audio/sequencer.h"
 #include "audio/transport_state.h"
@@ -54,8 +55,8 @@ class BaqueProcessor : public juce::AudioProcessor {
     static juce::AudioProcessorValueTreeState::ParameterLayout create_parameter_layout();
 
     VoicePool voice_pool_;
-    juce::AudioBuffer<float> sample_buffer_;
-    bool sample_loaded_ = false;
+    PadBank pad_bank_;
+    bool pad0_loaded_ = false;
     juce::SmoothedValue<float> gain_smoother_;
     std::vector<float> mix_left_;
     std::vector<float> mix_right_;

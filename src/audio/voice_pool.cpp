@@ -9,7 +9,8 @@ SampleVoice* VoicePool::allocate() noexcept {
             return &v;
     }
 
-    // Fase 2: pool cheio — rouba a voz com posição mais avançada (mais próxima de terminar)
+    // Fase 2: pool cheio — rouba a voz mais antiga (mais frames de saída produzidos;
+    // métrica estável para qualquer rate/direção — ver SampleVoice::get_position)
     // RT-safe: apenas comparações de inteiros, sem sort, sem lock, sem alocação
     SampleVoice* oldest = &voices_[0];
     for (auto& v : voices_) {
@@ -35,9 +36,15 @@ void VoicePool::reset_all() noexcept {
         v = SampleVoice{}; // Reinicia para o estado padrão (inativo)
 }
 
-void VoicePool::trigger_at(int start_offset, const float* sample_data, int num_samples, float gain) noexcept {
+void VoicePool::trigger_at(int start_offset,
+                           const float* sample_data,
+                           int num_samples,
+                           float gain,
+                           double rate,
+                           bool reverse,
+                           float pan) noexcept {
     // RT-safe: allocate() nunca retorna nullptr (roubo obrigatório)
     SampleVoice* voice = allocate();
-    voice->trigger(sample_data, num_samples, gain);
+    voice->trigger(sample_data, num_samples, gain, rate, reverse, pan);
     voice->start_offset_ = start_offset; // Sobrescreve o 0 padrão de trigger()
 }
