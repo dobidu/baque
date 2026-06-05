@@ -252,6 +252,115 @@ TEST_CASE("pan hard left silences right channel", "[voice][pan]") {
     REQUIRE(left_nonzero);
 }
 
+// --- Fase 4 (04-02 T3): ADSR + play modes ---
+
+// Auxiliar: buffer DC constante
+static std::vector<float> make_dc(int num_samples, float value = 1.0f) {
+    return std::vector<float>(static_cast<std::size_t>(num_samples), value);
+}
+
+// F1. one_shot ignora note_off — voz continua após note-off
+TEST_CASE("one shot ignores note off", "[voice][adsr][playmode]") {
+    auto dc = make_dc(1000, 1.0f);
+    SampleVoice v;
+    v.trigger(
+        dc.data(), static_cast<int>(dc.size()), 1.0f, 1.0, false, 0.0f, -1, AdsrParams{}, PlayMode::one_shot, 48000.0);
+    v.note_off();
+
+    constexpr int frames = 10;
+    std::vector<float> l(frames, 0.0f), r(frames, 0.0f);
+    v.process(l.data(), r.data(), frames);
+
+    REQUIRE(v.is_active()); // one_shot ignora note_off
+}
+
+// F2. gate: note_off inicia release; voz inativa após ~32 frames (default release = k_fade_frames)
+TEST_CASE("gate note off triggers release", "[voice][adsr][playmode]") {
+    auto dc = make_dc(10000, 1.0f);
+    SampleVoice v;
+    v.trigger(
+        dc.data(), static_cast<int>(dc.size()), 1.0f, 1.0, false, 0.0f, -1, AdsrParams{}, PlayMode::gate, 48000.0);
+    v.note_off(); // release_ms=0 → rel_f=32 (k_fade_frames)
+
+    constexpr int frames = 40; // > 32 (fade-out completo)
+    std::vector<float> l(frames, 0.0f), r(frames, 0.0f);
+    v.process(l.data(), r.data(), frames);
+
+    REQUIRE(!v.is_active()); // release completo
+}
+
+// F3. loop: sample curto continua apos fim (wrap de posição)
+TEST_CASE("loop mode wraps at sample end", "[voice][adsr][playmode]") {
+    auto dc = make_dc(10, 1.0f); // sample curto — wrap após 10 frames
+    SampleVoice v;
+    v.trigger(
+        dc.data(), static_cast<int>(dc.size()), 1.0f, 1.0, false, 0.0f, -1, AdsrParams{}, PlayMode::loop, 48000.0);
+
+    constexpr int frames = 25; // > 2 × comprimento do sample
+    std::vector<float> l(frames, 0.0f), r(frames, 0.0f);
+    v.process(l.data(), r.data(), frames);
+
+    REQUIRE(v.is_active()); // voz ainda ativa após o wrap
+}
+
+// F4. ADSR attack ramp: amplitude cresce de 0 até gain completo
+TEST_CASE("ADSR attack ramp from zero to full gain", "[voice][adsr]") {
+    constexpr double k_sr = 48000.0;
+    // attack_ms=1ms → 48 frames; decay=0, sustain=1, release=0
+    const AdsrParams adsr{1.0f, 0.0f, 1.0f, 0.0f};
+    auto dc = make_dc(2000, 1.0f);
+    SampleVoice v;
+    v.trigger(dc.data(), static_cast<int>(dc.size()), 1.0f, 1.0, false, 0.0f, -1, adsr, PlayMode::one_shot, k_sr);
+
+    constexpr int frames = 100;
+    std::vector<float> l(frames, 0.0f), r(frames, 0.0f);
+    v.process(l.data(), r.data(), frames);
+
+    // Frame 0: envelope em 0 → saída ≈ 0
+    REQUIRE(std::abs(l[0]) < 1e-4f);
+    // Frame 49 (após os 48 frames de attack): envelope em 1.0 → amplitude completa
+    REQUIRE(l[49] > 0.5f);
+    // Amplitude aumentou entre frame 0 e 49
+    REQUIRE(l[49] > l[0]);
+}
+
+// F5. ADSR decay para sustain: amplitude cai até sustain×gain após decay
+TEST_CASE("ADSR decay reaches sustain level", "[voice][adsr]") {
+    constexpr double k_sr = 48000.0;
+    // decay_ms=1ms (48 frames) → sustain=0.5; sem attack
+    const AdsrParams adsr{0.0f, 1.0f, 0.5f, 0.0f};
+    auto dc = make_dc(2000, 1.0f);
+    SampleVoice v;
+    v.trigger(dc.data(), static_cast<int>(dc.size()), 1.0f, 1.0, false, 0.0f, -1, adsr, PlayMode::one_shot, k_sr);
+
+    constexpr int frames = 200;
+    std::vector<float> l(frames, 0.0f), r(frames, 0.0f);
+    v.process(l.data(), r.data(), frames);
+
+    // Após decay (frame 48+): amplitude ≈ 0.5 × 0.707 (sustain × pan-center)
+    constexpr float k_cpan = 0.70710678f;
+    REQUIRE(l[100] == Catch::Approx(0.5f * k_cpan).margin(0.05f));
+}
+
+// F6. gate + sustain=0: note_off imediatamente desativa (sem vazamento de voz)
+TEST_CASE("gate sustain zero note off immediately deactivates", "[voice][adsr][playmode]") {
+    constexpr double k_sr = 48000.0;
+    // decay_ms=1ms → 48 frames; sustain=0 → env_level_ cai a 0 após decay
+    const AdsrParams adsr{0.0f, 1.0f, 0.0f, 0.0f};
+    auto dc = make_dc(4000, 1.0f);
+    SampleVoice v;
+    v.trigger(dc.data(), static_cast<int>(dc.size()), 1.0f, 1.0, false, 0.0f, -1, adsr, PlayMode::gate, k_sr);
+
+    // Processa além do decay para que env_level_ chegue a 0
+    constexpr int frames_decay = 60;
+    std::vector<float> l(frames_decay, 0.0f), r(frames_decay, 0.0f);
+    v.process(l.data(), r.data(), frames_decay);
+
+    // Após decay completo: note_off deve desativar imediatamente (env_level_ <= 0)
+    v.note_off();
+    REQUIRE(!v.is_active());
+}
+
 // 5. processBlock não aloca memória no audio thread
 TEST_CASE_METHOD(JuceFixture, "processBlock makes zero allocations", "[voice][rt-safety]") {
     BaqueProcessor processor;

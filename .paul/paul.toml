@@ -15,10 +15,10 @@ status = "not_started"
 phases = 13
 
 [phase]
-number = 4
-name = "Sample Engine"
-status = "in_progress"
-plans_completed = 1
+number = 5
+name = "Feel Engine"
+status = "not_started"
+plans_completed = 0
 
 [loop]
 position = "IDLE"
@@ -27,6 +27,6 @@ position = "IDLE"
 groom = true
 
 [stats]
-total_plans = 7
+total_plans = 12
 total_phases = 13
-last_activity = "2026-06-05T00:00:00Z"
+last_activity = "2026-06-05T23:30:00Z"

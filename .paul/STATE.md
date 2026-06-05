@@ -11,32 +11,32 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 3 (Sequencer Base) complete — step grid, swing, pattern switch, NoteTracker; starting Phase 4 (Sample Engine)
+**Current focus:** Phase 4 (Sample Engine) complete — pads, choke, velocity layers, auto-slice, time-stretch; starting Phase 5 (Feel Engine)
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 4 of 13 (Sample Engine) — In progress (1/4 plans)
-Plan: 04-01 complete (unified)
-Status: Ready to plan 04-02
-Last activity: 2026-06-05 — 04-01 UNIFY complete: SUMMARY created, loop closed
+Phase: 5 of 13 (Feel Engine ⭐) — Not started
+Plan: Not started
+Status: Ready to plan Phase 5
+Last activity: 2026-06-05 — Phase 4 complete, transitioned to Phase 5
 
 Progress:
-- Milestone: [███░░░░░░░] 25%
-- Phase 4: [███░░░░░░░] 25%
+- Milestone: [█████░░░░░] 38%
+- Phase 4: [██████████] 100% ✅
 
-Phase 4 plan breakdown (slice-around-fork strategy):
+Phase 4 complete (slice-around-fork strategy):
 - 04-01: Pad bank + per-pad playback (varispeed, reverse, gain/pan) ✅ 2026-06-05
-- 04-02: Choke groups + velocity layers + round-robin + ADSR/play modes — fork-free ← next
-- 04-03: Auto-slice (transient detection) + chop-to-pads — fork-free
-- 04-04: R&D-TS fork v1 integration — offline time-stretch (BLOCKED on fork repo)
+- 04-02: Choke groups + velocity layers + round-robin + ADSR/play modes ✅ 2026-06-05
+- 04-03: Auto-slice (transient detection) + chop-to-pads ✅ 2026-06-05
+- 04-04: R&D-TS fork v1 integration — offline time-stretch ✅ 2026-06-05
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [04-01 loop complete — ready to plan 04-02]
+  ✓        ✓        ✓     [Phase 4 loop closed — ready for Phase 5 PLAN]
 ```
 
 ## Accumulated Context
@@ -62,6 +62,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-06-05: Phase 4 slices around fork blocker | Phase 4 | Varispeed in-house (cheap rate change, ESCOPO §4.11 realtime path); only offline stretch needs fork → isolated in 04-04; fork repo bootstrap runs parallel to 04-01..03 |
 | Pad note mapping: pad index = note − 36 | Phase 4 | Matches StepPattern note convention; 16 pads = notes 36–51 |
 | 2026-06-05: Enterprise audit on 04-01 (2 must-have + 4 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 4 | Safe-load protocol (reset_all before buffer mutation — UAF prevention); end-of-sample bounds termination + jassert; start_offset_ pinned block-relative; velocity curve pinned linear v/127; single-writer contract in pad_bank.h |
+| 2026-06-05: Enterprise audit on 04-02 (3 must-have + 4 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 4 | runtime_.fill({}) in prepare() (stale pointer prevention); dec_frames_ field required; sustain=0 voice-leak guard in note_off(); stolen-voice note_off guard (pad_index check); no goto in process(); frames_rendered_ not reset on loop wrap; self-retrigger choke test |
+| 2026-06-05: Enterprise audit on 04-03 (2 must-have + 3 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 4 | chop_to_pads null guard (UB prevention); stale pad clear on re-chop (silent-wrong-audio fix); jassert sorted onsets; min_slice_ms test; stale-pad regression test |
+| 2026-06-05: Enterprise audit on 04-04 (2 must-have + 3 strong applied, 2 deferred). Verdict: conditionally acceptable → upgraded | Phase 4 | TimeStretchJuceFixture local struct (cross-file compile fix); (void) trigger_at nodiscard fix; jassert empty output; min_input < 256 guard; T3 buffer 4096→8192 |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -79,16 +82,15 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-05 (session 4)
-Stopped at: 04-01 loop closed; paused before 04-02 planning
-Next action: /paul:plan (04-02 — choke groups + velocity layers + round-robin + ADSR/play modes)
-Resume file: .paul/HANDOFF-2026-06-05.md
+Last session: 2026-06-05 (session 7)
+Stopped at: Phase 4 complete — transitioned to Phase 5
+Next action: /paul:plan for Phase 5 (Feel Engine)
+Resume file: .paul/ROADMAP.md
 Git strategy: main
 Resume context:
-- 04-01 shipped: PadBank, varispeed, reverse, pan; 31/31 tests; pluginval green; WIP commit on main, message "wip(04-sample-engine): paused after 04-01 complete" (local — not pushed)
-- 04-02 natural place for per-note voice mapping (note-off still pool-global)
-- R&D-TS fork repo bootstrap should start in parallel (before 04-04)
-- CI Node.js 20 action upgrade due before June 16, 2026 (11 days)
+- Phase 4 git commit includes all 04-01..04-04 work
+- Phase 5: Feel Engine ⭐ — product core; micro-timing, humanize, dual-grid, feel presets
+- CI Node.js 20 action upgrade due before June 16, 2026
 
 ---
 *STATE.md — Updated after every significant action*

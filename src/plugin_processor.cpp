@@ -25,6 +25,8 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
     // mutação de buffer de pad — nenhuma voz pode referenciar memória realocada.
     // Seguro para chamar múltiplas vezes.
     voice_pool_.reset_all();
+    voice_pool_.prepare(sample_rate);
+    scheduler_.prepare(sample_rate);
 
     // Decodifica o sample de teste no pad 0 apenas uma vez (guarda de realocação).
     // Preserva o comportamento da Fase 2: nota 36 dispara o sample carregado.

@@ -6,6 +6,30 @@
 #include <cmath>
 #include <cstdint>
 
+// Uma camada de velocity: buffer próprio + faixa MIDI [vel_lo, vel_hi].
+// Contrato single-writer idêntico ao buffer_ do SamplePad.
+struct VelocityLayer {
+    juce::AudioBuffer<float> buffer;
+    uint8_t vel_lo = 0;
+    uint8_t vel_hi = 127;
+    [[nodiscard]] bool has_sample() const noexcept { return buffer.getNumSamples() > 0; }
+    [[nodiscard]] const float* data() const noexcept { return has_sample() ? buffer.getReadPointer(0) : nullptr; }
+    [[nodiscard]] int num_samples() const noexcept { return buffer.getNumSamples(); }
+};
+
+enum class PlayMode : uint8_t {
+    one_shot = 0, // Reproduz até o fim; ignora note-off (padrão)
+    gate,         // Para no note-off (inicia fase de release)
+    loop,         // Repete o sample até note-off; release após note-off
+};
+
+struct AdsrParams {
+    float attack_ms = 0.0f;  // 0 = sem ramp-up
+    float decay_ms = 0.0f;   // 0 = instantâneo até sustain
+    float sustain = 1.0f;    // Nível 0..1 durante sustain
+    float release_ms = 0.0f; // 0 = usa k_fade_frames (comportamento legado)
+};
+
 // Um pad de sample: buffer próprio + parâmetros de reprodução.
 //
 // CONTRATO DE ESCRITA ÚNICA (single-writer) — INVARIANTE CRÍTICO:
@@ -25,6 +49,9 @@ class SamplePad {
     int pitch_semitones = 0; // ±24 semitons
     int pitch_cents = 0;     // ±100 cents finos
     bool reverse = false;    // Reprodução invertida (fim → início)
+    uint8_t choke_group = 0; // 0 = sem choke; 1–8 = grupo (ex.: hi-hat fecha grupo 1)
+    AdsrParams adsr{};
+    PlayMode play_mode = PlayMode::one_shot;
 
     // Taxa de reprodução varispeed: 2^((semitons + cents/100) / 12).
     // Pitch e duração mudam juntos (caráter SP/vinil). Calculada fora do
@@ -42,8 +69,21 @@ class SamplePad {
     // APENAS após invalidar as vozes (contrato single-writer acima).
     [[nodiscard]] juce::AudioBuffer<float>& sample_buffer() noexcept { return buffer_; }
 
+    // Camadas de velocity (single-writer; se num_layers_==0, usa buffer_ diretamente).
+    static constexpr int k_max_layers = 8;
+
+    // Acesso RT-safe de leitura (audio thread):
+    [[nodiscard]] const VelocityLayer& layer_at(int i) const noexcept { return layers_[static_cast<size_t>(i)]; }
+    [[nodiscard]] int num_layers() const noexcept { return num_layers_; }
+
+    // Acesso de escrita (off-audio-thread, single-writer):
+    [[nodiscard]] VelocityLayer& layer(int i) noexcept { return layers_[static_cast<size_t>(i)]; }
+    void set_num_layers(int n) noexcept { num_layers_ = (n < 0) ? 0 : (n > k_max_layers ? k_max_layers : n); }
+
   private:
     juce::AudioBuffer<float> buffer_; // Mono (convenção da Fase 2)
+    std::array<VelocityLayer, k_max_layers> layers_{};
+    int num_layers_ = 0;
 };
 
 // Banco de 16 pads (4×4 — ESCOPO §4.1; constante pronta para crescer a 8×8).

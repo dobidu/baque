@@ -15,6 +15,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
+# --- SoundTouch v2.3.3 (R&D-TS fork, LGPL v2.1) — offline tempo-only stretch ---
+FetchContent_Declare(
+    SoundTouch
+    GIT_REPOSITORY https://github.com/dobidu/baque-soundtouch.git
+    GIT_TAG        v1.0.0-baque
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(SoundTouch)
+
 # --- Plugin ---
 juce_add_plugin(BAQUE
     COMPANY_NAME                "BAQUE"
@@ -61,6 +70,8 @@ target_sources(BAQUE
         src/audio/step_clock.cpp
         src/audio/sequencer.cpp
         src/audio/note_tracker.cpp
+        src/audio/slicer.cpp
+        src/audio/time_stretch.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)
@@ -72,6 +83,7 @@ target_link_libraries(BAQUE
         juce::juce_audio_utils
         juce::juce_audio_formats
         juce::juce_dsp
+        SoundTouch
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

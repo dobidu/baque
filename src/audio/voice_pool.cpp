@@ -1,5 +1,7 @@
 #include "voice_pool.h"
 
+#include "pad_bank.h"
+
 #include <cstring>
 
 SampleVoice* VoicePool::allocate() noexcept {
@@ -36,15 +38,34 @@ void VoicePool::reset_all() noexcept {
         v = SampleVoice{}; // Reinicia para o estado padrão (inativo)
 }
 
-void VoicePool::trigger_at(int start_offset,
-                           const float* sample_data,
-                           int num_samples,
-                           float gain,
-                           double rate,
-                           bool reverse,
-                           float pan) noexcept {
+void VoicePool::prepare(double sample_rate) noexcept {
+    sample_rate_ = sample_rate;
+}
+
+SampleVoice* VoicePool::trigger_at(int start_offset,
+                                   const float* sample_data,
+                                   int num_samples,
+                                   float gain,
+                                   double rate,
+                                   bool reverse,
+                                   float pan,
+                                   int pad_index,
+                                   const AdsrParams& adsr,
+                                   PlayMode play_mode) noexcept {
     // RT-safe: allocate() nunca retorna nullptr (roubo obrigatório)
     SampleVoice* voice = allocate();
-    voice->trigger(sample_data, num_samples, gain, rate, reverse, pan);
+    voice->trigger(sample_data, num_samples, gain, rate, reverse, pan, pad_index, adsr, play_mode, sample_rate_);
     voice->start_offset_ = start_offset; // Sobrescreve o 0 padrão de trigger()
+    return voice;
+}
+
+void VoicePool::choke_group(uint8_t group, const PadBank& bank) noexcept {
+    // Itera todo o pool — máximo 64 vozes, sem alocação.
+    // Usa choke() em vez de note_off(): choke é externo (não-MIDI), ignora play_mode.
+    for (auto& v : voices_) {
+        if (v.is_active() && v.pad_index() >= 0) {
+            if (bank.pad(v.pad_index()).choke_group == group)
+                v.choke();
+        }
+    }
 }

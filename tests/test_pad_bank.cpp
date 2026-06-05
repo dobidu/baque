@@ -139,6 +139,211 @@ TEST_CASE_METHOD(PadBankJuceFixture, "velocity mapping is pinned linear", "[padb
     REQUIRE(peak_half / peak_full == Catch::Approx(64.0f / 127.0f).margin(1e-3));
 }
 
+// 6. Choke: VoicePool::choke_group() desativa vozes do mesmo grupo
+TEST_CASE_METHOD(PadBankJuceFixture, "choke group silences voice of matching pad group", "[padbank][choke]") {
+    PadBank bank;
+    load_dc_pad(bank, 0, 8000, 1.0f); // pad 0 — grupo 1
+    bank.pad(0).choke_group = 1;
+
+    VoicePool pool;
+    constexpr int block_size = 256;
+
+    // Dispara pad 0 diretamente e verifica que produz sinal
+    auto* v = pool.trigger_at(0, bank.pad(0).data(), bank.pad(0).num_samples(), 1.0f, 1.0, false, 0.0f, 0);
+    {
+        std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+        pool.process_all(l.data(), r.data(), block_size);
+        REQUIRE(std::abs(l[100]) > 1e-4f); // voz ativa
+    }
+
+    // Choke: inicia fade-out na voz do pad 0
+    pool.choke_group(1, bank);
+    REQUIRE(v->is_active()); // ainda ativa — fade em curso
+
+    // Após fade-out de 32 frames, voz deve estar silenciosa e inativa
+    {
+        std::vector<float> l(40, 0.0f), r(40, 0.0f);
+        pool.process_all(l.data(), r.data(), 40);
+        REQUIRE(!v->is_active()); // fade-out completo (k_fade_frames = 32)
+    }
+}
+
+// 7. Choke: grupos distintos nao interferem entre si
+TEST_CASE_METHOD(PadBankJuceFixture, "choke group does not affect different group", "[padbank][choke]") {
+    PadBank bank;
+    load_dc_pad(bank, 0, 8000, 1.0f); // pad 0 — grupo 1
+    load_dc_pad(bank, 2, 8000, 1.0f); // pad 2 — grupo 2
+    bank.pad(0).choke_group = 1;
+    bank.pad(2).choke_group = 2;
+
+    VoicePool pool;
+    constexpr int block_size = 256;
+
+    // Dispara pad 0 (grupo 1)
+    static_cast<void>(pool.trigger_at(0, bank.pad(0).data(), bank.pad(0).num_samples(), 1.0f, 1.0, false, 0.0f, 0));
+
+    // Choke do grupo 2 — nao deve afetar pad 0
+    pool.choke_group(2, bank);
+
+    // Processa: pad 0 ainda deve estar ativo e produzindo sinal
+    std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+    pool.process_all(l.data(), r.data(), block_size);
+    REQUIRE(std::abs(l[100]) > 1e-4f); // voz intacta
+}
+
+// 8. Choke via scheduler: re-trigger do mesmo pad choca a voz anterior
+TEST_CASE_METHOD(PadBankJuceFixture,
+                 "scheduler choke on self retrigger keeps single voice amplitude",
+                 "[padbank][choke][scheduler]") {
+    PadBank bank;
+    load_dc_pad(bank, 0, 16000, 1.0f); // pad longo (nota 36)
+    bank.pad(0).choke_group = 1;
+
+    Scheduler sched;
+    VoicePool pool;
+    constexpr int block_size = 256;
+    constexpr float k_cpan = 0.70710678f;
+
+    // Bloco 1: primeiro trigger
+    {
+        juce::MidiBuffer midi;
+        midi.addEvent(juce::MidiMessage::noteOn(1, 36, 1.0f), 0);
+        std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+        sched.process(midi, pool, bank, block_size);
+        pool.process_all(l.data(), r.data(), block_size);
+    }
+
+    // Bloco 2: re-trigger — scheduler deve chocar a primeira voz antes de disparar segunda
+    {
+        juce::MidiBuffer midi;
+        midi.addEvent(juce::MidiMessage::noteOn(1, 36, 1.0f), 0);
+        std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+        sched.process(midi, pool, bank, block_size);
+        pool.process_all(l.data(), r.data(), block_size);
+
+        // Frame 50 (apos fade-out de 32 da primeira): apenas segunda voz ativa.
+        // Com duas vozes somadas (sem choke) seria ~2x; com choke deve ser ~1x.
+        const float expected = 1.0f * k_cpan; // velocidade 1.0, DC 1.0, pan central
+        REQUIRE(l[50] == Catch::Approx(expected).margin(0.05f));
+    }
+}
+
+// Auxiliar: carrega buffer de uma camada com valor DC constante
+static void load_dc_layer(SamplePad& pad, int layer_idx, int num_samples, float value, uint8_t vel_lo, uint8_t vel_hi) {
+    auto& lyr = pad.layer(layer_idx);
+    lyr.buffer.setSize(1, num_samples);
+    for (int i = 0; i < num_samples; ++i)
+        lyr.buffer.setSample(0, i, value);
+    lyr.vel_lo = vel_lo;
+    lyr.vel_hi = vel_hi;
+}
+
+// 9. AC-2: camada de velocity seleciona buffer correto quando vel corresponde
+TEST_CASE_METHOD(PadBankJuceFixture, "velocity layer selects layer buffer when velocity matches", "[padbank][layers]") {
+    PadBank bank;
+    load_dc_pad(bank, 0, 2000, 0.5f);                  // base buffer DC=0.5 (fallback)
+    load_dc_layer(bank.pad(0), 0, 2000, 1.0f, 0, 127); // camada 0 DC=1.0 vel 0-127
+    bank.pad(0).set_num_layers(1);
+
+    Scheduler sched;
+    constexpr int block_size = 256;
+    constexpr float k_cpan = 0.70710678f;
+
+    VoicePool pool;
+    juce::MidiBuffer midi;
+    midi.addEvent(juce::MidiMessage::noteOn(1, 36, 64.0f / 127.0f), 0); // velocity 64
+    std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+    sched.process(midi, pool, bank, block_size);
+    pool.process_all(l.data(), r.data(), block_size);
+
+    // Camada DC=1.0 selecionada (não base DC=0.5)
+    const float vel_gain = 64.0f / 127.0f;
+    REQUIRE(l[100] == Catch::Approx(1.0f * vel_gain * k_cpan).margin(1e-3f));
+}
+
+// 10. AC-2: sem camada correspondente → fallback para buffer_ base
+TEST_CASE_METHOD(PadBankJuceFixture, "velocity layer falls back to base when no layer matches", "[padbank][layers]") {
+    PadBank bank;
+    load_dc_pad(bank, 0, 2000, 0.5f);                 // base buffer DC=0.5
+    load_dc_layer(bank.pad(0), 0, 2000, 1.0f, 0, 63); // camada 0 DC=1.0 vel 0-63 apenas
+    bank.pad(0).set_num_layers(1);
+
+    Scheduler sched;
+    constexpr int block_size = 256;
+    constexpr float k_cpan = 0.70710678f;
+
+    VoicePool pool;
+    juce::MidiBuffer midi;
+    midi.addEvent(juce::MidiMessage::noteOn(1, 36, 80.0f / 127.0f), 0); // velocity 80 (>63 = sem match)
+    std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+    sched.process(midi, pool, bank, block_size);
+    pool.process_all(l.data(), r.data(), block_size);
+
+    // Usa base DC=0.5 (camada vel 0-63 nao cobre velocity 80)
+    const float vel_gain = 80.0f / 127.0f;
+    REQUIRE(l[100] == Catch::Approx(0.5f * vel_gain * k_cpan).margin(1e-3f));
+}
+
+// 11. AC-2: round-robin alterna entre camadas correspondentes a cada trigger
+TEST_CASE_METHOD(PadBankJuceFixture, "round robin alternates between matching layers", "[padbank][layers][rr]") {
+    PadBank bank;
+    load_dc_pad(bank, 0, 2000, 0.5f);                  // base buffer (necessário para pad_for_note)
+    load_dc_layer(bank.pad(0), 0, 2000, 1.0f, 0, 127); // camada 0 DC=1.0
+    load_dc_layer(bank.pad(0), 1, 2000, 2.0f, 0, 127); // camada 1 DC=2.0
+    bank.pad(0).set_num_layers(2);
+
+    Scheduler sched; // mesmo scheduler — rr_index persiste entre triggers
+    constexpr int block_size = 256;
+    constexpr float k_cpan = 0.70710678f;
+
+    float amp1 = 0.0f, amp2 = 0.0f;
+
+    // Trigger 1 → rr_index=0 → camada 0 (DC=1.0)
+    {
+        VoicePool pool;
+        juce::MidiBuffer midi;
+        midi.addEvent(juce::MidiMessage::noteOn(1, 36, 1.0f), 0);
+        std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+        sched.process(midi, pool, bank, block_size);
+        pool.process_all(l.data(), r.data(), block_size);
+        amp1 = l[100];
+    }
+
+    // Trigger 2 → rr_index=1 → camada 1 (DC=2.0)
+    {
+        VoicePool pool;
+        juce::MidiBuffer midi;
+        midi.addEvent(juce::MidiMessage::noteOn(1, 36, 1.0f), 0);
+        std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+        sched.process(midi, pool, bank, block_size);
+        pool.process_all(l.data(), r.data(), block_size);
+        amp2 = l[100];
+    }
+
+    REQUIRE(amp1 == Catch::Approx(1.0f * k_cpan).margin(1e-3f)); // camada 0
+    REQUIRE(amp2 == Catch::Approx(2.0f * k_cpan).margin(1e-3f)); // camada 1
+    REQUIRE(amp2 / amp1 == Catch::Approx(2.0f).margin(1e-3f));   // ratio 2:1
+}
+
+// 12. AC-2: num_layers=0 → usa buffer_ base sem modificação (retrocompatibilidade)
+TEST_CASE_METHOD(PadBankJuceFixture, "zero layers uses base buffer unchanged", "[padbank][layers]") {
+    PadBank bank;
+    load_dc_pad(bank, 0, 2000, 0.75f); // base buffer DC=0.75, sem camadas
+
+    Scheduler sched;
+    constexpr int block_size = 256;
+    constexpr float k_cpan = 0.70710678f;
+
+    VoicePool pool;
+    juce::MidiBuffer midi;
+    midi.addEvent(juce::MidiMessage::noteOn(1, 36, 1.0f), 0);
+    std::vector<float> l(block_size, 0.0f), r(block_size, 0.0f);
+    sched.process(midi, pool, bank, block_size);
+    pool.process_all(l.data(), r.data(), block_size);
+
+    REQUIRE(l[100] == Catch::Approx(0.75f * k_cpan).margin(1e-3f));
+}
+
 // 5. AC-5: protocolo de load seguro — reset_all antes da mutação do buffer
 TEST_CASE_METHOD(PadBankJuceFixture, "safe load protocol no dangling voice pointers", "[padbank][rt-safety]") {
     PadBank bank;

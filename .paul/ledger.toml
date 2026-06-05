@@ -117,3 +117,44 @@ action = "unify"
 phase = 4
 plan = "04-01"
 at = "2026-06-05T00:00:00Z"
+
+[[entry]]
+action = "plan"
+phase = 4
+plan = "04-02"
+at = "2026-06-05T12:00:00Z"
+
+[[entry]]
+action = "unify"
+phase = 4
+plan = "04-02"
+at = "2026-06-05T18:00:00Z"
+
+[[entry]]
+action = "plan"
+phase = 4
+plan = "04-03"
+at = "2026-06-05T20:00:00Z"
+
+[[entry]]
+action = "unify"
+phase = 4
+plan = "04-03"
+at = "2026-06-05T20:30:00Z"
+
+[[entry]]
+action = "plan"
+phase = 4
+plan = "04-04"
+at = "2026-06-05T21:00:00Z"
+
+[[entry]]
+action = "unify"
+phase = 4
+plan = "04-04"
+at = "2026-06-05T23:30:00Z"
+
+[[entry]]
+action = "transition"
+phase = 4
+at = "2026-06-05T23:30:00Z"

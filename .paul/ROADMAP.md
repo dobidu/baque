@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 3 of 13 complete
+Phases: 4 of 13 complete
 
 ## Phases
 
@@ -27,7 +27,7 @@ Phases: 3 of 13 complete
 | 1 | Setup (Fase 0) | 2 | ✅ Complete | 2026-06-04 |
 | 2 | Core Audio (Fase 1) | 2 | ✅ Complete | 2026-06-05 |
 | 3 | Sequencer Base (Fase 2) | 2 | ✅ Complete | 2026-06-05 |
-| 4 | Sample Engine (Fase 3) | 4 | In progress (1/4) | - |
+| 4 | Sample Engine (Fase 3) | 4 | ✅ Complete | 2026-06-05 |
 | 5 | Feel Engine ⭐ (Fase 4) | TBD | Not started | - |
 | 6 | FX + P-locks (Fase 5) | TBD | Not started | - |
 | 7 | Lo-fi + Granular (Fase 6) | TBD | Not started | - |
@@ -80,10 +80,10 @@ Phases: 3 of 13 complete
 **DoD:** Chop-to-pads; varispeed + offline stretch (fork v1); choke working
 
 **Plans (slice-around-fork strategy):**
-- [x] 04-01: Pad bank + per-pad playback — note→pad routing, varispeed, reverse, gain/pan (fork-free) ✅ 2026-06-05
-- [ ] 04-02: Choke groups + velocity layers + round-robin + ADSR/play modes (fork-free)
-- [ ] 04-03: Auto-slice (transient detection) + chop-to-pads (fork-free)
-- [ ] 04-04: R&D-TS fork v1 integration — offline time-stretch (blocked on fork repo bootstrap)
+- [x] 04-01: Pad bank + per-pad playback — note→pad routing, varispeed, reverse, gain/pan ✅ 2026-06-05
+- [x] 04-02: Choke groups + velocity layers + round-robin + ADSR/play modes ✅ 2026-06-05
+- [x] 04-03: Auto-slice (transient detection) + chop-to-pads ✅ 2026-06-05
+- [x] 04-04: R&D-TS fork v1 integration — offline time-stretch ✅ 2026-06-05
 
 ### Phase 5: Feel Engine ⭐ (Fase 4)
 **Goal:** Micro-timing, humanize, dual-grid, no-grid, feel presets — *product core*
@@ -142,4 +142,4 @@ Phases: 3 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-04*
+*Last updated: 2026-06-05 — Phase 4 complete*

@@ -50,6 +50,10 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Global swing** — MPC-style (50–75%), std::atomic<float>, applied to odd-indexed steps (off-beat 16th notes) — Phase 3
 - [x] **Pattern switching** — release/acquire atomic, seamless swap at step 15→0 bar boundary — Phase 3
 - [x] **Note-off per-note tracking** — NoteTracker resolves Phase 2 deferred item; correct note per lane, first-block fallback — Phase 3
+- [x] **Sample Engine v1** — 16 pads (PadBank), varispeed, reverse, gain/pan, choke groups, velocity layers, round-robin, ADSR/play modes, steal-oldest voice — Phase 4
+- [x] **Auto-slice + chop-to-pads** — energy HWR-delta onset detection (hop=256), offline bake-in into PadBank, stale-pad clear — Phase 4
+- [x] **Offline time-stretch** — SoundTouch fork v1 (LGPL v2.1) via FetchContent; tempo-only WSOLA; bake-in via TimeStretch::apply(); pure C++ path (SOUNDTOUCH_DISABLE_X86_OPTIMIZATIONS) — Phase 4
+- [x] **Phase 4 DoD** — varispeed + offline time-stretch + chop-to-pads; 59/59 tests; RT-safe foundation intact — Phase 4
 
 ### Active (In Progress)
 None yet.
@@ -115,6 +119,9 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | getPlayHead() always null-checked | Returns nullptr in standalone, unit tests, some hosts — crashing without guard is fatal | 2026-06-05 | Active |
 | Swing applied to odd-indexed steps (1,3,5...) | MPC convention: off-beat 16th notes delayed; even steps on grid | 2026-06-05 | Active |
 | Pattern swap: write payload before release-store | Guarantees next_pattern_ visible to audio thread before pattern_pending_ flag is seen | 2026-06-05 | Active |
+| pool.reset_all() before buffer mutation (single-writer contract) | VoicePool reads pad.data() in RT thread; any write to sample_buffer() must stop voices first to prevent UAF | 2026-06-05 | Active |
+| Input snapshot before setSize() | AudioBuffer::setSize() may reallocate, invalidating pad.data() pointer; always copy input to std::vector first | 2026-06-05 | Active |
+| SOUNDTOUCH_DISABLE_X86_OPTIMIZATIONS in fork | STTypes.h auto-enables SSE on x86_64 (__x86_64__); disabling enforces pure C++ path; Phase 7 must re-enable with sse_optimized.cpp | 2026-06-05 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -154,4 +161,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-05 after Phase 3 (Sequencer Base)*
+*Last updated: 2026-06-05 after Phase 4 (Sample Engine)*
