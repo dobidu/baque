@@ -46,17 +46,26 @@ else()
     target_compile_options(BAQUE PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+juce_add_binary_data(BaqueAssets
+    SOURCES assets/test_kick.wav
+)
+
 target_sources(BAQUE
     PRIVATE
         src/plugin_processor.cpp
         src/plugin_editor.cpp
+        src/audio/sample_voice.cpp
+        src/audio/voice_pool.cpp
 )
+
+target_link_libraries(BAQUE PRIVATE BaqueAssets)
 
 target_include_directories(BAQUE PRIVATE src)
 
 target_link_libraries(BAQUE
     PRIVATE
         juce::juce_audio_utils
+        juce::juce_audio_formats
         juce::juce_dsp
     PUBLIC
         juce::juce_recommended_config_flags

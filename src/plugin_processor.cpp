@@ -2,23 +2,69 @@
 
 #include "plugin_editor.h"
 
+#include <BinaryData.h>
+#include <juce_audio_formats/juce_audio_formats.h>
+
+// Layout de parâmetros APVTS
+juce::AudioProcessorValueTreeState::ParameterLayout BaqueProcessor::create_parameter_layout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{"master_gain", 1},
+        "Master Gain",
+        juce::NormalisableRange<float>{0.0f, 1.0f},
+        0.8f));
+    return layout;
+}
+
 BaqueProcessor::BaqueProcessor()
     : AudioProcessor(BusesProperties()
                          .withInput("Input", juce::AudioChannelSet::stereo(), true)
-                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)) {}
-
-void BaqueProcessor::prepareToPlay(double /*sample_rate*/, int /*samples_per_block*/) {
-    // Fase 0: sem inicialização de DSP necessária
+                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
+      apvts_(*this, nullptr, "BAQUE_PARAMS", create_parameter_layout())
+{
 }
 
-void BaqueProcessor::releaseResources() {
-    // Fase 0: sem recursos para liberar
+void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block)
+{
+    // Reseta todas as vozes (seguro para chamar múltiplas vezes)
+    voice_pool_.reset_all();
+
+    // Decodifica o sample de teste apenas uma vez (guarda de realocação)
+    if (!sample_loaded_) {
+        auto stream = std::make_unique<juce::MemoryInputStream>(
+            BinaryData::test_kick_wav, BinaryData::test_kick_wavSize, false);
+        juce::WavAudioFormat format;
+        std::unique_ptr<juce::AudioFormatReader> reader(
+            format.createReaderFor(stream.release(), true));
+
+        if (reader != nullptr) {
+            const int num_samples = static_cast<int>(reader->lengthInSamples);
+            sample_buffer_.setSize(1, num_samples);
+            reader->read(&sample_buffer_, 0, num_samples, 0, true, false);
+        }
+        sample_loaded_ = true;
+    }
+
+    // Pré-aloca buffers de mixagem (evita alocação no audio thread)
+    mix_left_.assign(static_cast<std::vector<float>::size_type>(samples_per_block), 0.0f);
+    mix_right_.assign(static_cast<std::vector<float>::size_type>(samples_per_block), 0.0f);
+
+    // Inicializa suavização de ganho (10ms de ramp)
+    gain_smoother_.reset(sample_rate, 0.01);
+    if (auto* param = apvts_.getRawParameterValue("master_gain"))
+        gain_smoother_.setCurrentAndTargetValue(*param);
 }
 
-bool BaqueProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const {
-    // Aceita apenas estéreo ou mono em ambos os lados
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() &&
-        layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+void BaqueProcessor::releaseResources()
+{
+    // Fase 2: sem recursos externos para liberar
+}
+
+bool BaqueProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+{
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
@@ -27,35 +73,75 @@ bool BaqueProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const {
     return true;
 }
 
-void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midi_messages*/) {
-    // Fase 0: silêncio — limpa o buffer de saída
+void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer,
+                                  juce::MidiBuffer& midi_messages)
+{
     juce::ScopedNoDenormals no_denormals;
+
+    const int num_frames = buffer.getNumSamples();
     buffer.clear();
+
+    // Atualiza alvo de ganho a partir do APVTS (thread-safe: getRawParameterValue é atômico)
+    if (auto* param = apvts_.getRawParameterValue("master_gain"))
+        gain_smoother_.setTargetValue(*param);
+
+    // Despacha eventos MIDI (block-boundary no Fase 2; sample-accurate em 02-02)
+    for (const auto meta : midi_messages) {
+        const auto msg = meta.getMessage();
+        if (msg.isNoteOn()) {
+            const float velocity_gain = msg.getFloatVelocity();
+            const float* sample_data = sample_buffer_.getReadPointer(0);
+            const int sample_count = sample_buffer_.getNumSamples();
+
+            if (sample_data != nullptr && sample_count > 0) {
+                SampleVoice* voice = voice_pool_.allocate();
+                voice->trigger(sample_data, sample_count, velocity_gain);
+            }
+        } else if (msg.isNoteOff()) {
+            // Fade-out em 02-02 com mapeamento por nota; aqui um note-off simples basta
+        }
+    }
+
+    // Processa o pool de vozes para os buffers temporários pré-alocados
+    voice_pool_.process_all(mix_left_.data(), mix_right_.data(), num_frames);
+
+    // Aplica ganho suavizado e mistura no buffer de saída
+    auto* left = buffer.getWritePointer(0);
+    auto* right = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : left;
+
+    for (int i = 0; i < num_frames; ++i) {
+        const float gain = gain_smoother_.getNextValue();
+        left[i] += mix_left_[i] * gain;
+        right[i] += mix_right_[i] * gain;
+    }
 }
 
-juce::AudioProcessorEditor* BaqueProcessor::createEditor() {
+juce::AudioProcessorEditor* BaqueProcessor::createEditor()
+{
     return new BaqueEditor(*this);
 }
 
-void BaqueProcessor::getStateInformation(juce::MemoryBlock& dest_data) {
-    // Serializa estado versionado — campo "version" permite migração futura (ESCOPO §6)
-    juce::ValueTree state("BAQUE");
+void BaqueProcessor::getStateInformation(juce::MemoryBlock& dest_data)
+{
+    // Serializa o estado do APVTS + versão do schema
+    auto state = apvts_.copyState();
     state.setProperty("version", k_state_version, nullptr);
     juce::MemoryOutputStream stream(dest_data, true);
     state.writeToStream(stream);
 }
 
-void BaqueProcessor::setStateInformation(const void* data, int size_in_bytes) {
-    // Tolera estado ausente ou de versão anterior
+void BaqueProcessor::setStateInformation(const void* data, int size_in_bytes)
+{
     auto state = juce::ValueTree::readFromData(data, static_cast<size_t>(size_in_bytes));
-    if (!state.isValid() || state.getType() != juce::Identifier("BAQUE"))
+    if (!state.isValid())
         return;
 
-    // Versão futura: migrar campos aqui se necessário
-    // int loaded_version = state.getProperty("version", 0);
+    // Versão futura: migrar campos incompatíveis aqui se necessário
+    if (state.hasType(apvts_.state.getType()))
+        apvts_.replaceState(state);
 }
 
-// Ponto de entrada exigido pelo JUCE
-juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
     return new BaqueProcessor();
 }

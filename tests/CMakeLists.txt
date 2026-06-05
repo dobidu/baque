@@ -7,12 +7,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(baque_tests test_smoke.cpp)
+add_executable(baque_tests test_smoke.cpp test_voice.cpp)
 
 target_link_libraries(baque_tests
     PRIVATE
         Catch2::Catch2WithMain
         BAQUE
+        BaqueAssets
         juce::juce_audio_processors
         juce::juce_audio_utils
 )
