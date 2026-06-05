@@ -1,11 +1,20 @@
 #pragma once
 
+#include "audio/scheduler.h"
 #include "audio/voice_pool.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
 // Processador principal do plugin BAQUE.
-// Fase 2: APVTS + pool de vozes pré-alocado + reprodução de sample por MIDI.
+// Fase 2: APVTS + pool de vozes + scheduler sample-accurate + transporte do host.
+
+// Estado de transporte do host — populado por getPlayHead() no audio thread.
+struct TransportState {
+    bool is_playing = false;
+    double bpm = 120.0;
+    double ppq_position = 0.0; // posição em quarter notes
+    double sample_rate = 44100.0;
+};
 class BaqueProcessor : public juce::AudioProcessor {
   public:
     BaqueProcessor();
@@ -61,6 +70,12 @@ class BaqueProcessor : public juce::AudioProcessor {
     // Buffers temporários estéreo para mixagem de vozes (pré-alocados em prepareToPlay)
     std::vector<float> mix_left_;
     std::vector<float> mix_right_;
+
+    // Scheduler de eventos MIDI com precisão de sample
+    Scheduler scheduler_;
+
+    // Estado de transporte do host (BPM, posição, isPlaying)
+    TransportState transport_;
 
     static constexpr int k_state_version = 2; // Incrementado do v1 (Fase 1)
 

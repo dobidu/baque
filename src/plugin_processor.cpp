@@ -74,22 +74,23 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     if (auto* param = apvts_.getRawParameterValue("master_gain"))
         gain_smoother_.setTargetValue(*param);
 
-    // Despacha eventos MIDI (block-boundary no Fase 2; sample-accurate em 02-02)
-    for (const auto meta : midi_messages) {
-        const auto msg = meta.getMessage();
-        if (msg.isNoteOn()) {
-            const float velocity_gain = msg.getFloatVelocity();
-            const float* sample_data = sample_buffer_.getReadPointer(0);
-            const int sample_count = sample_buffer_.getNumSamples();
-
-            if (sample_data != nullptr && sample_count > 0) {
-                SampleVoice* voice = voice_pool_.allocate();
-                voice->trigger(sample_data, sample_count, velocity_gain);
-            }
-        } else if (msg.isNoteOff()) {
-            // Fade-out em 02-02 com mapeamento por nota; aqui um note-off simples basta
+    // Lê estado de transporte do host (null-safe — pode ser nullptr em alguns hosts/testes)
+    if (auto* ph = getPlayHead()) {
+        if (auto pos = ph->getPosition()) {
+            transport_.is_playing = pos->getIsPlaying();
+            if (auto bpm = pos->getBpm())
+                transport_.bpm = *bpm;
+            if (auto ppq = pos->getPpqPosition())
+                transport_.ppq_position = *ppq;
         }
     }
+    // Se sem playhead: transport_ mantém valores anteriores (correto para testes unitários)
+
+    // Despacha eventos MIDI com precisão de sample via Scheduler (substitui dispatch de 02-01)
+    const float* sample_data = sample_buffer_.getReadPointer(0);
+    const int sample_count = sample_buffer_.getNumSamples();
+    if (sample_data != nullptr && sample_count > 0)
+        scheduler_.process(midi_messages, voice_pool_, sample_data, sample_count, num_frames);
 
     // Processa o pool de vozes para os buffers temporários pré-alocados
     voice_pool_.process_all(mix_left_.data(), mix_right_.data(), num_frames);

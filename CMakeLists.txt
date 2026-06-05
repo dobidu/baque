@@ -56,6 +56,7 @@ target_sources(BAQUE
         src/plugin_editor.cpp
         src/audio/sample_voice.cpp
         src/audio/voice_pool.cpp
+        src/audio/scheduler.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

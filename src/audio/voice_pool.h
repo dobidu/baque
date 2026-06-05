@@ -24,6 +24,11 @@ class VoicePool {
     // Desativa todas as vozes (chamado em prepareToPlay).
     void reset_all() noexcept;
 
+    // Dispara uma voz com offset de início preciso em samples (para dispatch em 02-02).
+    // start_offset = posição dentro do bloco atual a partir da qual a voz começa.
+    // RT-safe: delega para allocate() + trigger() sem alocação.
+    void trigger_at(int start_offset, const float* sample_data, int num_samples, float gain) noexcept;
+
   private:
     std::array<SampleVoice, k_pool_size> voices_;
 };

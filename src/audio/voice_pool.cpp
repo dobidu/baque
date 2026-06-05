@@ -34,3 +34,10 @@ void VoicePool::reset_all() noexcept {
     for (auto& v : voices_)
         v = SampleVoice{}; // Reinicia para o estado padrão (inativo)
 }
+
+void VoicePool::trigger_at(int start_offset, const float* sample_data, int num_samples, float gain) noexcept {
+    // RT-safe: allocate() nunca retorna nullptr (roubo obrigatório)
+    SampleVoice* voice = allocate();
+    voice->trigger(sample_data, num_samples, gain);
+    voice->start_offset_ = start_offset; // Sobrescreve o 0 padrão de trigger()
+}
