@@ -17,9 +17,9 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 1 of 13 (Setup) — Planning
-Plan: 01-01 loop closed; 01-02 next
-Status: Ready for next PLAN
-Last activity: 2026-06-04 — 01-01 UNIFY complete; SUMMARY created
+Plan: 01-02 APPLY complete (CI green), ready for UNIFY
+Status: APPLY complete
+Last activity: 2026-06-04 — 01-02 applied: 3-OS CI green (run 26983527116)
 
 Progress:
 - Milestone: [█░░░░░░░░░] 4%
@@ -30,7 +30,7 @@ Progress:
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop complete — ready for 01-02 APPLY]
+  ✓        ✓        ○     [01-02 applied, awaiting UNIFY]
 ```
 
 ## Accumulated Context
@@ -61,12 +61,12 @@ None yet.
 
 Last session: 2026-06-04
 Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
-Next action: /paul:apply .paul/phases/01-setup/01-02-PLAN.md
-Resume file: .paul/phases/01-setup/01-01-SUMMARY.md
+Next action: /paul:unify .paul/phases/01-setup/01-02-PLAN.md
+Resume file: .paul/phases/01-setup/01-02-PLAN.md
 Resume context:
-- 01-01 loop fully closed; skeleton builds, pluginval passes, git clean
-- 01-02: Catch2 + 3-OS CI (GitHub Actions) — contains human checkpoint (create repo, push, confirm "ci green")
-- auval (AU validation) + lipo (universal gate) required by audit; xvfb-run for Linux tests
+- 01-02 APPLY done: CI green all 3 OSes (run 26983527116); 1 fix (ASCII test names)
+- Checkpoint resolved: repo dobidu/baque on GitHub, push confirmed, CI confirmed green
+- Node.js 20 deprecation warnings in CI: non-blocking, defer action upgrade to later
 
 ---
 *STATE.md — Updated after every significant action*
