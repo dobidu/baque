@@ -17,20 +17,20 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 2 of 13 (Core Audio) — Not started
-Plan: 02-01 + 02-02 created + audited, awaiting approval
-Status: PLAN audited, ready for APPLY
-Last activity: 2026-06-04 — Enterprise audit applied to both Phase 2 plans
+Plan: 02-01 loop closed; 02-02 next
+Status: Ready for next APPLY
+Last activity: 2026-06-05 — 02-01 UNIFY complete; SUMMARY created
 
 Progress:
-- Milestone: [█░░░░░░░░░] 8%
-- Phase 2: [░░░░░░░░░░] 0%
+- Milestone: [█░░░░░░░░░] 9%
+- Phase 2: [█████░░░░░] 50%
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○     [Plans created, awaiting approval]
+  ✓        ✓        ✓     [02-01 loop closed — ready for 02-02 APPLY]
 ```
 
 ## Accumulated Context
@@ -65,12 +65,12 @@ None yet.
 
 Last session: 2026-06-04
 Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
-Next action: /paul:audit then /paul:apply .paul/phases/02-core-audio/02-01-PLAN.md
-Resume file: .paul/phases/02-core-audio/02-01-PLAN.md
+Next action: /paul:apply .paul/phases/02-core-audio/02-02-PLAN.md
+Resume file: .paul/phases/02-core-audio/02-02-PLAN.md
 Resume context:
-- 02-01: APVTS + pre-allocated voice pool (64 voices) + BinaryData test sample + MIDI trigger + RT-safety test
-- 02-02: sample-accurate scheduler + host transport + Phase 2 DoD verification tests
-- Key constraint: zero allocs on audio thread — verified by operator new override in debug test
+- 02-01 done: VoicePool, APVTS, WAV decode, RT-safety confirmed (7/7 tests)
+- start_offset_ already in SampleVoice (trigger()=0); 02-02 adds trigger_at(N) only
+- 02-02: sample-accurate scheduler (MidiBuffer offset), host transport, Phase 2 DoD tests
 
 ---
 *STATE.md — Updated after every significant action*

@@ -21,14 +21,12 @@ status = "not_started"
 plans_completed = 0
 
 [loop]
-position = "PLAN"
-plan = "02-01"
-plan_path = "phases/02-core-audio/02-01-PLAN.md"
+position = "IDLE"
 
 [satellite]
 groom = true
 
 [stats]
-total_plans = 2
+total_plans = 3
 total_phases = 13
 last_activity = "2026-06-04T00:00:00Z"
