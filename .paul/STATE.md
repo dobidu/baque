@@ -17,9 +17,9 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 2 of 13 (Core Audio) — Not started
-Plan: 02-01 + 02-02 created, awaiting audit/approval
-Status: PLAN created, ready for AUDIT/APPLY
-Last activity: 2026-06-04 — Created .paul/phases/02-core-audio/02-01-PLAN.md + 02-02-PLAN.md
+Plan: 02-01 + 02-02 created + audited, awaiting approval
+Status: PLAN audited, ready for APPLY
+Last activity: 2026-06-04 — Enterprise audit applied to both Phase 2 plans
 
 Progress:
 - Milestone: [█░░░░░░░░░] 8%
@@ -47,6 +47,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-06-04: Enterprise audit on 01-01 (3 must-have + 3 strong applied, 2 deferred) and 01-02 (5 strong applied, 2 deferred). Verdict both: conditionally acceptable → upgraded | Phase 1 | Plugin identity locked (br.ufpb.lavid.baque, 'Lvd0'/'Bqe1'); JUCE tag pinned; AU + lipo gates in CI |
 | Catch2 test names must be ASCII-only | Phase 1 | Windows ctest PRE_TEST filter mangles UTF-8; affects all future tests |
 | Node.js 20 action deprecation deferred | Phase 1 | actions/checkout@v5 + cache@v5 upgrade; deadline June 16, 2026 |
+| 2026-06-04: Enterprise audit on 02-01 (4 must-have + 2 strong applied, 1 deferred) and 02-02 (2 must-have + 3 strong applied, 2 deferred). Verdict both: conditionally acceptable → upgraded | Phase 2 | WAV header parsing via JUCE decoder; start_offset_ in 02-01 not 02-02; getPlayHead null-guard; steal never null |
 
 ### Deferred Issues
 
