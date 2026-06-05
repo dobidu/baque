@@ -16,21 +16,21 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 3 of 13 (Sequencer Base) — Not started
-Plan: Phase 2 complete — transitioning to Phase 3
-Status: Ready to plan Phase 3
-Last activity: 2026-06-05 — Phase 2 (Core Audio) complete, all 2 plans unified
+Phase: 3 of 13 (Sequencer Base) — Planning
+Plan: 03-01 + 03-02 created, awaiting audit/approval
+Status: PLAN created, ready for AUDIT/APPLY
+Last activity: 2026-06-05 — Created 03-01 (StepPattern+StepClock) + 03-02 (swing+switch+notetracker)
 
 Progress:
 - Milestone: [██░░░░░░░░] 15%
-- Phase 2: [██████████] 100% ✅
+- Phase 3: [░░░░░░░░░░] 0%
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Phase 2 complete — ready to plan Phase 3]
+  ✓        ○        ○     [Plans created, awaiting approval]
 ```
 
 ## Accumulated Context
@@ -67,12 +67,12 @@ None yet.
 
 Last session: 2026-06-04
 Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
-Next action: /paul:plan (Phase 3 — Sequencer Base: step grid, patterns, swing)
-Resume file: .paul/ROADMAP.md
+Next action: /paul:audit then /paul:apply .paul/phases/03-sequencer-base/03-01-PLAN.md
+Resume file: .paul/phases/03-sequencer-base/03-01-PLAN.md
 Resume context:
-- Phase 2 complete: RT-safe voice pool + sample-accurate scheduler + 11/11 tests green
-- Phase 3 DoD: pattern loops; global swing; pattern switch without glitch
-- Phase 3 must add: note-off per-note tracking, MIDI channel routing (deferred from Phase 2)
+- 03-01: StepPattern (16×16 grid), StepClock (ppq→step+sample), Sequencer::generate(), pre-populated default pattern
+- 03-02: swing (std::atomic<float> in StepClock), NoteTracker (per-lane note history), pattern pending+swap at bar
+- Both plans depend on Phase 2 Scheduler — Sequencer generates MidiBuffer, Scheduler dispatches it
 
 ---
 *STATE.md — Updated after every significant action*

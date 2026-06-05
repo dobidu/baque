@@ -70,3 +70,15 @@ at = "2026-06-05T04:00:00Z"
 action = "transition"
 phase = 2
 at = "2026-06-05T04:00:00Z"
+
+[[entry]]
+action = "plan"
+phase = 3
+plan = "03-01"
+at = "2026-06-05T04:30:00Z"
+
+[[entry]]
+action = "plan"
+phase = 3
+plan = "03-02"
+at = "2026-06-05T04:30:00Z"

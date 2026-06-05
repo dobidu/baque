@@ -21,7 +21,9 @@ status = "not_started"
 plans_completed = 0
 
 [loop]
-position = "IDLE"
+position = "PLAN"
+plan = "03-01"
+plan_path = "phases/03-sequencer-base/03-01-PLAN.md"
 
 [satellite]
 groom = true
