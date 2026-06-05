@@ -15,8 +15,8 @@ status = "not_started"
 phases = 13
 
 [phase]
-number = 2
-name = "Core Audio"
+number = 3
+name = "Sequencer Base"
 status = "not_started"
 plans_completed = 0
 
@@ -27,6 +27,6 @@ position = "IDLE"
 groom = true
 
 [stats]
-total_plans = 3
+total_plans = 4
 total_phases = 13
 last_activity = "2026-06-04T00:00:00Z"

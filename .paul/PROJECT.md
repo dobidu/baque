@@ -43,6 +43,9 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Build infrastructure** — JUCE 8.0.13 CMake skeleton; VST3 + Standalone on Linux; AU on macOS — Phase 1
 - [x] **3-OS CI gate** — GitHub Actions: build + ctest + pluginval strictness 5 + clang-format on ubuntu/macos/windows — Phase 1
 - [x] **Plugin validation** — pluginval strictness 5 passes locally and in CI (all audio processing, state, bus, editor suites) — Phase 1
+- [x] **Core audio engine** — pre-allocated 64-voice pool, APVTS master_gain (SmoothedValue), WAV decode, MIDI note-on trigger, zero-alloc processBlock verified — Phase 2
+- [x] **Sample-accurate MIDI scheduling** — Scheduler dispatches at MidiBuffer.samplePosition; VoicePool::trigger_at; host transport (BPM/ppq/isPlaying) with null-guard — Phase 2
+- [x] **Phase 2 DoD** — pad fires without clicks (32-sample fade-in/out), sample-accurate, RT-safe (11/11 tests) — Phase 2
 
 ### Active (In Progress)
 None yet.
@@ -103,6 +106,9 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | Plugin identity locked | Bundle br.ufpb.lavid.baque, Manufacturer 'Lvd0', Plugin 'Bqe1', JUCE 8.0.13 — permanent once DAW sessions save state | 2026-06-04 | Active |
 | Catch2 test names must be ASCII-only | Windows ctest PRE_TEST filter mangles UTF-8 chars; affects all tests for this project | 2026-06-04 | Active |
 | DISCOVERY_MODE PRE_TEST for Catch2 | Avoids post-build binary race on WSL2 and CI; standard pattern going forward | 2026-06-04 | Active |
+| Scheduler is stateless; process() is pure | No state needed; easy to unit-test; Phase 3 sequencer generates its own MidiBuffer | 2026-06-05 | Active |
+| Note-off per-note tracking deferred to Phase 3 | Needs sequencer note-map; Phase 2 note-off is no-op in Scheduler | 2026-06-05 | Active |
+| getPlayHead() always null-checked | Returns nullptr in standalone, unit tests, some hosts — crashing without guard is fatal | 2026-06-05 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -142,4 +148,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-04 after Phase 1 (Setup)*
+*Last updated: 2026-06-05 after Phase 2 (Core Audio)*

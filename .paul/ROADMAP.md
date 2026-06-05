@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 1 of 13 complete
+Phases: 2 of 13 complete
 
 ## Phases
 
@@ -25,7 +25,7 @@ Phases: 1 of 13 complete
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
 | 1 | Setup (Fase 0) | 2 | ✅ Complete | 2026-06-04 |
-| 2 | Core Audio (Fase 1) | 2 | Planning | - |
+| 2 | Core Audio (Fase 1) | 2 | ✅ Complete | 2026-06-05 |
 | 3 | Sequencer Base (Fase 2) | TBD | Not started | - |
 | 4 | Sample Engine (Fase 3) | TBD | Not started | - |
 | 5 | Feel Engine ⭐ (Fase 4) | TBD | Not started | - |
@@ -56,7 +56,11 @@ Phases: 1 of 13 complete
 **Goal:** Sample voice, 1 pad, transport
 **Depends on:** Phase 1
 **Research:** Unlikely
-**DoD:** Pad fires sample without clicks; sample-accurate; RT-safe
+**DoD:** Pad fires sample without clicks; sample-accurate; RT-safe ✅ 2026-06-05
+
+**Plans:**
+- [x] 02-01: APVTS + 64-voice pre-allocated VoicePool + WAV decode + MIDI trigger + RT-safety test
+- [x] 02-02: Sample-accurate Scheduler (samplePosition dispatch) + host transport + Phase 2 DoD verification
 
 ### Phase 3: Sequencer Base (Fase 2)
 **Goal:** Step grid, patterns, swing

@@ -11,26 +11,26 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 1 (Setup) complete — CI green, skeleton built; starting Phase 2 (Core Audio)
+**Current focus:** Phase 2 (Core Audio) complete — RT-safe voice pool, sample-accurate scheduler; starting Phase 3 (Sequencer Base)
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 2 of 13 (Core Audio) — Not started
-Plan: 02-01 loop closed; 02-02 next
-Status: Ready for next APPLY
-Last activity: 2026-06-05 — 02-01 UNIFY complete; SUMMARY created
+Phase: 3 of 13 (Sequencer Base) — Not started
+Plan: Phase 2 complete — transitioning to Phase 3
+Status: Ready to plan Phase 3
+Last activity: 2026-06-05 — Phase 2 (Core Audio) complete, all 2 plans unified
 
 Progress:
-- Milestone: [█░░░░░░░░░] 9%
-- Phase 2: [█████░░░░░] 50%
+- Milestone: [██░░░░░░░░] 15%
+- Phase 2: [██████████] 100% ✅
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [02-01 loop closed — ready for 02-02 APPLY]
+  ✓        ✓        ✓     [Phase 2 complete — ready to plan Phase 3]
 ```
 
 ## Accumulated Context
@@ -48,6 +48,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Catch2 test names must be ASCII-only | Phase 1 | Windows ctest PRE_TEST filter mangles UTF-8; affects all future tests |
 | Node.js 20 action deprecation deferred | Phase 1 | actions/checkout@v5 + cache@v5 upgrade; deadline June 16, 2026 |
 | 2026-06-04: Enterprise audit on 02-01 (4 must-have + 2 strong applied, 1 deferred) and 02-02 (2 must-have + 3 strong applied, 2 deferred). Verdict both: conditionally acceptable → upgraded | Phase 2 | WAV header parsing via JUCE decoder; start_offset_ in 02-01 not 02-02; getPlayHead null-guard; steal never null |
+| Note-off per-note tracking deferred to Phase 3 | Phase 2 Scheduler note-off is no-op; Phase 3 needs note→voice map for correct stuck-note prevention | Phase 2 | Phase 3 must add MIDI note tracking |
+| MIDI channel ignored in Phase 2 | All channels trigger; Phase 3 needs channel routing for INT/EXT hybrid mode | Phase 2 | Phase 3 scope item |
 
 ### Deferred Issues
 
@@ -65,12 +67,12 @@ None yet.
 
 Last session: 2026-06-04
 Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
-Next action: /paul:apply .paul/phases/02-core-audio/02-02-PLAN.md
-Resume file: .paul/phases/02-core-audio/02-02-PLAN.md
+Next action: /paul:plan (Phase 3 — Sequencer Base: step grid, patterns, swing)
+Resume file: .paul/ROADMAP.md
 Resume context:
-- 02-01 done: VoicePool, APVTS, WAV decode, RT-safety confirmed (7/7 tests)
-- start_offset_ already in SampleVoice (trigger()=0); 02-02 adds trigger_at(N) only
-- 02-02: sample-accurate scheduler (MidiBuffer offset), host transport, Phase 2 DoD tests
+- Phase 2 complete: RT-safe voice pool + sample-accurate scheduler + 11/11 tests green
+- Phase 3 DoD: pattern loops; global swing; pattern switch without glitch
+- Phase 3 must add: note-off per-note tracking, MIDI channel routing (deferred from Phase 2)
 
 ---
 *STATE.md — Updated after every significant action*
