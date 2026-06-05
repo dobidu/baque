@@ -27,6 +27,8 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
     voice_pool_.reset_all();
     voice_pool_.prepare(sample_rate);
     scheduler_.prepare(sample_rate);
+    feel_engine_.prepare();
+    block_start_sample_ = 0;
 
     // Decodifica o sample de teste no pad 0 apenas uma vez (guarda de realocação).
     // Preserva o comportamento da Fase 2: nota 36 dispara o sample carregado.
@@ -95,7 +97,9 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
 
     // Gera eventos MIDI do sequenciador no buffer pré-alocado (limpa antes de preencher)
     midi_buffer_seq_.clear();
-    sequencer_.generate(transport_, midi_buffer_seq_, num_frames, getSampleRate());
+    sequencer_.generate(transport_, midi_buffer_seq_, num_frames, getSampleRate(),
+                        &feel_pattern_, &feel_engine_, block_start_sample_);
+    block_start_sample_ += static_cast<int64_t>(num_frames);
 
     // Despacha sequenciador e MIDI externo — duas chamadas separadas (sem merge = sem alloc)
     // Roteamento nota → pad dentro do Scheduler (pad vazio = ignora em silêncio)

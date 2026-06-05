@@ -16,14 +16,15 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 5 of 13 (Feel Engine ⭐) — Not started
-Plan: Not started
-Status: Ready to plan Phase 5
-Last activity: 2026-06-05 — Phase 4 complete, transitioned to Phase 5
+Phase: 5 of 13 (Feel Engine ⭐) — In progress
+Plan: 05-01 (FeelPattern + FeelEngine + Sequencer integration)
+Status: PLAN complete + audited — ready for APPLY
+Last activity: 2026-06-05 — Phase 5 plan 05-01 written + audited (4 must-have + 2 strong applied)
 
 Progress:
 - Milestone: [█████░░░░░] 38%
 - Phase 4: [██████████] 100% ✅
+- Phase 5: [░░░░░░░░░░] 0% (plan 1 of ~3 written)
 
 Phase 4 complete (slice-around-fork strategy):
 - 04-01: Pad bank + per-pad playback (varispeed, reverse, gain/pan) ✅ 2026-06-05
@@ -31,12 +32,17 @@ Phase 4 complete (slice-around-fork strategy):
 - 04-03: Auto-slice (transient detection) + chop-to-pads ✅ 2026-06-05
 - 04-04: R&D-TS fork v1 integration — offline time-stretch ✅ 2026-06-05
 
+Phase 5 (Feel Engine ⭐):
+- 05-01: FeelPattern + FeelEngine + per-step timing offset 🔄 PLAN written
+- 05-02: Gaussian humanize + PRNG seeding (planned next)
+- 05-03: Feel presets + Phase 5 DoD (planned next)
+
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Phase 4 loop closed — ready for Phase 5 PLAN]
+  ✓                       [05-01 PLAN complete — ready for APPLY]
 ```
 
 ## Accumulated Context
@@ -65,6 +71,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-06-05: Enterprise audit on 04-02 (3 must-have + 4 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 4 | runtime_.fill({}) in prepare() (stale pointer prevention); dec_frames_ field required; sustain=0 voice-leak guard in note_off(); stolen-voice note_off guard (pad_index check); no goto in process(); frames_rendered_ not reset on loop wrap; self-retrigger choke test |
 | 2026-06-05: Enterprise audit on 04-03 (2 must-have + 3 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 4 | chop_to_pads null guard (UB prevention); stale pad clear on re-chop (silent-wrong-audio fix); jassert sorted onsets; min_slice_ms test; stale-pad regression test |
 | 2026-06-05: Enterprise audit on 04-04 (2 must-have + 3 strong applied, 2 deferred). Verdict: conditionally acceptable → upgraded | Phase 4 | TimeStretchJuceFixture local struct (cross-file compile fix); (void) trigger_at nodiscard fix; jassert empty output; min_input < 256 guard; T3 buffer 4096→8192 |
+| 2026-06-05: Enterprise audit on 05-01 (4 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 5 | set_pattern() immediate setter (tests broken without it); flush_deferred stale-note discard (queue leak fix); ppq regression guard in Sequencer (ghost notes on loop); defer() RT-alloc jassert; FE7 position verification; FE3 deferred content verification |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -83,8 +90,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-05 (session 7)
-Stopped at: Phase 4 complete — transitioned to Phase 5
-Next action: /paul:plan for Phase 5 (Feel Engine)
+Stopped at: Phase 5 plan 05-01 written (FeelPattern + FeelEngine + Sequencer integration)
+Next action: /paul:audit for 05-01, then /paul:apply
 Resume file: .paul/ROADMAP.md
 Git strategy: main
 Resume context:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/feel_engine.h"
+#include "audio/feel_pattern.h"
 #include "audio/pad_bank.h"
 #include "audio/scheduler.h"
 #include "audio/sequencer.h"
@@ -68,6 +70,11 @@ class BaqueProcessor : public juce::AudioProcessor {
     juce::MidiBuffer midi_buffer_seq_;
 
     TransportState transport_;
+
+    // Feel Engine — micro-timing por step (Fase 5)
+    FeelEngine feel_engine_;
+    FeelPattern feel_pattern_;       // initially disabled (enabled = false)
+    int64_t block_start_sample_ = 0; // acumulado por processBlock; reset em prepareToPlay
 
     static constexpr int k_state_version = 2;
 
