@@ -17,20 +17,20 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 2 of 13 (Core Audio) — Not started
-Plan: Phase 1 complete — transitioning to Phase 2
-Status: Ready to plan Phase 2
-Last activity: 2026-06-04 — Phase 1 (Setup) complete, all 2 plans unified
+Plan: 02-01 + 02-02 created, awaiting audit/approval
+Status: PLAN created, ready for AUDIT/APPLY
+Last activity: 2026-06-04 — Created .paul/phases/02-core-audio/02-01-PLAN.md + 02-02-PLAN.md
 
 Progress:
 - Milestone: [█░░░░░░░░░] 8%
-- Phase 1: [██████████] 100% ✅
+- Phase 2: [░░░░░░░░░░] 0%
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Phase 1 complete — ready to plan Phase 2]
+  ✓        ○        ○     [Plans created, awaiting approval]
 ```
 
 ## Accumulated Context
@@ -64,12 +64,12 @@ None yet.
 
 Last session: 2026-06-04
 Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
-Next action: /paul:plan (Phase 2 — Core Audio: sample voice, 1 pad, transport)
-Resume file: .paul/ROADMAP.md
+Next action: /paul:audit then /paul:apply .paul/phases/02-core-audio/02-01-PLAN.md
+Resume file: .paul/phases/02-core-audio/02-01-PLAN.md
 Resume context:
-- Phase 1 complete: JUCE 8.0.13 skeleton + 3-OS CI green; repo at github.com/dobidu/baque
-- Phase 2 goal: first real audio (single pad fires sample, sample-accurate, RT-safe)
-- Node.js 20 CI action upgrade due before June 16, 2026
+- 02-01: APVTS + pre-allocated voice pool (64 voices) + BinaryData test sample + MIDI trigger + RT-safety test
+- 02-02: sample-accurate scheduler + host transport + Phase 2 DoD verification tests
+- Key constraint: zero allocs on audio thread — verified by operator new override in debug test
 
 ---
 *STATE.md — Updated after every significant action*

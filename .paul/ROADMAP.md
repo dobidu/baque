@@ -25,7 +25,7 @@ Phases: 1 of 13 complete
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
 | 1 | Setup (Fase 0) | 2 | ✅ Complete | 2026-06-04 |
-| 2 | Core Audio (Fase 1) | TBD | Not started | - |
+| 2 | Core Audio (Fase 1) | 2 | Planning | - |
 | 3 | Sequencer Base (Fase 2) | TBD | Not started | - |
 | 4 | Sample Engine (Fase 3) | TBD | Not started | - |
 | 5 | Feel Engine ⭐ (Fase 4) | TBD | Not started | - |
