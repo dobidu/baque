@@ -57,6 +57,9 @@ target_sources(BAQUE
         src/audio/sample_voice.cpp
         src/audio/voice_pool.cpp
         src/audio/scheduler.cpp
+        src/audio/step_pattern.cpp
+        src/audio/step_clock.cpp
+        src/audio/sequencer.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

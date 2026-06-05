@@ -39,9 +39,10 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
         sample_loaded_ = true;
     }
 
-    // Pré-aloca buffers de mixagem (evita alocação no audio thread)
+    // Pré-aloca buffers de mixagem e buffer MIDI do sequenciador
     mix_left_.assign(static_cast<std::vector<float>::size_type>(samples_per_block), 0.0f);
     mix_right_.assign(static_cast<std::vector<float>::size_type>(samples_per_block), 0.0f);
+    midi_buffer_seq_.ensureSize(512); // 32 eventos × ~12 bytes + margem
 
     // Inicializa suavização de ganho (10ms de ramp)
     gain_smoother_.reset(sample_rate, 0.01);
@@ -86,11 +87,17 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     }
     // Se sem playhead: transport_ mantém valores anteriores (correto para testes unitários)
 
-    // Despacha eventos MIDI com precisão de sample via Scheduler (substitui dispatch de 02-01)
+    // Gera eventos MIDI do sequenciador no buffer pré-alocado (limpa antes de preencher)
+    midi_buffer_seq_.clear();
+    sequencer_.generate(transport_, midi_buffer_seq_, num_frames, getSampleRate());
+
+    // Despacha sequenciador e MIDI externo — duas chamadas separadas (sem merge = sem alloc)
     const float* sample_data = sample_buffer_.getReadPointer(0);
     const int sample_count = sample_buffer_.getNumSamples();
-    if (sample_data != nullptr && sample_count > 0)
+    if (sample_data != nullptr && sample_count > 0) {
+        scheduler_.process(midi_buffer_seq_, voice_pool_, sample_data, sample_count, num_frames);
         scheduler_.process(midi_messages, voice_pool_, sample_data, sample_count, num_frames);
+    }
 
     // Processa o pool de vozes para os buffers temporários pré-alocados
     voice_pool_.process_all(mix_left_.data(), mix_right_.data(), num_frames);

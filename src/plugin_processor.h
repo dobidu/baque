@@ -1,20 +1,14 @@
 #pragma once
 
 #include "audio/scheduler.h"
+#include "audio/sequencer.h"
+#include "audio/transport_state.h"
 #include "audio/voice_pool.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
 // Processador principal do plugin BAQUE.
-// Fase 2: APVTS + pool de vozes + scheduler sample-accurate + transporte do host.
-
-// Estado de transporte do host — populado por getPlayHead() no audio thread.
-struct TransportState {
-    bool is_playing = false;
-    double bpm = 120.0;
-    double ppq_position = 0.0; // posição em quarter notes
-    double sample_rate = 44100.0;
-};
+// Fase 3: APVTS + VoicePool + Scheduler + Sequencer (step grid 16×16) + TransportState.
 class BaqueProcessor : public juce::AudioProcessor {
   public:
     BaqueProcessor();
@@ -39,7 +33,7 @@ class BaqueProcessor : public juce::AudioProcessor {
     [[nodiscard]] bool isMidiEffect() const override { return false; }
     [[nodiscard]] double getTailLengthSeconds() const override { return 0.0; }
 
-    // --- Programas (não usados na Fase 2) ---
+    // --- Programas (não usados na Fase 3) ---
     [[nodiscard]] int getNumPrograms() override { return 1; }
     [[nodiscard]] int getCurrentProgram() override { return 0; }
     void setCurrentProgram(int) override {}
@@ -54,30 +48,24 @@ class BaqueProcessor : public juce::AudioProcessor {
     juce::AudioProcessorValueTreeState apvts_;
 
   private:
-    // Cria o layout de parâmetros do APVTS
     static juce::AudioProcessorValueTreeState::ParameterLayout create_parameter_layout();
 
-    // Pool de vozes pré-alocado — sem new/delete no audio thread
     VoicePool voice_pool_;
-
-    // Buffer de sample decodificado (float, mono)
     juce::AudioBuffer<float> sample_buffer_;
-    bool sample_loaded_ = false; // Guarda de decode único (evita realocação em prepareToPlay)
-
-    // Suavização de ganho — elimina ruído de zíper na automação
+    bool sample_loaded_ = false;
     juce::SmoothedValue<float> gain_smoother_;
-
-    // Buffers temporários estéreo para mixagem de vozes (pré-alocados em prepareToPlay)
     std::vector<float> mix_left_;
     std::vector<float> mix_right_;
 
-    // Scheduler de eventos MIDI com precisão de sample
     Scheduler scheduler_;
+    Sequencer sequencer_;
 
-    // Estado de transporte do host (BPM, posição, isPlaying)
+    // Buffer de eventos MIDI do sequenciador (pré-alocado em prepareToPlay)
+    juce::MidiBuffer midi_buffer_seq_;
+
     TransportState transport_;
 
-    static constexpr int k_state_version = 2; // Incrementado do v1 (Fase 1)
+    static constexpr int k_state_version = 2;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BaqueProcessor)
 };
