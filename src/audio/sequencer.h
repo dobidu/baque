@@ -1,13 +1,16 @@
 #pragma once
 
+#include "note_tracker.h"
 #include "step_clock.h"
 #include "step_pattern.h"
 #include "transport_state.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+#include <atomic>
+
 // Sequenciador de steps: converte padrão + posição ppq → eventos MidiBuffer.
-// Integrado ao processBlock; eventos são despachados pelo Scheduler existente.
+// Fase 3 (03-02): swing global + troca de padrão sem glitch + NoteTracker para note-off correto.
 class Sequencer {
   public:
     Sequencer() = default;
@@ -17,14 +20,24 @@ class Sequencer {
     void
     generate(const TransportState& transport, juce::MidiBuffer& midi_out, int block_size, double sample_rate) noexcept;
 
-    // Acesso ao padrão (para binding de UI nas fases futuras).
+    // Agenda troca de padrão na próxima transição 15→0 (bar boundary).
+    // Thread-safe: message thread escreve next_pattern_ ANTES do store com release.
+    void set_next_pattern(const StepPattern& p) noexcept;
+
+    // Controla o swing global via StepClock (delegação).
+    void set_swing(float amount) noexcept { clock_.set_swing(amount); }
+
+    // Acesso ao padrão ativo.
     [[nodiscard]] StepPattern& pattern() noexcept { return pattern_; }
     [[nodiscard]] const StepPattern& pattern() const noexcept { return pattern_; }
 
   private:
     StepPattern pattern_;
+    StepPattern next_pattern_;
+    std::atomic<bool> pattern_pending_{false}; // release/acquire entre message e audio thread
     StepClock clock_;
+    NoteTracker note_tracker_;
 
-    // Último step disparado — guarda contra duplo-disparo ao cruzar fronteiras de bloco.
+    // Último step disparado — duplo-disparo guard + detecção de transição 15→0.
     int last_step_fired_ = -1;
 };

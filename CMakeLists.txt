@@ -60,6 +60,7 @@ target_sources(BAQUE
         src/audio/step_pattern.cpp
         src/audio/step_clock.cpp
         src/audio/sequencer.cpp
+        src/audio/note_tracker.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

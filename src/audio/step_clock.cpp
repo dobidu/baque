@@ -1,5 +1,6 @@
 #include "step_clock.h"
 
+#include <algorithm>
 #include <cmath>
 
 int StepClock::current_step(double ppq_position) const noexcept {
@@ -12,6 +13,12 @@ int StepClock::current_step(double ppq_position) const noexcept {
     return step < 16 ? step : 15; // Guarda de segurança para fmod = exatamente 4.0
 }
 
+void StepClock::set_swing(float amount) noexcept {
+    // Clamp: [0.5, 0.75] — 0.5 = sem swing, 0.75 = máximo MPC
+    const float clamped = std::clamp(amount, 0.5f, 0.75f);
+    swing_amount_.store(clamped, std::memory_order_relaxed);
+}
+
 int StepClock::sample_offset_of_step_start(double ppq_at_block_start,
                                            double bpm,
                                            double sample_rate,
@@ -19,19 +26,25 @@ int StepClock::sample_offset_of_step_start(double ppq_at_block_start,
     // PPQ do início do ciclo de padrão atual
     const double cycle_start_ppq = std::floor(ppq_at_block_start / k_ppq_per_pattern) * k_ppq_per_pattern;
 
-    // PPQ onde step_target começa neste ciclo
+    // PPQ onde step_target começa neste ciclo (grid reto)
     double step_ppq = cycle_start_ppq + step_target * k_ppq_per_step;
 
-    // Se o step já passou (ou seja, ppq_at_block_start > step_ppq), próximo ciclo
+    // Se o step já passou neste ciclo → próximo ciclo
     if (step_ppq < ppq_at_block_start - 1e-9)
         step_ppq += k_ppq_per_pattern;
 
-    // Offset em segundos e amostras
+    // Offset de grid em segundos e amostras
     const double delta_ppq = step_ppq - ppq_at_block_start;
     const double delta_seconds = delta_ppq * (60.0 / bpm);
-    const int delta_samples = static_cast<int>(delta_seconds * sample_rate);
+    int grid_samples = static_cast<int>(delta_seconds * sample_rate);
 
-    // Retorna block_size como sentinela se o step estiver fora do bloco atual
-    // (o chamador passa block_size via contexto; usamos INT_MAX como fallback)
-    return delta_samples;
+    // Swing: steps de índice ímpar (1, 3, 5... = subdivisões "off-beat") são atrasados
+    if (step_target % 2 == 1) {
+        const float swing = swing_amount_.load(std::memory_order_relaxed);
+        const double step_duration_samples = (60.0 * sample_rate) / (bpm * 4.0);
+        const int swing_offset = static_cast<int>((swing - 0.5f) * 2.0f * step_duration_samples);
+        grid_samples += swing_offset;
+    }
+
+    return grid_samples;
 }

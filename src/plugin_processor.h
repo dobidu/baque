@@ -47,6 +47,9 @@ class BaqueProcessor : public juce::AudioProcessor {
     // APVTS — parâmetros automatizáveis expostos ao host
     juce::AudioProcessorValueTreeState apvts_;
 
+    // API de padrão para binding de UI futuro (03-02)
+    void set_next_pattern(const StepPattern& p) noexcept { sequencer_.set_next_pattern(p); }
+
   private:
     static juce::AudioProcessorValueTreeState::ParameterLayout create_parameter_layout();
 
