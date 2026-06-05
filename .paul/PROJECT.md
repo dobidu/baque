@@ -39,7 +39,10 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 10. **Browser** — samples + presets, tags, aesthetic filters, auto-audition
 
 ### Validated (Shipped)
-None yet.
+
+- [x] **Build infrastructure** — JUCE 8.0.13 CMake skeleton; VST3 + Standalone on Linux; AU on macOS — Phase 1
+- [x] **3-OS CI gate** — GitHub Actions: build + ctest + pluginval strictness 5 + clang-format on ubuntu/macos/windows — Phase 1
+- [x] **Plugin validation** — pluginval strictness 5 passes locally and in CI (all audio processing, state, bus, editor suites) — Phase 1
 
 ### Active (In Progress)
 None yet.
@@ -98,6 +101,8 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | Feel Engine is the product core | Differentiator vs "another sampler"; everything orbits it | 2026-06-04 | Active |
 | Linux is full v1 target | VST3 + Standalone released; CI matrix 3 OSes from Phase 1 (resolves ESCOPO §14.9) | 2026-06-04 | Active |
 | Plugin identity locked | Bundle br.ufpb.lavid.baque, Manufacturer 'Lvd0', Plugin 'Bqe1', JUCE 8.0.13 — permanent once DAW sessions save state | 2026-06-04 | Active |
+| Catch2 test names must be ASCII-only | Windows ctest PRE_TEST filter mangles UTF-8 chars; affects all tests for this project | 2026-06-04 | Active |
+| DISCOVERY_MODE PRE_TEST for Catch2 | Avoids post-build binary race on WSL2 and CI; standard pattern going forward | 2026-06-04 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -105,7 +110,7 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 | Metric | Target | Current | Status |
 |--------|--------|---------|--------|
-| pluginval strict | Green on macOS + Windows + Linux | - | Not started |
+| pluginval strict | Green on macOS + Windows + Linux | Strictness 5 ✓ CI | In progress (strictness 5 in CI; strict = full suite, Phase 12) |
 | Polyphony | ≥64 voices, no dropout | - | Not started |
 | Audio thread allocations | Zero (instrumented asserts) | - | Not started |
 | Feel reproducibility | "Dilla Drunk" / "Burial Broken" perceptible + seed-reproducible | - | Not started |
@@ -137,4 +142,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-04*
+*Last updated: 2026-06-04 after Phase 1 (Setup)*

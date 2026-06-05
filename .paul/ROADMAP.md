@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 0 of 13 complete
+Phases: 1 of 13 complete
 
 ## Phases
 
@@ -24,7 +24,7 @@ Phases: 0 of 13 complete
 
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
-| 1 | Setup (Fase 0) | 2 | Planning | - |
+| 1 | Setup (Fase 0) | 2 | ✅ Complete | 2026-06-04 |
 | 2 | Core Audio (Fase 1) | TBD | Not started | - |
 | 3 | Sequencer Base (Fase 2) | TBD | Not started | - |
 | 4 | Sample Engine (Fase 3) | TBD | Not started | - |
@@ -49,8 +49,8 @@ Phases: 0 of 13 complete
 **DoD:** VST3/AU/Standalone open in host; basic pluginval green; CI running
 
 **Plans:**
-- [ ] 01-01: CMake + JUCE 8 skeleton — VST3/AU/Standalone build, pluginval basic, repo hygiene
-- [ ] 01-02: Catch2 + 3-OS CI (macOS universal / Windows / Linux) + pluginval + lint
+- [x] 01-01: CMake + JUCE 8.0.13 skeleton — VST3/AU/Standalone build, pluginval strictness 5, repo hygiene
+- [x] 01-02: Catch2 v3.15.0 + 3-OS CI (macOS universal / Windows / Linux) + pluginval + lint
 
 ### Phase 2: Core Audio (Fase 1)
 **Goal:** Sample voice, 1 pad, transport
