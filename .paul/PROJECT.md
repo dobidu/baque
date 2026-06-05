@@ -46,6 +46,10 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Core audio engine** — pre-allocated 64-voice pool, APVTS master_gain (SmoothedValue), WAV decode, MIDI note-on trigger, zero-alloc processBlock verified — Phase 2
 - [x] **Sample-accurate MIDI scheduling** — Scheduler dispatches at MidiBuffer.samplePosition; VoicePool::trigger_at; host transport (BPM/ppq/isPlaying) with null-guard — Phase 2
 - [x] **Phase 2 DoD** — pad fires without clicks (32-sample fade-in/out), sample-accurate, RT-safe (11/11 tests) — Phase 2
+- [x] **Step sequencer** — 16-step × 16-lane StepPattern, stateless StepClock (ppq→step+sample), Sequencer::generate() feeding existing Scheduler — Phase 3
+- [x] **Global swing** — MPC-style (50–75%), std::atomic<float>, applied to odd-indexed steps (off-beat 16th notes) — Phase 3
+- [x] **Pattern switching** — release/acquire atomic, seamless swap at step 15→0 bar boundary — Phase 3
+- [x] **Note-off per-note tracking** — NoteTracker resolves Phase 2 deferred item; correct note per lane, first-block fallback — Phase 3
 
 ### Active (In Progress)
 None yet.
@@ -107,8 +111,10 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | Catch2 test names must be ASCII-only | Windows ctest PRE_TEST filter mangles UTF-8 chars; affects all tests for this project | 2026-06-04 | Active |
 | DISCOVERY_MODE PRE_TEST for Catch2 | Avoids post-build binary race on WSL2 and CI; standard pattern going forward | 2026-06-04 | Active |
 | Scheduler is stateless; process() is pure | No state needed; easy to unit-test; Phase 3 sequencer generates its own MidiBuffer | 2026-06-05 | Active |
-| Note-off per-note tracking deferred to Phase 3 | Needs sequencer note-map; Phase 2 note-off is no-op in Scheduler | 2026-06-05 | Active |
+| Note-off per-note tracking: NoteTracker | Phase 3 NoteTracker resolves Phase 2 deferred item; lane→last_triggered_note, fallback to pattern note | 2026-06-05 | Active |
 | getPlayHead() always null-checked | Returns nullptr in standalone, unit tests, some hosts — crashing without guard is fatal | 2026-06-05 | Active |
+| Swing applied to odd-indexed steps (1,3,5...) | MPC convention: off-beat 16th notes delayed; even steps on grid | 2026-06-05 | Active |
+| Pattern swap: write payload before release-store | Guarantees next_pattern_ visible to audio thread before pattern_pending_ flag is seen | 2026-06-05 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -148,4 +154,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-05 after Phase 2 (Core Audio)*
+*Last updated: 2026-06-05 after Phase 3 (Sequencer Base)*

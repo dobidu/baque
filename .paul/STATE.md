@@ -11,26 +11,26 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 2 (Core Audio) complete — RT-safe voice pool, sample-accurate scheduler; starting Phase 3 (Sequencer Base)
+**Current focus:** Phase 3 (Sequencer Base) complete — step grid, swing, pattern switch, NoteTracker; starting Phase 4 (Sample Engine)
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 3 of 13 (Sequencer Base) — Planning
-Plan: 03-01 loop closed; 03-02 next
-Status: Ready for next APPLY
-Last activity: 2026-06-05 — 03-01 UNIFY complete; SUMMARY created
+Phase: 4 of 13 (Sample Engine) — Not started
+Plan: Phase 3 complete — transitioning to Phase 4
+Status: Ready to plan Phase 4
+Last activity: 2026-06-05 — Phase 3 (Sequencer Base) complete, all 2 plans unified
 
 Progress:
-- Milestone: [██░░░░░░░░] 17%
-- Phase 3: [█████░░░░░] 50%
+- Milestone: [███░░░░░░░] 23%
+- Phase 3: [██████████] 100% ✅
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [03-01 loop closed — ready for 03-02 APPLY]
+  ✓        ✓        ✓     [Phase 3 complete — ready to plan Phase 4]
 ```
 
 ## Accumulated Context
@@ -51,6 +51,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Note-off per-note tracking deferred to Phase 3 | Phase 2 Scheduler note-off is no-op; Phase 3 needs note→voice map for correct stuck-note prevention | Phase 2 | Phase 3 must add MIDI note tracking |
 | MIDI channel ignored in Phase 2 | All channels trigger; Phase 3 needs channel routing for INT/EXT hybrid mode | Phase 2 | Phase 3 scope item |
 | 2026-06-05: Enterprise audit on 03-01 (3 must-have + 2 strong applied, 2 deferred) and 03-02 (4 must-have + 1 strong applied, 2 deferred). Verdict both: conditionally acceptable → upgraded | Phase 3 | MidiBuffer two-call approach, generate() algorithm, double-trigger guard, atomic pattern switch, memory_order for swing |
+| NoteTracker fallback to pattern note on first block | Tracker=0 at startup; note-off would be skipped without fallback | All consumers of NoteTracker must handle first-block case |
+| MIDI channel routing still global in Phase 3 | All channels trigger; deferred to Phase 9 | Phase 9 must add per-lane channel filter |
 
 ### Deferred Issues
 
@@ -68,12 +70,12 @@ None yet.
 
 Last session: 2026-06-04
 Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
-Next action: /paul:apply .paul/phases/03-sequencer-base/03-02-PLAN.md
-Resume file: .paul/phases/03-sequencer-base/03-02-PLAN.md
+Next action: /paul:plan (Phase 4 — Sample Engine: slice/chop, pitch, choke, velocity layers, reverse)
+Resume file: .paul/ROADMAP.md
 Resume context:
-- 03-01 done: StepPattern, StepClock, Sequencer::generate(); continue-not-break bug fixed; 17/17 tests
-- transport_state.h extracted — 03-02 uses this same include for NoteTracker
-- last_step_fired_ in Sequencer already present — 03-02 uses it for 15→0 pattern swap detection
+- Phase 3 complete: step grid, swing, pattern switch, NoteTracker (21/21 tests)
+- Phase 4 DoD: chop-to-pads; varispeed + offline stretch (fork v1); choke working
+- Phase 4 DEPENDS on R&D-TS fork v1 (varispeed + offline stretch + RT-safety wrapper) — parallel track blocker
 
 ---
 *STATE.md — Updated after every significant action*

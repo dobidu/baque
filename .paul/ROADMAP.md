@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 2 of 13 complete
+Phases: 3 of 13 complete
 
 ## Phases
 
@@ -26,7 +26,7 @@ Phases: 2 of 13 complete
 |-------|------|-------|--------|-----------|
 | 1 | Setup (Fase 0) | 2 | ✅ Complete | 2026-06-04 |
 | 2 | Core Audio (Fase 1) | 2 | ✅ Complete | 2026-06-05 |
-| 3 | Sequencer Base (Fase 2) | 2 | Planning | - |
+| 3 | Sequencer Base (Fase 2) | 2 | ✅ Complete | 2026-06-05 |
 | 4 | Sample Engine (Fase 3) | TBD | Not started | - |
 | 5 | Feel Engine ⭐ (Fase 4) | TBD | Not started | - |
 | 6 | FX + P-locks (Fase 5) | TBD | Not started | - |
@@ -66,7 +66,11 @@ Phases: 2 of 13 complete
 **Goal:** Step grid, patterns, swing
 **Depends on:** Phase 2
 **Research:** Unlikely
-**DoD:** Pattern loops; global swing; pattern switch without glitch
+**DoD:** Pattern loops; global swing; pattern switch without glitch ✅ 2026-06-05
+
+**Plans:**
+- [x] 03-01: StepPattern + StepClock + Sequencer::generate() + two-call dispatch
+- [x] 03-02: Global swing + seamless pattern switch (release/acquire) + NoteTracker + Phase 3 DoD tests
 
 ### Phase 4: Sample Engine (Fase 3)
 **Goal:** Slice/chop, pitch, choke, velocity layers, reverse
