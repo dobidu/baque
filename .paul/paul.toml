@@ -21,14 +21,12 @@ status = "not_started"
 plans_completed = 0
 
 [loop]
-position = "PLAN"
-plan = "03-01"
-plan_path = "phases/03-sequencer-base/03-01-PLAN.md"
+position = "IDLE"
 
 [satellite]
 groom = true
 
 [stats]
-total_plans = 4
+total_plans = 5
 total_phases = 13
 last_activity = "2026-06-04T00:00:00Z"

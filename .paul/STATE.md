@@ -17,20 +17,20 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 3 of 13 (Sequencer Base) — Planning
-Plan: 03-01 + 03-02 created + audited, awaiting approval
-Status: PLAN audited, ready for APPLY
-Last activity: 2026-06-05 — Enterprise audit applied to both Phase 3 plans
+Plan: 03-01 loop closed; 03-02 next
+Status: Ready for next APPLY
+Last activity: 2026-06-05 — 03-01 UNIFY complete; SUMMARY created
 
 Progress:
-- Milestone: [██░░░░░░░░] 15%
-- Phase 3: [░░░░░░░░░░] 0%
+- Milestone: [██░░░░░░░░] 17%
+- Phase 3: [█████░░░░░] 50%
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○     [Plans created, awaiting approval]
+  ✓        ✓        ✓     [03-01 loop closed — ready for 03-02 APPLY]
 ```
 
 ## Accumulated Context
@@ -68,12 +68,12 @@ None yet.
 
 Last session: 2026-06-04
 Stopped at: Audit complete on both Phase 1 plans; user paused before APPLY
-Next action: /paul:audit then /paul:apply .paul/phases/03-sequencer-base/03-01-PLAN.md
-Resume file: .paul/phases/03-sequencer-base/03-01-PLAN.md
+Next action: /paul:apply .paul/phases/03-sequencer-base/03-02-PLAN.md
+Resume file: .paul/phases/03-sequencer-base/03-02-PLAN.md
 Resume context:
-- 03-01: StepPattern (16×16 grid), StepClock (ppq→step+sample), Sequencer::generate(), pre-populated default pattern
-- 03-02: swing (std::atomic<float> in StepClock), NoteTracker (per-lane note history), pattern pending+swap at bar
-- Both plans depend on Phase 2 Scheduler — Sequencer generates MidiBuffer, Scheduler dispatches it
+- 03-01 done: StepPattern, StepClock, Sequencer::generate(); continue-not-break bug fixed; 17/17 tests
+- transport_state.h extracted — 03-02 uses this same include for NoteTracker
+- last_step_fired_ in Sequencer already present — 03-02 uses it for 15→0 pattern swap detection
 
 ---
 *STATE.md — Updated after every significant action*
