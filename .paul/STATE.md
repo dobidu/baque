@@ -11,20 +11,20 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 5 (Feel Engine) — 05-02 PLAN written (Gaussian humanize + PRNG seeding); ready for audit/apply
+**Current focus:** Phase 5 (Feel Engine) — 05-03 audited (feel presets + Phase 5 DoD); ready for apply
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 5 of 13 (Feel Engine ⭐) — In progress
-Plan: 05-02 (Gaussian humanize + PRNG seeding) ✅ loop closed
-Status: 05-02 complete — next: 05-03 (feel presets + Phase 5 DoD)
-Last activity: 2026-06-06 — Phase 5 plan 05-02 complete (76/76 tests)
+Plan: 05-03 (feel presets + Phase 5 DoD) — PLAN audited, ready for apply
+Status: 05-03 AUDIT complete — next: apply
+Last activity: 2026-06-06 — Phase 5 plan 05-03 audited (1M+2SR applied, 3 deferred)
 
 Progress:
 - Milestone: [█████░░░░░] 40%
 - Phase 4: [██████████] 100% ✅
-- Phase 5: [███████░░░] 67% (plan 2 of 3 complete)
+- Phase 5: [████████░░] 75% (plan 2 of 3 complete, 05-03 audited)
 
 Phase 4 complete (slice-around-fork strategy):
 - 04-01: Pad bank + per-pad playback (varispeed, reverse, gain/pan) ✅ 2026-06-05
@@ -35,14 +35,14 @@ Phase 4 complete (slice-around-fork strategy):
 Phase 5 (Feel Engine ⭐):
 - 05-01: FeelPattern + FeelEngine + per-step timing offset ✅ 2026-06-05
 - 05-02: Gaussian humanize + PRNG seeding ✅ 2026-06-06
-- 05-03: Feel presets + Phase 5 DoD 🔜 planned
+- 05-03: Feel presets + Phase 5 DoD 🔍 PLAN audited
 
 ## Loop Position
 
 Current loop state:
 ```
-PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [05-02 loop closed — ready for 05-03 PLAN]
+PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
+  ✓       ✓              [05-03 audited — apply next]
 ```
 
 ## Accumulated Context
@@ -73,6 +73,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-06-05: Enterprise audit on 04-04 (2 must-have + 3 strong applied, 2 deferred). Verdict: conditionally acceptable → upgraded | Phase 4 | TimeStretchJuceFixture local struct (cross-file compile fix); (void) trigger_at nodiscard fix; jassert empty output; min_input < 256 guard; T3 buffer 4096→8192 |
 | 2026-06-05: Enterprise audit on 05-01 (4 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 5 | set_pattern() immediate setter (tests broken without it); flush_deferred stale-note discard (queue leak fix); ppq regression guard in Sequencer (ghost notes on loop); defer() RT-alloc jassert; FE7 position verification; FE3 deferred content verification |
 | 2026-06-06: Enterprise audit on 05-02 (2 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 5 | feel_engine null guard in vel section (crash fix); PRNG call order invariant documented; FE16 negative-jitter clamp test; FE17 combined humanize prepare() reproducibility test |
+| 2026-06-06: Enterprise audit on 05-03 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 5 | #include <array> MSVC compile fix; FP2 vacuous-pass guard; FP4/FP6 humanize-actually-ran check (AC-9); DoD [dod] Catch2 tag for targeted CI |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -90,10 +91,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-06 (session 8)
-Stopped at: Phase 5 plan 05-02 complete — Gaussian humanize + PRNG seeding (76/76 tests)
-Next action: /paul:plan for 05-03 (feel presets + Phase 5 DoD)
-Resume file: .paul/phases/05-feel-engine/05-02-SUMMARY.md
+Last session: 2026-06-06 (session 9)
+Stopped at: Phase 5 plan 05-03 audited — feel presets + Phase 5 DoD; 3 findings applied
+Next action: /paul:apply 05-03
+Resume file: .paul/phases/05-feel-engine/05-03-PLAN.md
 Git strategy: main
 Resume context:
 - Phase 4 git commit includes all 04-01..04-04 work

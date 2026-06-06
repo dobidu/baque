@@ -73,6 +73,7 @@ target_sources(BAQUE
         src/audio/slicer.cpp
         src/audio/time_stretch.cpp
         src/audio/feel_engine.cpp
+        src/audio/feel_presets.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)
