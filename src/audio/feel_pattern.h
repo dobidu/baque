@@ -10,5 +10,7 @@ struct FeelPattern {
     static constexpr int k_steps = 16;
     FeelStep steps[k_steps];
     bool enabled = false;
-    // Phase 05-02 will add: float humanize_timing_ms, humanize_vel_pct, uint32_t seed
+    float humanize_timing_ms = 0.0f; // Gaussian stddev for per-note timing jitter (0 = disabled)
+    float humanize_vel_pct = 0.0f;   // Gaussian stddev as % of base velocity (0 = disabled)
+    uint32_t seed = 1;               // PRNG seed; 0 treated as 1 (xorshift32 cannot have state=0)
 };

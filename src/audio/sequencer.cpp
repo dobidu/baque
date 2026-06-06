@@ -47,7 +47,13 @@ void Sequencer::generate(const TransportState& transport,
             midi_out.addEvent(msg, base_pos);
             return;
         }
-        const int offset = FeelEngine::timing_ms_to_samples(feel->steps[feel_step].timing_ms, sample_rate);
+        int offset = FeelEngine::timing_ms_to_samples(feel->steps[feel_step].timing_ms, sample_rate);
+        // Gaussian humanize: note-on only — note-off uses deterministic offset of its step.
+        // INVARIANT: vel jitter (applied before this call) consumes PRNG first; timing second.
+        // Reversing this order silently breaks seed reproducibility for saved presets.
+        if (msg.isNoteOn() && feel->humanize_timing_ms > 0.0f) {
+            offset += feel_engine->next_timing_jitter_samples(feel->humanize_timing_ms, sample_rate);
+        }
         const int64_t abs_target = block_start_sample + static_cast<int64_t>(base_pos) + offset;
         if (abs_target < block_start_sample) {
             midi_out.addEvent(msg, 0); // offset negativo: clamp ao início do bloco (v1)
@@ -96,7 +102,9 @@ void Sequencer::generate(const TransportState& transport,
                 add_with_feel(juce::MidiMessage::noteOff(1, prev_note), clamped_pos, prev_step);
             }
 
-            // Note-on: registra no NoteTracker; aplica vel_scale se feel ativo
+            // Note-on: registra no NoteTracker; aplica vel_scale + humanize se feel ativo.
+            // INVARIANT: vel jitter applied here (before add_with_feel) so PRNG advances
+            // in order vel[×2] → timing[×2] per note-on. Must not be reordered.
             if (pattern_.is_active(lane, step)) {
                 const uint8_t note = pattern_.get_note(lane, step);
                 note_tracker_.note_triggered(lane, note);
@@ -104,6 +112,9 @@ void Sequencer::generate(const TransportState& transport,
                 if (feel && feel->enabled) {
                     const float scaled = std::clamp(100.0f * feel->steps[step].vel_scale, 1.0f, 127.0f);
                     vel = static_cast<uint8_t>(std::round(scaled));
+                    if (feel->humanize_vel_pct > 0.0f && feel_engine) { // feel_engine guard (M1)
+                        vel = feel_engine->apply_vel_jitter(vel, feel->humanize_vel_pct);
+                    }
                 }
                 add_with_feel(juce::MidiMessage::noteOn(1, note, vel), clamped_pos, step);
             }

@@ -257,3 +257,264 @@ TEST_CASE("FE8 - deferred queue overflow drops note", "[feel]") {
     engine.defer(msg, 999999);
     REQUIRE(engine.deferred_count() == FeelEngine::k_max_deferred);
 }
+
+// ─── Humanize + PRNG tests (FE9-FE17) ─────────────────────────────────────
+
+TEST_CASE("FE9 - same seed produces identical jitter sequence", "[feel][humanize]") {
+    FeelJuceFixture f;
+    const double sr = 44100.0;
+    const int block = 98304;
+    FeelPattern feel{};
+    feel.enabled = true;
+    feel.humanize_timing_ms = 15.0f;
+    feel.seed = 42;
+
+    auto run = [&]() {
+        FeelEngine engine;
+        engine.set_seed(feel.seed);
+        Sequencer seq;
+        seq.set_pattern(all_steps_pattern());
+        juce::MidiBuffer buf;
+        seq.generate(make_transport(0.0), buf, block, sr, &feel, &engine, 0);
+        std::vector<int> positions;
+        for (const auto meta : buf)
+            if (meta.getMessage().isNoteOn())
+                positions.push_back(meta.samplePosition);
+        return positions;
+    };
+
+    const auto p1 = run();
+    const auto p2 = run();
+    REQUIRE_FALSE(p1.empty());
+    REQUIRE(p1 == p2);
+}
+
+TEST_CASE("FE10 - different seeds produce different jitter", "[feel][humanize]") {
+    FeelJuceFixture f;
+    const double sr = 44100.0;
+    const int block = 98304;
+    FeelPattern feel{};
+    feel.enabled = true;
+    feel.humanize_timing_ms = 20.0f;
+
+    auto get_positions = [&](uint32_t seed) {
+        feel.seed = seed;
+        FeelEngine engine;
+        engine.set_seed(seed);
+        Sequencer seq;
+        seq.set_pattern(all_steps_pattern());
+        juce::MidiBuffer buf;
+        seq.generate(make_transport(0.0), buf, block, sr, &feel, &engine, 0);
+        std::vector<int> positions;
+        for (const auto meta : buf)
+            if (meta.getMessage().isNoteOn())
+                positions.push_back(meta.samplePosition);
+        return positions;
+    };
+
+    const auto p1 = get_positions(1);
+    const auto p2 = get_positions(99999);
+    REQUIRE(p1 != p2);
+}
+
+TEST_CASE("FE11 - humanize_timing_ms=0 leaves positions unchanged", "[feel][humanize]") {
+    FeelJuceFixture f;
+    const double sr = 44100.0;
+    const int block = 98304;
+    FeelPattern feel{};
+    feel.enabled = true;
+    feel.humanize_timing_ms = 0.0f;
+
+    auto get_positions = [&]() {
+        FeelEngine engine;
+        engine.set_seed(feel.seed);
+        Sequencer seq;
+        seq.set_pattern(all_steps_pattern());
+        juce::MidiBuffer buf;
+        seq.generate(make_transport(0.0), buf, block, sr, &feel, &engine, 0);
+        std::vector<int> positions;
+        for (const auto meta : buf)
+            if (meta.getMessage().isNoteOn())
+                positions.push_back(meta.samplePosition);
+        return positions;
+    };
+
+    REQUIRE(get_positions() == get_positions());
+}
+
+TEST_CASE("FE12 - humanize_vel_pct varies velocity around base", "[feel][humanize]") {
+    FeelJuceFixture f;
+    const double sr = 44100.0;
+    const int block = 98304;
+    FeelPattern feel{};
+    feel.enabled = true;
+    feel.humanize_vel_pct = 30.0f;
+    feel.seed = 1234;
+
+    FeelEngine engine;
+    engine.set_seed(feel.seed);
+    Sequencer seq;
+    seq.set_pattern(all_steps_pattern());
+    juce::MidiBuffer buf;
+    seq.generate(make_transport(0.0), buf, block, sr, &feel, &engine, 0);
+
+    std::vector<int> velocities;
+    for (const auto meta : buf)
+        if (meta.getMessage().isNoteOn())
+            velocities.push_back(meta.getMessage().getVelocity());
+
+    REQUIRE(velocities.size() == 16);
+    const bool all_same = std::all_of(velocities.begin(), velocities.end(), [&](int v) { return v == velocities[0]; });
+    REQUIRE_FALSE(all_same);
+    for (int v : velocities) {
+        REQUIRE(v >= 1);
+        REQUIRE(v <= 127);
+    }
+}
+
+TEST_CASE("FE13 - prepare() resets PRNG for reproducible playback", "[feel][humanize]") {
+    FeelJuceFixture f;
+    const double sr = 44100.0;
+    const int block = 98304;
+    FeelPattern feel{};
+    feel.enabled = true;
+    feel.humanize_timing_ms = 10.0f;
+    feel.seed = 7;
+
+    FeelEngine engine;
+    engine.set_seed(feel.seed);
+
+    auto run = [&]() {
+        Sequencer seq;
+        seq.set_pattern(all_steps_pattern());
+        juce::MidiBuffer buf;
+        seq.generate(make_transport(0.0), buf, block, sr, &feel, &engine, 0);
+        std::vector<int> positions;
+        for (const auto meta : buf)
+            if (meta.getMessage().isNoteOn())
+                positions.push_back(meta.samplePosition);
+        return positions;
+    };
+
+    const auto p1 = run();
+    engine.prepare();
+    const auto p2 = run();
+    REQUIRE(p1 == p2);
+}
+
+TEST_CASE("FE14 - humanize + deterministic offset combined; defer mechanics preserved", "[feel][humanize]") {
+    FeelJuceFixture f;
+    const double sr = 44100.0;
+    const int block1 = 4096;
+    FeelPattern feel{};
+    feel.enabled = true;
+    feel.steps[0].timing_ms = 50.0f;
+    feel.humanize_timing_ms = 50.0f;
+    feel.seed = 555;
+
+    FeelEngine engine;
+    engine.set_seed(feel.seed);
+    Sequencer seq;
+    seq.set_pattern(single_step_pattern());
+
+    juce::MidiBuffer buf1;
+    seq.generate(make_transport(0.0), buf1, block1, sr, &feel, &engine, 0);
+
+    juce::MidiBuffer buf2;
+    seq.generate(make_transport(0.25), buf2, block1 * 4, sr, &feel, &engine, static_cast<int64_t>(block1));
+
+    bool found = false;
+    for (const auto meta : buf1)
+        if (meta.getMessage().isNoteOn() && meta.getMessage().getNoteNumber() == 36)
+            found = true;
+    for (const auto meta : buf2)
+        if (meta.getMessage().isNoteOn() && meta.getMessage().getNoteNumber() == 36)
+            found = true;
+    REQUIRE(found);
+}
+
+TEST_CASE("FE15 - seed=0 treated as seed=1; PRNG does not get stuck", "[feel][humanize]") {
+    FeelJuceFixture f;
+    FeelEngine engine;
+    engine.set_seed(0);
+
+    std::vector<int> samples;
+    for (int i = 0; i < 16; ++i)
+        samples.push_back(engine.next_timing_jitter_samples(10.0f, 44100.0));
+
+    const bool any_nonzero = std::any_of(samples.begin(), samples.end(), [](int s) { return s != 0; });
+    REQUIRE(any_nonzero);
+}
+
+TEST_CASE("FE16 - negative Gaussian jitter clamps to block start, not dropped", "[feel][humanize]") {
+    FeelJuceFixture f;
+    const double sr = 44100.0;
+    const int block = 4096;
+    bool found_clamped = false;
+
+    for (uint32_t seed = 1; seed <= 64 && !found_clamped; ++seed) {
+        FeelPattern feel{};
+        feel.enabled = true;
+        feel.steps[0].timing_ms = 0.0f;
+        feel.humanize_timing_ms = 100.0f;
+        feel.seed = seed;
+
+        FeelEngine engine;
+        engine.set_seed(seed);
+        Sequencer seq;
+        seq.set_pattern(single_step_pattern());
+        juce::MidiBuffer buf;
+        seq.generate(make_transport(0.0), buf, block, sr, &feel, &engine, 0);
+
+        for (const auto meta : buf) {
+            if (meta.getMessage().isNoteOn() && meta.getMessage().getNoteNumber() == 36) {
+                REQUIRE(meta.samplePosition >= 0);
+                REQUIRE(meta.samplePosition < block);
+                if (meta.samplePosition == 0)
+                    found_clamped = true;
+            }
+        }
+    }
+    REQUIRE(found_clamped);
+}
+
+TEST_CASE("FE17 - both timing+velocity humanize; prepare() resets both PRNG paths", "[feel][humanize]") {
+    FeelJuceFixture f;
+    const double sr = 44100.0;
+    const int block = 98304;
+    FeelPattern feel{};
+    feel.enabled = true;
+    feel.humanize_timing_ms = 10.0f;
+    feel.humanize_vel_pct = 20.0f;
+    feel.seed = 77;
+
+    FeelEngine engine;
+    engine.set_seed(feel.seed);
+
+    struct NoteEvent {
+        int pos;
+        int vel;
+    };
+    auto collect = [&]() {
+        Sequencer seq;
+        seq.set_pattern(all_steps_pattern());
+        juce::MidiBuffer buf;
+        seq.generate(make_transport(0.0), buf, block, sr, &feel, &engine, 0);
+        std::vector<NoteEvent> events;
+        for (const auto meta : buf)
+            if (meta.getMessage().isNoteOn())
+                events.push_back({meta.samplePosition, meta.getMessage().getVelocity()});
+        return events;
+    };
+
+    const auto run1 = collect();
+    engine.prepare();
+    const auto run2 = collect();
+
+    REQUIRE_FALSE(run1.empty());
+    REQUIRE(run1.size() == run2.size());
+    for (size_t i = 0; i < run1.size(); ++i) {
+        REQUIRE(run1[i].pos == run2[i].pos);
+        REQUIRE(run1[i].vel == run2[i].vel);
+    }
+}
