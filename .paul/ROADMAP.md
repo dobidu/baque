@@ -29,7 +29,7 @@ Phases: 5 of 13 complete
 | 3 | Sequencer Base (Fase 2) | 2 | ✅ Complete | 2026-06-05 |
 | 4 | Sample Engine (Fase 3) | 4 | ✅ Complete | 2026-06-05 |
 | 5 | Feel Engine ⭐ (Fase 4) | 3 | ✅ Complete | 2026-06-06 |
-| 6 | FX + P-locks (Fase 5) | TBD | Not started | - |
+| 6 | FX + P-locks (Fase 5) | TBD | 🔵 In progress | - |
 | 7 | Lo-fi + Granular (Fase 6) | TBD | Not started | - |
 | 8 | Scatter / Perf FX (Fase 7) | TBD | Not started | - |
 | 9 | MIDI / Hardware (Fase 8) | TBD | Not started | - |

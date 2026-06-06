@@ -2,7 +2,9 @@
 
 #include "audio/feel_engine.h"
 #include "audio/feel_pattern.h"
+#include "audio/fx_params.h"
 #include "audio/pad_bank.h"
+#include "audio/plock_pattern.h"
 #include "audio/scheduler.h"
 #include "audio/sequencer.h"
 #include "audio/transport_state.h"
@@ -55,6 +57,7 @@ class BaqueProcessor : public juce::AudioProcessor {
 
   private:
     static juce::AudioProcessorValueTreeState::ParameterLayout create_parameter_layout();
+    static void apply_plock_batch(const PLockBatch& batch, FxParams& fx) noexcept;
 
     VoicePool voice_pool_;
     PadBank pad_bank_;
@@ -75,6 +78,9 @@ class BaqueProcessor : public juce::AudioProcessor {
     FeelEngine feel_engine_;
     FeelPattern feel_pattern_;       // initially disabled (enabled = false)
     int64_t block_start_sample_ = 0; // acumulado por processBlock; reset em prepareToPlay
+
+    // P-lock pattern — per-step FX automation (Fase 6-01)
+    PLockPattern plock_pattern_;
 
     static constexpr int k_state_version = 2;
 

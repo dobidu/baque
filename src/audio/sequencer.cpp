@@ -20,7 +20,9 @@ void Sequencer::generate(const TransportState& transport,
                          double sample_rate,
                          const FeelPattern* feel,
                          FeelEngine* feel_engine,
-                         int64_t block_start_sample) noexcept {
+                         int64_t block_start_sample,
+                         const PLockPattern* plock_pattern,
+                         PLockBatch* plock_batch_out) noexcept {
     // Detecção de regressão de ppq (loop/restart do DAW) — limpa fila de notas diferidas. (M3)
     if (feel_engine && transport.is_playing && last_ppq_ > 0.0 && transport.ppq_position < last_ppq_ - 1e-6) {
         feel_engine->prepare();
@@ -85,6 +87,15 @@ void Sequencer::generate(const TransportState& transport,
         }
 
         last_step_fired_ = step;
+
+        // Emite p-lock events para o step que está disparando.
+        if (plock_pattern != nullptr && plock_pattern->enabled && plock_batch_out != nullptr) {
+            const auto& pstep = plock_pattern->steps[step];
+            for (int pi = 0; pi < k_plock_param_count; ++pi) {
+                if (pstep.active[pi])
+                    plock_batch_out->push(static_cast<PLockParam>(pi), pstep.values[pi]);
+            }
+        }
 
         // Sample position com swing aplicado pelo StepClock (steps ímpares atrasados)
         const int sample_pos =

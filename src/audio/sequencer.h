@@ -3,6 +3,7 @@
 #include "feel_engine.h"
 #include "feel_pattern.h"
 #include "note_tracker.h"
+#include "plock_pattern.h"
 #include "step_clock.h"
 #include "step_pattern.h"
 #include "transport_state.h"
@@ -21,13 +22,16 @@ class Sequencer {
     // Gera eventos MIDI para o bloco atual.
     // midi_out deve estar limpo pelo chamador; não faz alocação.
     // feel/feel_engine: opcionais (nullptr = comportamento pré-Fase-5).
+    // plock_pattern/plock_batch_out: opcionais (nullptr = sem p-locks).
     void generate(const TransportState& transport,
                   juce::MidiBuffer& midi_out,
                   int block_size,
                   double sample_rate,
                   const FeelPattern* feel = nullptr,
                   FeelEngine* feel_engine = nullptr,
-                  int64_t block_start_sample = 0) noexcept;
+                  int64_t block_start_sample = 0,
+                  const PLockPattern* plock_pattern = nullptr,
+                  PLockBatch* plock_batch_out = nullptr) noexcept;
 
     // Define padrão imediatamente (sem esperar transição 15→0). Uso: setup inicial e testes.
     void set_pattern(const StepPattern& p) noexcept;
