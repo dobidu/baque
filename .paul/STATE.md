@@ -11,38 +11,33 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 5 (Feel Engine) — 05-03 audited (feel presets + Phase 5 DoD); ready for apply
+**Current focus:** Phase 6 (FX + P-locks) — Phase 5 complete; ready to plan Phase 6
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 5 of 13 (Feel Engine ⭐) — In progress
-Plan: 05-03 (feel presets + Phase 5 DoD) — PLAN audited, ready for apply
-Status: 05-03 AUDIT complete — next: apply
-Last activity: 2026-06-06 — Phase 5 plan 05-03 audited (1M+2SR applied, 3 deferred)
+Phase: 6 of 13 (FX + P-locks) — Not started
+Plan: Not started
+Status: Ready to plan Phase 6
+Last activity: 2026-06-06 — Phase 5 complete, transitioned to Phase 6
 
 Progress:
-- Milestone: [█████░░░░░] 40%
+- Milestone: [██████░░░░] 46%
 - Phase 4: [██████████] 100% ✅
-- Phase 5: [████████░░] 75% (plan 2 of 3 complete, 05-03 audited)
+- Phase 5: [██████████] 100% ✅
+- Phase 6: [░░░░░░░░░░] 0% (not started)
 
-Phase 4 complete (slice-around-fork strategy):
-- 04-01: Pad bank + per-pad playback (varispeed, reverse, gain/pan) ✅ 2026-06-05
-- 04-02: Choke groups + velocity layers + round-robin + ADSR/play modes ✅ 2026-06-05
-- 04-03: Auto-slice (transient detection) + chop-to-pads ✅ 2026-06-05
-- 04-04: R&D-TS fork v1 integration — offline time-stretch ✅ 2026-06-05
-
-Phase 5 (Feel Engine ⭐):
+Phase 5 complete (Feel Engine ⭐):
 - 05-01: FeelPattern + FeelEngine + per-step timing offset ✅ 2026-06-05
-- 05-02: Gaussian humanize + PRNG seeding ✅ 2026-06-06
-- 05-03: Feel presets + Phase 5 DoD 🔍 PLAN audited
+- 05-02: Gaussian humanize (Box-Muller) + xorshift32 PRNG seeding ✅ 2026-06-06
+- 05-03: Feel presets (6 named grooves) + Phase 5 DoD ✅ 2026-06-06
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓       ✓              [05-03 audited — apply next]
+  ✓        ✓        ✓        ✓    [Phase 5 complete — ready for Phase 6]
 ```
 
 ## Accumulated Context
@@ -92,13 +87,13 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-06 (session 9)
-Stopped at: Phase 5 plan 05-03 audited — feel presets + Phase 5 DoD; 3 findings applied
-Next action: /paul:apply 05-03
-Resume file: .paul/phases/05-feel-engine/05-03-PLAN.md
+Stopped at: Phase 5 complete — Feel Engine with 6 presets, 84/84 tests, Phase 5 DoD met
+Next action: /paul:plan for Phase 6 (FX + P-locks)
+Resume file: .paul/ROADMAP.md
 Git strategy: main
 Resume context:
-- Phase 4 git commit includes all 04-01..04-04 work
-- Phase 5: Feel Engine ⭐ — product core; micro-timing, humanize, dual-grid, feel presets
+- Phase 5 complete: FeelEngine (xorshift32 PRNG, Box-Muller), 6 presets, Dilla/Burial DoD met
+- 84/84 tests; DoD gate: ./baque_tests '[dod]'
 - CI Node.js 20 action upgrade due before June 16, 2026
 
 ---

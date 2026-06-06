@@ -194,3 +194,14 @@ action = "audit"
 phase = 5
 plan = "05-03"
 at = "2026-06-06T01:00:00Z"
+
+[[entry]]
+action = "unify"
+phase = 5
+plan = "05-03"
+at = "2026-06-06T01:20:00Z"
+
+[[entry]]
+action = "transition"
+phase = 5
+at = "2026-06-06T01:20:00Z"

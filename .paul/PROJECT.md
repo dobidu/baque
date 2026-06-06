@@ -20,8 +20,8 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 |-----------|-------|
 | Type | Application (audio plugin) |
 | Version | 0.0.0 |
-| Status | Phase 4 complete — Phase 5 (Feel Engine) next |
-| Last Updated | 2026-06-05 |
+| Status | Phase 5 complete — Phase 6 (FX + P-locks) next |
+| Last Updated | 2026-06-06 |
 
 ## Requirements
 
@@ -54,6 +54,8 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Auto-slice + chop-to-pads** — energy HWR-delta onset detection (hop=256), offline bake-in into PadBank, stale-pad clear — Phase 4
 - [x] **Offline time-stretch** — SoundTouch fork v1 (LGPL v2.1) via FetchContent; tempo-only WSOLA; bake-in via TimeStretch::apply(); pure C++ path (SOUNDTOUCH_DISABLE_X86_OPTIMIZATIONS) — Phase 4
 - [x] **Phase 4 DoD** — varispeed + offline time-stretch + chop-to-pads; 59/59 tests; RT-safe foundation intact — Phase 4
+- [x] **Feel Engine** *(product core)* — per-step timing offset (±100ms+), Gaussian humanize (timing + velocity), xorshift32 PRNG seed determinism, feel presets (Straight, Boom-Bap, Dilla Drunk, Burial Broken, FlyLo Wonk, Bonobo Loose) — Phase 5
+- [x] **Phase 5 DoD** — Dilla Drunk and Burial Broken perceptible (avg|timing|>20ms / range>100ms) and seed-reproducible; 84/84 tests — Phase 5
 
 ### Active (In Progress)
 None yet.
@@ -132,7 +134,7 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | pluginval strict | Green on macOS + Windows + Linux | Strictness 5 ✓ CI | In progress (strictness 5 in CI; strict = full suite, Phase 12) |
 | Polyphony | ≥64 voices, no dropout | - | Not started |
 | Audio thread allocations | Zero (instrumented asserts) | - | Not started |
-| Feel reproducibility | "Dilla Drunk" / "Burial Broken" perceptible + seed-reproducible | - | Not started |
+| Feel reproducibility | "Dilla Drunk" / "Burial Broken" perceptible + seed-reproducible | Dilla avg|timing|=23.75ms, seed=313 ✓; Burial range=160ms, seed=666 ✓ | ✅ Phase 5 |
 | Hardware sync | Drives real TR-8 in sync (clock jitter measured) | - | Not started |
 | SoundTouch fork | Transient preservation beats baseline SoundTouch on harness metrics | - | Not started |
 | DAW compatibility | Reaper, Live, Logic, Bitwig, FL | - | Not started |
@@ -161,4 +163,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-05 after Phase 4 (Sample Engine)*
+*Last updated: 2026-06-06 after Phase 5 (Feel Engine)*

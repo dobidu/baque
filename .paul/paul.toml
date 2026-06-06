@@ -11,14 +11,14 @@ source = "https://chrisai.cv/skool"
 [milestone]
 name = "v1.0 Release"
 version = "1.0.0"
-status = "not_started"
+status = "in_progress"
 phases = 13
 
 [phase]
-number = 5
-name = "Feel Engine"
-status = "in_progress"
-plans_completed = 2
+number = 6
+name = "FX + P-locks"
+status = "not_started"
+plans_completed = 0
 
 [loop]
 position = "IDLE"
@@ -27,6 +27,6 @@ position = "IDLE"
 groom = true
 
 [stats]
-total_plans = 13
-total_phases = 13
-last_activity = "2026-06-05T23:59:00Z"
+total_plans = 14
+total_phases = 14
+last_activity = "2026-06-06T01:20:00Z"

@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 4 of 13 complete
+Phases: 5 of 13 complete
 
 ## Phases
 
@@ -28,7 +28,7 @@ Phases: 4 of 13 complete
 | 2 | Core Audio (Fase 1) | 2 | ✅ Complete | 2026-06-05 |
 | 3 | Sequencer Base (Fase 2) | 2 | ✅ Complete | 2026-06-05 |
 | 4 | Sample Engine (Fase 3) | 4 | ✅ Complete | 2026-06-05 |
-| 5 | Feel Engine ⭐ (Fase 4) | TBD | Not started | - |
+| 5 | Feel Engine ⭐ (Fase 4) | 3 | ✅ Complete | 2026-06-06 |
 | 6 | FX + P-locks (Fase 5) | TBD | Not started | - |
 | 7 | Lo-fi + Granular (Fase 6) | TBD | Not started | - |
 | 8 | Scatter / Perf FX (Fase 7) | TBD | Not started | - |
@@ -85,12 +85,17 @@ Phases: 4 of 13 complete
 - [x] 04-03: Auto-slice (transient detection) + chop-to-pads ✅ 2026-06-05
 - [x] 04-04: R&D-TS fork v1 integration — offline time-stretch ✅ 2026-06-05
 
-### Phase 5: Feel Engine ⭐ (Fase 4)
+### Phase 5: Feel Engine ⭐ (Fase 4) ✅
 **Goal:** Micro-timing, humanize, dual-grid, no-grid, feel presets — *product core*
 **Depends on:** Phase 4
 **Research:** Likely (groove template design, sub-sample scheduling)
 **Research topics:** MPC swing curves, Dilla/Burial timing analysis, seed determinism
-**DoD:** "Dilla Drunk" and "Burial Broken" perceptible and seed-reproducible
+**DoD:** "Dilla Drunk" and "Burial Broken" perceptible and seed-reproducible ✅ 2026-06-06
+
+**Plans:**
+- [x] 05-01: FeelPattern + FeelEngine + per-step timing offset ✅ 2026-06-05
+- [x] 05-02: Gaussian humanize (Box-Muller) + xorshift32 PRNG seeding ✅ 2026-06-06
+- [x] 05-03: Feel presets (6 named grooves) + Phase 5 DoD verification ✅ 2026-06-06
 
 ### Phase 6: FX + P-locks (Fase 5)
 **Goal:** Filters, reverb, delay, sidechain, EQ + p-locks
@@ -142,4 +147,4 @@ Phases: 4 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-05 — Phase 4 complete*
+*Last updated: 2026-06-06 — Phase 5 complete*
