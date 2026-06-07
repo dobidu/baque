@@ -11,21 +11,21 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 6 (FX + P-locks) — 06-03 PLAN+AUDIT complete; ready for APPLY
+**Current focus:** Phase 6 (FX + P-locks) — 06-03 complete; ready for 06-04 PLAN
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 6 of 13 (FX + P-locks) — In progress
-Plan: 06-03 (SidechainCompressor DSP — envelope follower + gain computer) — PLAN+AUDIT complete, awaiting APPLY
-Status: 06-03 audited (1M+2SR applied, 4 deferred); verdict: conditionally acceptable → upgraded
-Last activity: 2026-06-07 — 06-03 AUDIT complete
+Plan: 06-03 complete ✅
+Status: 104/104 tests pass; FxChain fully wired (filter→reverb→delay→sidechain)
+Last activity: 2026-06-07 — 06-03 UNIFY complete
 
 Progress:
 - Milestone: [██████░░░░] 49%
 - Phase 4: [██████████] 100% ✅
 - Phase 5: [██████████] 100% ✅
-- Phase 6: [████░░░░░░] 40% (2/~5 plans done)
+- Phase 6: [██████░░░░] 60% (3/~5 plans done)
 
 Phase 5 complete (Feel Engine ⭐):
 - 05-01: FeelPattern + FeelEngine + per-step timing offset ✅ 2026-06-05
@@ -35,14 +35,15 @@ Phase 5 complete (Feel Engine ⭐):
 Phase 6 in progress:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
 - 06-02: FxChain DSP (LP filter + reverb + delay + SmoothedValue, 98/98 tests) ✅ 2026-06-07
+- 06-03: SidechainCompressor (IIR envelope follower + 8:1 gain computer, 104/104 tests) ✅ 2026-06-07
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○          ○
-          [06-03 audited; ready for APPLY]
+  ✓        ✓        ✓          ✓
+          [Loop complete — ready for next PLAN]
 ```
 
 ## Accumulated Context
@@ -94,16 +95,17 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07 (session 12)
-Stopped at: 06-03 PLAN created; audit pending
-Next action: /paul:apply 06-03
-Resume file: .paul/phases/06-fx-plocks/06-03-PLAN.md
+Last session: 2026-06-07 (session 13)
+Stopped at: 06-03 UNIFY complete; loop closed
+Next action: /paul:plan 06-04
+Resume file: .paul/phases/06-fx-plocks/06-03-SUMMARY.md
 Git strategy: main
 Resume context:
-- SidechainCompressor: IIR envelope (attack_coeff/release_coeff pre-computed in prepare()); gain computer hard knee; ratio=8:1 attack=5ms release=200ms constants
-- Wire-in: sidechain_comp_ is LAST in FxChain::process() (after delay loop); receives params.sidechain_threshold
-- Target: 104/104 tests (98 prior + 6 SC1-SC6)
+- FxChain chain complete: LP filter → reverb → delay → SidechainCompressor (all 4 stages)
+- SidechainCompressor: 8:1 ratio, 5ms attack, 200ms release; threshold from FxParams::sidechain_threshold
+- IIR envelope test pattern: need 88200-sample buffers (2s) for convergence assertions on rectified sine
 - CI Node.js 20 action upgrade due before June 16, 2026 (actions/checkout+cache v4→v5)
+- Phase 6 remaining: p-lock interpolation (06-04?), FxChain integration (06-05?)
 
 ---
 *STATE.md — Updated after every significant action*
