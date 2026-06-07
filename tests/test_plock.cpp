@@ -15,9 +15,9 @@ struct PLFixture {
 
 static TransportState pl_transport(double ppq = 0.0, double bpm = 120.0) {
     TransportState t{};
-    t.is_playing   = true;
+    t.is_playing = true;
     t.ppq_position = ppq;
-    t.bpm          = bpm;
+    t.bpm = bpm;
     return t;
 }
 
@@ -33,12 +33,12 @@ static StepPattern pl_all_steps() {
 // PL1: step with filter_cutoff p-lock emits correct event
 TEST_CASE("PL1 - step with filter_cutoff plock emits event", "[plock]") {
     PLFixture f;
-    const double sr    = 44100.0;
-    const int block    = 8192;
+    const double sr = 44100.0;
+    const int block = 8192;
 
     PLockPattern pp{};
     pp.enabled = true;
-    const int ci       = static_cast<int>(PLockParam::filter_cutoff);
+    const int ci = static_cast<int>(PLockParam::filter_cutoff);
     pp.steps[0].active[ci] = true;
     pp.steps[0].values[ci] = 800.0f;
 
@@ -46,14 +46,12 @@ TEST_CASE("PL1 - step with filter_cutoff plock emits event", "[plock]") {
     seq.set_pattern(pl_all_steps());
     juce::MidiBuffer buf;
     PLockBatch batch;
-    seq.generate(pl_transport(0.0), buf, block, sr,
-                 nullptr, nullptr, 0, &pp, &batch);
+    seq.generate(pl_transport(0.0), buf, block, sr, nullptr, nullptr, 0, &pp, &batch);
 
     REQUIRE(batch.count >= 1);
     bool found = false;
     for (int i = 0; i < batch.count; ++i) {
-        if (batch.events[i].param == PLockParam::filter_cutoff &&
-            batch.events[i].value == Catch::Approx(800.0f))
+        if (batch.events[i].param == PLockParam::filter_cutoff && batch.events[i].value == Catch::Approx(800.0f))
             found = true;
     }
     REQUIRE(found);
@@ -73,8 +71,7 @@ TEST_CASE("PL2 - step with no active plocks emits nothing", "[plock]") {
     seq.set_pattern(pl_all_steps());
     juce::MidiBuffer buf;
     PLockBatch batch;
-    seq.generate(pl_transport(0.0), buf, block, sr,
-                 nullptr, nullptr, 0, &pp, &batch);
+    seq.generate(pl_transport(0.0), buf, block, sr, nullptr, nullptr, 0, &pp, &batch);
 
     REQUIRE(batch.count == 0);
 }
@@ -98,8 +95,7 @@ TEST_CASE("PL3 - step with two plocks emits both events", "[plock]") {
     seq.set_pattern(pl_all_steps());
     juce::MidiBuffer buf;
     PLockBatch batch;
-    seq.generate(pl_transport(0.0), buf, block, sr,
-                 nullptr, nullptr, 0, &pp, &batch);
+    seq.generate(pl_transport(0.0), buf, block, sr, nullptr, nullptr, 0, &pp, &batch);
 
     REQUIRE(batch.count == 2);
 }
@@ -114,8 +110,7 @@ TEST_CASE("PL4 - plock_pattern nullptr backward compatible", "[plock]") {
     seq.set_pattern(pl_all_steps());
     juce::MidiBuffer buf;
     PLockBatch batch;
-    seq.generate(pl_transport(0.0), buf, block, sr,
-                 nullptr, nullptr, 0, nullptr, &batch);
+    seq.generate(pl_transport(0.0), buf, block, sr, nullptr, nullptr, 0, nullptr, &batch);
 
     REQUIRE(batch.count == 0);
 }
@@ -135,8 +130,7 @@ TEST_CASE("PL5 - disabled PLockPattern emits no events", "[plock]") {
     seq.set_pattern(pl_all_steps());
     juce::MidiBuffer buf;
     PLockBatch batch;
-    seq.generate(pl_transport(0.0), buf, block, sr,
-                 nullptr, nullptr, 0, &pp, &batch);
+    seq.generate(pl_transport(0.0), buf, block, sr, nullptr, nullptr, 0, &pp, &batch);
 
     REQUIRE(batch.count == 0);
 }
@@ -169,8 +163,7 @@ TEST_CASE("PL7 - multiple steps firing accumulate all plock events", "[plock]") 
     seq.set_pattern(pl_all_steps());
     juce::MidiBuffer buf;
     PLockBatch batch;
-    seq.generate(pl_transport(0.0), buf, block, sr,
-                 nullptr, nullptr, 0, &pp, &batch);
+    seq.generate(pl_transport(0.0), buf, block, sr, nullptr, nullptr, 0, &pp, &batch);
 
     REQUIRE(batch.count >= 2);
 }
@@ -194,8 +187,7 @@ TEST_CASE("PL8 - PLockBatch overflow guard prevents buffer overrun", "[plock]") 
     seq.set_pattern(pl_all_steps());
     juce::MidiBuffer buf;
     PLockBatch batch;
-    seq.generate(pl_transport(0.0), buf, block, sr,
-                 nullptr, nullptr, 0, &pp, &batch);
+    seq.generate(pl_transport(0.0), buf, block, sr, nullptr, nullptr, 0, &pp, &batch);
 
     REQUIRE(batch.count <= PLockBatch::k_max);
 }

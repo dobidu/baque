@@ -4,13 +4,13 @@
 // Parâmetros de FX disponíveis para p-lock (automação por step).
 // Ordem importa — índice no array PLockStep::values.
 enum class PLockParam : uint8_t {
-    filter_cutoff       = 0,
-    filter_res          = 1,
-    reverb_mix          = 2,
-    delay_mix           = 3,
-    delay_time          = 4,
+    filter_cutoff = 0,
+    filter_res = 1,
+    reverb_mix = 2,
+    delay_mix = 3,
+    delay_time = 4,
     sidechain_threshold = 5,
-    count               = 6
+    count = 6
 };
 
 static constexpr int k_plock_param_count = static_cast<int>(PLockParam::count);
@@ -18,7 +18,7 @@ static constexpr int k_plock_param_count = static_cast<int>(PLockParam::count);
 // Override por step: values[i] é ativo somente se active[i]=true.
 struct PLockStep {
     float values[k_plock_param_count] = {};
-    bool active[k_plock_param_count]  = {};
+    bool active[k_plock_param_count] = {};
 };
 
 // Padrão de p-locks para 16 steps. enabled=false → engine ignora completamente.
@@ -41,8 +41,7 @@ struct PLockBatch {
     PLockEvent events[k_max];
     int count = 0;
 
-    void push(PLockParam param, float value) noexcept
-    {
+    void push(PLockParam param, float value) noexcept {
         if (count < k_max)
             events[count++] = {param, value};
     }

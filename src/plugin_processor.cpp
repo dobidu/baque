@@ -11,24 +11,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout BaqueProcessor::create_param
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID{"master_gain", 1}, "Master Gain", juce::NormalisableRange<float>{0.0f, 1.0f}, 0.8f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"filter_cutoff", 1},
+                                                           "Filter Cutoff",
+                                                           juce::NormalisableRange<float>{20.0f, 20000.0f, 0.0f, 0.3f},
+                                                           20000.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID{"filter_cutoff", 1}, "Filter Cutoff",
-        juce::NormalisableRange<float>{20.0f, 20000.0f, 0.0f, 0.3f}, 20000.0f));
+        juce::ParameterID{"filter_res", 1}, "Filter Resonance", juce::NormalisableRange<float>{0.0f, 1.0f}, 0.1f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID{"filter_res", 1}, "Filter Resonance",
-        juce::NormalisableRange<float>{0.0f, 1.0f}, 0.1f));
+        juce::ParameterID{"reverb_mix", 1}, "Reverb Mix", juce::NormalisableRange<float>{0.0f, 1.0f}, 0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID{"reverb_mix", 1}, "Reverb Mix",
-        juce::NormalisableRange<float>{0.0f, 1.0f}, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID{"delay_mix", 1}, "Delay Mix",
-        juce::NormalisableRange<float>{0.0f, 1.0f}, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID{"delay_time", 1}, "Delay Time",
-        juce::NormalisableRange<float>{0.001f, 2.0f, 0.0f, 0.5f}, 0.25f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID{"sidechain_threshold", 1}, "Sidechain Threshold",
-        juce::NormalisableRange<float>{-60.0f, 0.0f}, -12.0f));
+        juce::ParameterID{"delay_mix", 1}, "Delay Mix", juce::NormalisableRange<float>{0.0f, 1.0f}, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"delay_time", 1},
+                                                           "Delay Time",
+                                                           juce::NormalisableRange<float>{0.001f, 2.0f, 0.0f, 0.5f},
+                                                           0.25f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"sidechain_threshold", 1},
+                                                           "Sidechain Threshold",
+                                                           juce::NormalisableRange<float>{-60.0f, 0.0f},
+                                                           -12.0f));
     return layout;
 }
 
@@ -116,17 +116,20 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
 
     // Snapshot de FX params do APVTS para o bloco (RT-safe: getRawParameterValue é atômico)
     FxParams fx_params;
-    fx_params.filter_cutoff       = *apvts_.getRawParameterValue("filter_cutoff");
-    fx_params.filter_res          = *apvts_.getRawParameterValue("filter_res");
-    fx_params.reverb_mix          = *apvts_.getRawParameterValue("reverb_mix");
-    fx_params.delay_mix           = *apvts_.getRawParameterValue("delay_mix");
-    fx_params.delay_time          = *apvts_.getRawParameterValue("delay_time");
+    fx_params.filter_cutoff = *apvts_.getRawParameterValue("filter_cutoff");
+    fx_params.filter_res = *apvts_.getRawParameterValue("filter_res");
+    fx_params.reverb_mix = *apvts_.getRawParameterValue("reverb_mix");
+    fx_params.delay_mix = *apvts_.getRawParameterValue("delay_mix");
+    fx_params.delay_time = *apvts_.getRawParameterValue("delay_time");
     fx_params.sidechain_threshold = *apvts_.getRawParameterValue("sidechain_threshold");
 
     // Gera eventos MIDI do sequenciador no buffer pré-alocado (limpa antes de preencher)
     midi_buffer_seq_.clear();
     PLockBatch plock_batch;
-    sequencer_.generate(transport_, midi_buffer_seq_, num_frames, getSampleRate(),
+    sequencer_.generate(transport_,
+                        midi_buffer_seq_,
+                        num_frames,
+                        getSampleRate(),
                         feel_pattern_.enabled ? &feel_pattern_ : nullptr,
                         feel_pattern_.enabled ? &feel_engine_ : nullptr,
                         block_start_sample_,
@@ -158,16 +161,29 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
 void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) noexcept {
     for (int i = 0; i < batch.count; ++i) {
         switch (batch.events[i].param) {
-        case PLockParam::filter_cutoff:       fx.filter_cutoff       = batch.events[i].value; break;
-        case PLockParam::filter_res:          fx.filter_res          = batch.events[i].value; break;
-        case PLockParam::reverb_mix:          fx.reverb_mix          = batch.events[i].value; break;
-        case PLockParam::delay_mix:           fx.delay_mix           = batch.events[i].value; break;
-        case PLockParam::delay_time:          fx.delay_time          = batch.events[i].value; break;
-        case PLockParam::sidechain_threshold: fx.sidechain_threshold = batch.events[i].value; break;
+        case PLockParam::filter_cutoff:
+            fx.filter_cutoff = batch.events[i].value;
+            break;
+        case PLockParam::filter_res:
+            fx.filter_res = batch.events[i].value;
+            break;
+        case PLockParam::reverb_mix:
+            fx.reverb_mix = batch.events[i].value;
+            break;
+        case PLockParam::delay_mix:
+            fx.delay_mix = batch.events[i].value;
+            break;
+        case PLockParam::delay_time:
+            fx.delay_time = batch.events[i].value;
+            break;
+        case PLockParam::sidechain_threshold:
+            fx.sidechain_threshold = batch.events[i].value;
+            break;
         // INVARIANT: every PLockParam value must have a case above.
         // WARNING: adding a new PLockParam enum value without adding a case here will silently
         // swallow p-lock events for that param. This default exists only as a safety net.
-        default: break;
+        default:
+            break;
         }
     }
 }
