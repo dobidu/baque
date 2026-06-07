@@ -2,6 +2,7 @@
 
 #include "audio/feel_engine.h"
 #include "audio/feel_pattern.h"
+#include "audio/fx_chain.h"
 #include "audio/fx_params.h"
 #include "audio/pad_bank.h"
 #include "audio/plock_pattern.h"
@@ -81,6 +82,9 @@ class BaqueProcessor : public juce::AudioProcessor {
 
     // P-lock pattern — per-step FX automation (Fase 6-01)
     PLockPattern plock_pattern_;
+
+    // FX chain — filter/reverb/delay with SmoothedValue (Fase 6-02)
+    FxChain fx_chain_;
 
     static constexpr int k_state_version = 2;
 

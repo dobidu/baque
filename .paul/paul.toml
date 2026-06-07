@@ -18,16 +18,17 @@ phases = 13
 number = 6
 name = "FX + P-locks"
 status = "in_progress"
-plans_completed = 0
+plans_completed = 1
 
 [loop]
 position = "PLAN"
-current_plan = "06-01"
+current_plan = "06-02"
+plan_path = "phases/06-fx-plocks/06-02-PLAN.md"
 
 [satellite]
 groom = true
 
 [stats]
-total_plans = 14
+total_plans = 15
 total_phases = 14
-last_activity = "2026-06-06T01:30:00Z"
+last_activity = "2026-06-07T00:00:00Z"

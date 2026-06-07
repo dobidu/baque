@@ -47,6 +47,7 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
     scheduler_.prepare(sample_rate);
     feel_engine_.prepare();
     feel_engine_.set_seed(feel_pattern_.seed);
+    fx_chain_.prepare(sample_rate, samples_per_block);
     block_start_sample_ = 0;
 
     // Decodifica o sample de teste no pad 0 apenas uma vez (guarda de realocação).
@@ -78,7 +79,7 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
 }
 
 void BaqueProcessor::releaseResources() {
-    // Fase 2: sem recursos externos para liberar
+    fx_chain_.reset();
 }
 
 bool BaqueProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const {
@@ -136,7 +137,6 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
                         plock_pattern_.enabled ? &plock_pattern_ : nullptr,
                         &plock_batch);
     apply_plock_batch(plock_batch, fx_params);
-    // fx_params pronto para FxChain::process() (Fase 6-02)
     block_start_sample_ += static_cast<int64_t>(num_frames);
 
     // Despacha sequenciador e MIDI externo — duas chamadas separadas (sem merge = sem alloc)
@@ -156,6 +156,8 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
         left[i] += mix_left_[i] * gain;
         right[i] += mix_right_[i] * gain;
     }
+
+    fx_chain_.process(buffer, fx_params);
 }
 
 void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) noexcept {

@@ -74,6 +74,7 @@ target_sources(BAQUE
         src/audio/time_stretch.cpp
         src/audio/feel_engine.cpp
         src/audio/feel_presets.cpp
+        src/audio/fx_chain.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

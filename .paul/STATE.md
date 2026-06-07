@@ -11,34 +11,37 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 6 (FX + P-locks) — 06-01 APPLY in progress (T1-T4 done, T5 pending)
+**Current focus:** Phase 6 (FX + P-locks) — 06-02 PLAN+AUDIT complete; ready for APPLY
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 6 of 13 (FX + P-locks) — In progress
-Plan: 06-01 (p-lock system infrastructure) — APPLY in progress
-Status: 06-01 APPLY T1-T4 complete; T5 (verify+commit) pending
-Last activity: 2026-06-06 — 06-01 APPLY: all 7 files created/modified; build verification pending
+Plan: 06-02 (FxChain DSP — filter/reverb/delay + SmoothedValue) — PLAN+AUDIT complete, awaiting APPLY
+Status: 06-02 audited (1M+2SR applied, 3 deferred); verdict: conditionally acceptable → upgraded
+Last activity: 2026-06-07 — 06-02 AUDIT complete
 
 Progress:
 - Milestone: [██████░░░░] 46%
 - Phase 4: [██████████] 100% ✅
 - Phase 5: [██████████] 100% ✅
-- Phase 6: [█░░░░░░░░░] 10% (06-01 APPLY ~80% done)
+- Phase 6: [██░░░░░░░░] 20% (1/~5 plans done)
 
 Phase 5 complete (Feel Engine ⭐):
 - 05-01: FeelPattern + FeelEngine + per-step timing offset ✅ 2026-06-05
 - 05-02: Gaussian humanize (Box-Muller) + xorshift32 PRNG seeding ✅ 2026-06-06
 - 05-03: Feel presets (6 named grooves) + Phase 5 DoD ✅ 2026-06-06
 
+Phase 6 in progress:
+- 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
+
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ~          ○
-          [T1-T4 done; T5 verify+commit pending]
+  ✓        ✓        ○          ○
+          [06-02 audited; ready for APPLY]
 ```
 
 ## Accumulated Context
@@ -71,6 +74,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-06: Enterprise audit on 05-02 (2 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 5 | feel_engine null guard in vel section (crash fix); PRNG call order invariant documented; FE16 negative-jitter clamp test; FE17 combined humanize prepare() reproducibility test |
 | 2026-06-06: Enterprise audit on 05-03 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 5 | #include <array> MSVC compile fix; FP2 vacuous-pass guard; FP4/FP6 humanize-actually-ran check (AC-9); DoD [dod] Catch2 tag for targeted CI |
 | 2026-06-06: Enterprise audit on 06-01 (1 must-have + 2 strong applied, 1 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | double-generate() placement fix (M1); PL6 honest coverage doc (SR1); switch default warning comment (SR2) |
+| 2026-06-07: Enterprise audit on 06-02 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | FC4 buf.clear()-in-loop test bug fixed (M1); reverb setParameters every-block documented (SR1); pop-before-push delay invariant documented (SR2) |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -88,14 +92,16 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-06 (session 10)
-Stopped at: 06-01 APPLY T1-T4 done; T5 (build verify + commit) not yet run
-Next action: Run build, verify 92/92 tests, clang-format check, commit, then /paul:unify 06-01
-Resume file: .paul/HANDOFF-2026-06-06.md
+Last session: 2026-06-07 (session 11)
+Stopped at: 06-02 PLAN created; enterprise audit pending
+Next action: /paul:audit 06-02 then /paul:apply 06-02
+Resume file: .paul/phases/06-fx-plocks/06-02-PLAN.md
 Git strategy: main
 Resume context:
-- 7 files changed: plock_pattern.h + fx_params.h (new), sequencer.h/cpp + plugin_processor.h/cpp (modified), test_plock.cpp (new)
-- Build was in-flight at pause; must verify 92/92 tests before committing
+- FxChain: LP filter (StateVariableTPTFilter) + reverb (juce::dsp::Reverb) + delay (DelayLine stereo)
+- SmoothedValue 20ms ramp for 5 params; block-rate skip() pattern
+- Wire: processBlock() after gain loop; juce_dsp must be added to baque_tests link
+- 98/98 tests expected (92 + 6 FC1-FC6)
 - CI Node.js 20 action upgrade due before June 16, 2026
 
 ---
