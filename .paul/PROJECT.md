@@ -20,8 +20,8 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 |-----------|-------|
 | Type | Application (audio plugin) |
 | Version | 0.0.0 |
-| Status | Phase 5 complete — Phase 6 (FX + P-locks) next |
-| Last Updated | 2026-06-06 |
+| Status | Phase 6 complete — Phase 7 (Lo-fi + Granular) next |
+| Last Updated | 2026-06-07 |
 
 ## Requirements
 
@@ -56,6 +56,8 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Phase 4 DoD** — varispeed + offline time-stretch + chop-to-pads; 59/59 tests; RT-safe foundation intact — Phase 4
 - [x] **Feel Engine** *(product core)* — per-step timing offset (±100ms+), Gaussian humanize (timing + velocity), xorshift32 PRNG seed determinism, feel presets (Straight, Boom-Bap, Dilla Drunk, Burial Broken, FlyLo Wonk, Bonobo Loose) — Phase 5
 - [x] **Phase 5 DoD** — Dilla Drunk and Burial Broken perceptible (avg|timing|>20ms / range>100ms) and seed-reproducible; 84/84 tests — Phase 5
+- [x] **FX Chain + P-locks** — StateVariableTPT LP filter (20Hz–20kHz, Q 0.1–20), juce::dsp reverb + delay (SmoothedValue 20ms ramp, 0.45 feedback), SidechainCompressor (IIR envelope 5ms/200ms, 8:1 hard-knee), PLockPattern stack (8 params/step), apply_plock_batch() in processBlock — Phase 6
+- [x] **Phase 6 DoD** — P-lock automates any param per step (filter/reverb/delay/sidechain measurably different); sidechain pump functional; 109/109 tests — Phase 6
 
 ### Active (In Progress)
 None yet.
@@ -124,6 +126,9 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | pool.reset_all() before buffer mutation (single-writer contract) | VoicePool reads pad.data() in RT thread; any write to sample_buffer() must stop voices first to prevent UAF | 2026-06-05 | Active |
 | Input snapshot before setSize() | AudioBuffer::setSize() may reallocate, invalidating pad.data() pointer; always copy input to std::vector first | 2026-06-05 | Active |
 | SOUNDTOUCH_DISABLE_X86_OPTIMIZATIONS in fork | STTypes.h auto-enables SSE on x86_64 (__x86_64__); disabling enforces pure C++ path; Phase 7 must re-enable with sse_optimized.cpp | 2026-06-05 | Active |
+| FxChain processes LP→reverb→delay→sidechain in that order | Sidechain as last stage allows it to duck the full wet mix (including reverb tail and echo); filter before reverb prevents LP-filtered signal from being reverbed at full bandwidth | 2026-06-07 | Active |
+| PLockParam enum + stack-allocated PLockBatch (8 slots/step) | RT-safe; no allocation; fixed capacity sufficient for all 6 FxParams fields | 2026-06-07 | Active |
+| sidechain_threshold=0.0f disables compression (not -60.0f) | 0dBFS threshold → IIR envelope of any normal signal stays below 1.0 linear → no gain reduction. -60dBFS = maximum compression | 2026-06-07 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -163,4 +168,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-06 after Phase 5 (Feel Engine)*
+*Last updated: 2026-06-07 after Phase 6 (FX + P-locks)*

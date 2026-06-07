@@ -271,3 +271,20 @@ action = "unify"
 phase = 6
 plan = "06-03"
 at = "2026-06-07T13:00:00Z"
+
+[[entry]]
+action = "plan"
+phase = 6
+plan = "06-04"
+at = "2026-06-07T14:00:00Z"
+
+[[entry]]
+action = "unify"
+phase = 6
+plan = "06-04"
+at = "2026-06-07T20:00:00Z"
+
+[[entry]]
+action = "transition"
+phase = 6
+at = "2026-06-07T20:00:00Z"

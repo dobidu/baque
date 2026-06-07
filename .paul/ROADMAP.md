@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 5 of 13 complete
+Phases: 6 of 13 complete
 
 ## Phases
 
@@ -29,7 +29,7 @@ Phases: 5 of 13 complete
 | 3 | Sequencer Base (Fase 2) | 2 | ✅ Complete | 2026-06-05 |
 | 4 | Sample Engine (Fase 3) | 4 | ✅ Complete | 2026-06-05 |
 | 5 | Feel Engine ⭐ (Fase 4) | 3 | ✅ Complete | 2026-06-06 |
-| 6 | FX + P-locks (Fase 5) | TBD | 🔵 In progress | - |
+| 6 | FX + P-locks (Fase 5) | 4 | ✅ Complete | 2026-06-07 |
 | 7 | Lo-fi + Granular (Fase 6) | TBD | Not started | - |
 | 8 | Scatter / Perf FX (Fase 7) | TBD | Not started | - |
 | 9 | MIDI / Hardware (Fase 8) | TBD | Not started | - |
@@ -97,11 +97,17 @@ Phases: 5 of 13 complete
 - [x] 05-02: Gaussian humanize (Box-Muller) + xorshift32 PRNG seeding ✅ 2026-06-06
 - [x] 05-03: Feel presets (6 named grooves) + Phase 5 DoD verification ✅ 2026-06-06
 
-### Phase 6: FX + P-locks (Fase 5)
+### Phase 6: FX + P-locks (Fase 5) ✅
 **Goal:** Filters, reverb, delay, sidechain, EQ + p-locks
 **Depends on:** Phase 5 (p-locks need sequencer + params)
 **Research:** Unlikely (juce::dsp + established DSP)
-**DoD:** P-lock automates any param per step; sidechain pump functional
+**DoD:** P-lock automates any param per step; sidechain pump functional ✅ 2026-06-07
+
+**Plans:**
+- [x] 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
+- [x] 06-02: FxChain DSP (LP filter + reverb + delay + SmoothedValue, 98/98 tests) ✅ 2026-06-07
+- [x] 06-03: SidechainCompressor (IIR envelope follower + 8:1 gain computer, 104/104 tests) ✅ 2026-06-07
+- [x] 06-04: Phase 6 DoD — integration tests (p-lock→FxChain→output, 109/109 tests) ✅ 2026-06-07
 
 ### Phase 7: Lo-fi + Granular (Fase 6)
 **Goal:** Bitcrush, SR reduction, vinyl, tape; granular engine. Integrates R&D-TS refinements.
@@ -147,4 +153,4 @@ Phases: 5 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-06 — Phase 5 complete*
+*Last updated: 2026-06-07 — Phase 6 complete*

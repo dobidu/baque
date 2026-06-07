@@ -11,39 +11,39 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 6 (FX + P-locks) — 06-03 complete; ready for 06-04 PLAN
+**Current focus:** Phase 7 (Lo-fi + Granular) — not started; Phase 6 complete ✅
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 6 of 13 (FX + P-locks) — In progress
-Plan: 06-03 complete ✅
-Status: 104/104 tests pass; FxChain fully wired (filter→reverb→delay→sidechain)
-Last activity: 2026-06-07 — 06-03 UNIFY complete
+Phase: 7 of 13 (Lo-fi + Granular) — Not started
+Plan: Not started
+Status: Ready to plan Phase 7
+Last activity: 2026-06-07 — Phase 6 complete, transitioned to Phase 7
 
 Progress:
-- Milestone: [██████░░░░] 49%
+- Milestone: [███████░░░] 54%
 - Phase 4: [██████████] 100% ✅
 - Phase 5: [██████████] 100% ✅
-- Phase 6: [██████░░░░] 60% (3/~5 plans done)
+- Phase 6: [██████████] 100% ✅ (4/4 plans done)
 
 Phase 5 complete (Feel Engine ⭐):
 - 05-01: FeelPattern + FeelEngine + per-step timing offset ✅ 2026-06-05
 - 05-02: Gaussian humanize (Box-Muller) + xorshift32 PRNG seeding ✅ 2026-06-06
 - 05-03: Feel presets (6 named grooves) + Phase 5 DoD ✅ 2026-06-06
 
-Phase 6 in progress:
+Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
 - 06-02: FxChain DSP (LP filter + reverb + delay + SmoothedValue, 98/98 tests) ✅ 2026-06-07
 - 06-03: SidechainCompressor (IIR envelope follower + 8:1 gain computer, 104/104 tests) ✅ 2026-06-07
+- 06-04: Phase 6 DoD — integration tests (p-lock→FxChain→output, 109/109 tests) ✅ 2026-06-07
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓          ✓
-          [Loop complete — ready for next PLAN]
+  ✓        ✓        ✓          ✓     [Loop complete — ready for next PLAN]
 ```
 
 ## Accumulated Context
@@ -78,6 +78,8 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-06: Enterprise audit on 06-01 (1 must-have + 2 strong applied, 1 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | double-generate() placement fix (M1); PL6 honest coverage doc (SR1); switch default warning comment (SR2) |
 | 2026-06-07: Enterprise audit on 06-02 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | FC4 buf.clear()-in-loop test bug fixed (M1); reverb setParameters every-block documented (SR1); pop-before-push delay invariant documented (SR2) |
 | 2026-06-07: Enterprise audit on 06-03 (1 must-have + 2 strong applied, 4 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | SC3 threshold tightened < 0.5→< 0.4 (M1); SC5 vacuous-pass replaced with contrast test (SR1); jlimit guard against NaN in threshold_db (SR2) |
+| 2026-06-07: Enterprise audit on 06-04 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | PD3 vacuous-pass replaced with delay-echo contrast test (M1); separate FxChain instances per run in PD1/PD2/PD3 (SR1); PD4 non-zero output check added (SR2) |
+| 2026-06-07: 06-04 APPLY — PD2 plan assertion inverted (plan said peak_tight < peak_loose, but LOW threshold = MORE compression = LOWER output). Fixed: variables renamed hi_thresh/lo_thresh, assertion flipped. PD1 threshold -60→0dBFS (low threshold = max compression, not disabled). PD4 delay_time 2.0f→0.001f for non-zero SR2 check | Phase 6 | Plan spec error caught during APPLY; test semantics corrected; 109/109 pass |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -95,17 +97,16 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07 (session 13)
-Stopped at: 06-03 UNIFY complete; loop closed
-Next action: /paul:plan 06-04
-Resume file: .paul/phases/06-fx-plocks/06-03-SUMMARY.md
+Last session: 2026-06-07 (session 15)
+Stopped at: Phase 6 complete, UNIFY done, ready to plan Phase 7
+Next action: /paul:plan 07-01 (Lo-fi + Granular — first plan)
+Resume file: .paul/ROADMAP.md
 Git strategy: main
 Resume context:
-- FxChain chain complete: LP filter → reverb → delay → SidechainCompressor (all 4 stages)
-- SidechainCompressor: 8:1 ratio, 5ms attack, 200ms release; threshold from FxParams::sidechain_threshold
-- IIR envelope test pattern: need 88200-sample buffers (2s) for convergence assertions on rectified sine
-- CI Node.js 20 action upgrade due before June 16, 2026 (actions/checkout+cache v4→v5)
-- Phase 6 remaining: p-lock interpolation (06-04?), FxChain integration (06-05?)
+- Phase 6 complete: 4 plans, 109/109 tests pass
+- Phase 7 goal: bitcrush, SR reduction (SP-1200/303 presets), vinyl sim, tape, granular engine
+- Phase 7 depends on Phase 6 (FxChain extensible) + R&D-TS advanced work (transient/formant)
+- CI Node.js 20 action upgrade still due before June 16, 2026
 
 ---
 *STATE.md — Updated after every significant action*

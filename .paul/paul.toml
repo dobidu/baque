@@ -15,10 +15,10 @@ status = "in_progress"
 phases = 13
 
 [phase]
-number = 6
-name = "FX + P-locks"
-status = "in_progress"
-plans_completed = 3
+number = 7
+name = "Lo-fi + Granular"
+status = "not_started"
+plans_completed = 0
 
 [loop]
 position = "IDLE"
@@ -27,6 +27,6 @@ position = "IDLE"
 groom = true
 
 [stats]
-total_plans = 18
-total_phases = 14
-last_activity = "2026-06-07T13:00:00Z"
+total_plans = 19
+total_phases = 15
+last_activity = "2026-06-07T20:00:00Z"
