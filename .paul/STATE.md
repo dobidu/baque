@@ -11,21 +11,21 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 6 (FX + P-locks) — 06-02 PLAN+AUDIT complete; ready for APPLY
+**Current focus:** Phase 6 (FX + P-locks) — 06-03 PLAN+AUDIT complete; ready for APPLY
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 6 of 13 (FX + P-locks) — In progress
-Plan: 06-02 (FxChain DSP — filter/reverb/delay + SmoothedValue) — PLAN+AUDIT complete, awaiting APPLY
-Status: 06-02 audited (1M+2SR applied, 3 deferred); verdict: conditionally acceptable → upgraded
-Last activity: 2026-06-07 — 06-02 AUDIT complete
+Plan: 06-03 (SidechainCompressor DSP — envelope follower + gain computer) — PLAN+AUDIT complete, awaiting APPLY
+Status: 06-03 audited (1M+2SR applied, 4 deferred); verdict: conditionally acceptable → upgraded
+Last activity: 2026-06-07 — 06-03 AUDIT complete
 
 Progress:
-- Milestone: [██████░░░░] 46%
+- Milestone: [██████░░░░] 49%
 - Phase 4: [██████████] 100% ✅
 - Phase 5: [██████████] 100% ✅
-- Phase 6: [██░░░░░░░░] 20% (1/~5 plans done)
+- Phase 6: [████░░░░░░] 40% (2/~5 plans done)
 
 Phase 5 complete (Feel Engine ⭐):
 - 05-01: FeelPattern + FeelEngine + per-step timing offset ✅ 2026-06-05
@@ -34,6 +34,7 @@ Phase 5 complete (Feel Engine ⭐):
 
 Phase 6 in progress:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
+- 06-02: FxChain DSP (LP filter + reverb + delay + SmoothedValue, 98/98 tests) ✅ 2026-06-07
 
 ## Loop Position
 
@@ -41,7 +42,7 @@ Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
   ✓        ✓        ○          ○
-          [06-02 audited; ready for APPLY]
+          [06-03 audited; ready for APPLY]
 ```
 
 ## Accumulated Context
@@ -75,6 +76,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-06: Enterprise audit on 05-03 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 5 | #include <array> MSVC compile fix; FP2 vacuous-pass guard; FP4/FP6 humanize-actually-ran check (AC-9); DoD [dod] Catch2 tag for targeted CI |
 | 2026-06-06: Enterprise audit on 06-01 (1 must-have + 2 strong applied, 1 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | double-generate() placement fix (M1); PL6 honest coverage doc (SR1); switch default warning comment (SR2) |
 | 2026-06-07: Enterprise audit on 06-02 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | FC4 buf.clear()-in-loop test bug fixed (M1); reverb setParameters every-block documented (SR1); pop-before-push delay invariant documented (SR2) |
+| 2026-06-07: Enterprise audit on 06-03 (1 must-have + 2 strong applied, 4 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | SC3 threshold tightened < 0.5→< 0.4 (M1); SC5 vacuous-pass replaced with contrast test (SR1); jlimit guard against NaN in threshold_db (SR2) |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -92,17 +94,16 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07 (session 11)
-Stopped at: 06-02 PLAN created; enterprise audit pending
-Next action: /paul:audit 06-02 then /paul:apply 06-02
-Resume file: .paul/phases/06-fx-plocks/06-02-PLAN.md
+Last session: 2026-06-07 (session 12)
+Stopped at: 06-03 PLAN created; audit pending
+Next action: /paul:apply 06-03
+Resume file: .paul/phases/06-fx-plocks/06-03-PLAN.md
 Git strategy: main
 Resume context:
-- FxChain: LP filter (StateVariableTPTFilter) + reverb (juce::dsp::Reverb) + delay (DelayLine stereo)
-- SmoothedValue 20ms ramp for 5 params; block-rate skip() pattern
-- Wire: processBlock() after gain loop; juce_dsp must be added to baque_tests link
-- 98/98 tests expected (92 + 6 FC1-FC6)
-- CI Node.js 20 action upgrade due before June 16, 2026
+- SidechainCompressor: IIR envelope (attack_coeff/release_coeff pre-computed in prepare()); gain computer hard knee; ratio=8:1 attack=5ms release=200ms constants
+- Wire-in: sidechain_comp_ is LAST in FxChain::process() (after delay loop); receives params.sidechain_threshold
+- Target: 104/104 tests (98 prior + 6 SC1-SC6)
+- CI Node.js 20 action upgrade due before June 16, 2026 (actions/checkout+cache v4→v5)
 
 ---
 *STATE.md — Updated after every significant action*

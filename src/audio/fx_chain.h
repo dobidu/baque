@@ -1,12 +1,13 @@
 #pragma once
 #include "fx_params.h"
+#include "sidechain_comp.h"
 
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_dsp/juce_dsp.h>
 
-// Cadeia de FX de áudio do BAQUE — filtro, reverb, delay com suavização por SmoothedValue.
+// Cadeia de FX de áudio do BAQUE — filtro, reverb, delay, sidechain compressor com SmoothedValue.
 // RT-safe: sem alocação, sem locks em process(). prepare() aloca; chamar off audio thread.
-// sidechain_threshold em FxParams ignorado aqui — roteado na Fase 6-03.
+// sidechain_threshold em FxParams drive SidechainCompressor (Fase 6-03).
 class FxChain {
   public:
     // Aloca buffers internos e configura DSP. Chamar em prepareToPlay(), nunca em processBlock().
@@ -37,6 +38,9 @@ class FxChain {
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> delay_line_{192000};
     juce::SmoothedValue<float> delay_mix_smoother_;
     juce::SmoothedValue<float> delay_time_smoother_;
+
+    // Sidechain compressor — envelope follower + gain computer, trigger interno (Fase 6-03)
+    SidechainCompressor sidechain_comp_;
 
     static constexpr float k_smooth_time_s = 0.02f;  // 20ms ramp — sem cliques em p-lock
     static constexpr float k_delay_feedback = 0.45f; // feedback 45% — sem self-oscillation

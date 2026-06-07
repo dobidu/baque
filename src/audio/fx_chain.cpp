@@ -20,6 +20,8 @@ void FxChain::prepare(double sample_rate, int max_block_size) noexcept {
     // Delay: spec estéreo — canal 0=L, canal 1=R
     delay_line_.prepare(stereo_spec);
 
+    sidechain_comp_.prepare(sample_rate, max_block_size);
+
     // SmoothedValues: 20ms ramp; setCurrentAndTargetValue evita artefato no primeiro bloco
     cutoff_smoother_.reset(sample_rate, k_smooth_time_s);
     cutoff_smoother_.setCurrentAndTargetValue(20000.0f);
@@ -109,6 +111,9 @@ void FxChain::process(juce::AudioBuffer<float>& buffer, const FxParams& params) 
         if (num_channels > 1)
             right[i] = right[i] * (1.0f - dly_mix) + wet_r * dly_mix;
     }
+
+    // --- Sidechain Compressor ---
+    sidechain_comp_.process(buffer, params.sidechain_threshold);
 }
 
 void FxChain::reset() noexcept {
@@ -116,6 +121,8 @@ void FxChain::reset() noexcept {
     filter_r_.reset();
     reverb_.reset();
     delay_line_.reset();
+
+    sidechain_comp_.reset();
 
     // Fixa SmoothedValues no target atual — evita ramp ao re-preparar
     cutoff_smoother_.setCurrentAndTargetValue(cutoff_smoother_.getTargetValue());
