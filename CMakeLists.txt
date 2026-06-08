@@ -76,6 +76,7 @@ target_sources(BAQUE
         src/audio/feel_presets.cpp
         src/audio/fx_chain.cpp
         src/audio/sidechain_comp.cpp
+        src/audio/lo_fi_processor.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

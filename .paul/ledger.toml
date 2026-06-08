@@ -288,3 +288,21 @@ at = "2026-06-07T20:00:00Z"
 action = "transition"
 phase = 6
 at = "2026-06-07T20:00:00Z"
+
+[[entry]]
+action = "plan"
+phase = 7
+plan = "07-01"
+at = "2026-06-07T20:30:00Z"
+
+[[entry]]
+action = "apply"
+phase = 7
+plan = "07-01"
+at = "2026-06-07T21:00:00Z"
+
+[[entry]]
+action = "unify"
+phase = 7
+plan = "07-01"
+at = "2026-06-07T21:30:00Z"

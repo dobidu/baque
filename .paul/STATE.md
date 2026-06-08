@@ -16,10 +16,10 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 7 of 13 (Lo-fi + Granular) — Not started
-Plan: Not started
-Status: Ready to plan Phase 7
-Last activity: 2026-06-07 — Phase 6 complete, transitioned to Phase 7
+Phase: 7 of 13 (Lo-fi + Granular) — In progress
+Plan: 07-01 loop complete (1 of TBD plans in Phase 7) — ready to plan 07-02
+Status: UNIFY done — 07-01-SUMMARY.md written; Phase 7 in progress
+Last activity: 2026-06-07 — 07-01 UNIFY complete
 
 Progress:
 - Milestone: [███████░░░] 54%
@@ -43,7 +43,7 @@ Phase 6 complete ✅:
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓          ✓     [Loop complete — ready for next PLAN]
+  ✓        ✓        ✓          ✓     [Loop closed — ready for next PLAN]
 ```
 
 ## Accumulated Context
@@ -80,6 +80,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-07: Enterprise audit on 06-03 (1 must-have + 2 strong applied, 4 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | SC3 threshold tightened < 0.5→< 0.4 (M1); SC5 vacuous-pass replaced with contrast test (SR1); jlimit guard against NaN in threshold_db (SR2) |
 | 2026-06-07: Enterprise audit on 06-04 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | PD3 vacuous-pass replaced with delay-echo contrast test (M1); separate FxChain instances per run in PD1/PD2/PD3 (SR1); PD4 non-zero output check added (SR2) |
 | 2026-06-07: 06-04 APPLY — PD2 plan assertion inverted (plan said peak_tight < peak_loose, but LOW threshold = MORE compression = LOWER output). Fixed: variables renamed hi_thresh/lo_thresh, assertion flipped. PD1 threshold -60→0dBFS (low threshold = max compression, not disabled). PD4 delay_time 2.0f→0.001f for non-zero SR2 check | Phase 6 | Plan spec error caught during APPLY; test semantics corrected; 109/109 pass |
+| 2026-06-07: Enterprise audit on 07-01. Applied 1 must-have (std::pow hoisted from per-sample loop), 2 strongly-recommended (channel cap to 2, LF3 == comment). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -98,14 +99,15 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-07 (session 15)
-Stopped at: Phase 6 complete, UNIFY done, ready to plan Phase 7
-Next action: /paul:plan 07-01 (Lo-fi + Granular — first plan)
-Resume file: .paul/ROADMAP.md
+Stopped at: 07-01 PLAN created, awaiting audit
+Next action: /paul:plan 07-02 (FxChain + FxParams integration for LoFiProcessor)
+Resume file: .paul/phases/07-lo-fi-granular/07-01-SUMMARY.md
 Git strategy: main
 Resume context:
-- Phase 6 complete: 4 plans, 109/109 tests pass
-- Phase 7 goal: bitcrush, SR reduction (SP-1200/303 presets), vinyl sim, tape, granular engine
-- Phase 7 depends on Phase 6 (FxChain extensible) + R&D-TS advanced work (transient/formant)
+- 07-01 = LoFiProcessor DSP (BitCrusher + ZOH SR reducer + SP-1200/SP-303/8-bit presets)
+- Standalone class (no FxChain integration yet — that is 07-02)
+- Key design: ZOH order-first then bitcrush; phase_ initialized to 1.0f; k_sp1200={12.0f, 44100/26040}
+- 5 tests: LF1 transparent, LF2 8-bit exact value, LF3 ZOH hold+advance, LF4 SP-1200 contrast, LF5 DoD marker
 - CI Node.js 20 action upgrade still due before June 16, 2026
 
 ---
