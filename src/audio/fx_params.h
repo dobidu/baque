@@ -10,4 +10,6 @@ struct FxParams {
     float delay_mix = 0.0f;             // [0, 1]
     float delay_time = 0.25f;           // seconds [0.001, 2.0]
     float sidechain_threshold = -12.0f; // dBFS [-60, 0]
+    float bit_depth = 16.0f;            // bits [4, 24]; 16 = transparent
+    float sr_factor = 1.0f;             // ZOH factor [1, 4]; 1.0 = no reduction
 };

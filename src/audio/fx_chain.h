@@ -1,5 +1,6 @@
 #pragma once
 #include "fx_params.h"
+#include "lo_fi_processor.h"
 #include "sidechain_comp.h"
 
 #include <juce_audio_basics/juce_audio_basics.h>
@@ -41,6 +42,10 @@ class FxChain {
 
     // Sidechain compressor — envelope follower + gain computer, trigger interno (Fase 6-03)
     SidechainCompressor sidechain_comp_;
+
+    // LoFi processor — bitcrusher + ZOH SR reducer, primeiro estágio do chain (Fase 7-02)
+    LoFiProcessor lo_fi_;
+    int max_block_size_ = 512; // armazenado em prepare() para uso em reset()
 
     static constexpr float k_smooth_time_s = 0.02f;  // 20ms ramp — sem cliques em p-lock
     static constexpr float k_delay_feedback = 0.45f; // feedback 45% — sem self-oscillation

@@ -181,6 +181,12 @@ void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) no
         case PLockParam::sidechain_threshold:
             fx.sidechain_threshold = batch.events[i].value;
             break;
+        case PLockParam::bit_depth:
+            fx.bit_depth = batch.events[i].value;
+            break;
+        case PLockParam::sr_factor:
+            fx.sr_factor = batch.events[i].value;
+            break;
         // INVARIANT: every PLockParam value must have a case above.
         // WARNING: adding a new PLockParam enum value without adding a case here will silently
         // swallow p-lock events for that param. This default exists only as a safety net.

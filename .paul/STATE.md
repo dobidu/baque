@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 7 (Lo-fi + Granular) — not started; Phase 6 complete ✅
+**Current focus:** Phase 7 (Lo-fi + Granular) — in progress (07-02 complete; 07-03 next)
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 7 of 13 (Lo-fi + Granular) — In progress
-Plan: 07-01 loop complete (1 of TBD plans in Phase 7) — ready to plan 07-02
-Status: UNIFY done — 07-01-SUMMARY.md written; Phase 7 in progress
-Last activity: 2026-06-07 — 07-01 UNIFY complete
+Plan: 07-02 complete ✅; 07-03 next
+Status: 07-02 UNIFY complete; Phase 7 in progress
+Last activity: 2026-06-08 — 07-02 APPLY+UNIFY: LoFiProcessor wired into FxChain, 119/119 tests
 
 Progress:
 - Milestone: [███████░░░] 54%
@@ -43,7 +43,8 @@ Phase 6 complete ✅:
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓          ✓     [Loop closed — ready for next PLAN]
+  ✓        ✓        ✓          ✓
+          [07-02 loop closed — 07-03 next]
 ```
 
 ## Accumulated Context
@@ -81,6 +82,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-07: Enterprise audit on 06-04 (1 must-have + 2 strong applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 6 | PD3 vacuous-pass replaced with delay-echo contrast test (M1); separate FxChain instances per run in PD1/PD2/PD3 (SR1); PD4 non-zero output check added (SR2) |
 | 2026-06-07: 06-04 APPLY — PD2 plan assertion inverted (plan said peak_tight < peak_loose, but LOW threshold = MORE compression = LOWER output). Fixed: variables renamed hi_thresh/lo_thresh, assertion flipped. PD1 threshold -60→0dBFS (low threshold = max compression, not disabled). PD4 delay_time 2.0f→0.001f for non-zero SR2 check | Phase 6 | Plan spec error caught during APPLY; test semantics corrected; 109/109 pass |
 | 2026-06-07: Enterprise audit on 07-01. Applied 1 must-have (std::pow hoisted from per-sample loop), 2 strongly-recommended (channel cap to 2, LF3 == comment). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
+| 2026-06-07: Enterprise audit on 07-02. Applied 1 must-have (T1 verify expanded to catch PL6 regression), 2 strongly-recommended (no-SmoothedValue comment for lo-fi, LC4 dispatch limitation documented). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -98,17 +100,18 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07 (session 15)
-Stopped at: 07-01 PLAN created, awaiting audit
-Next action: /paul:plan 07-02 (FxChain + FxParams integration for LoFiProcessor)
-Resume file: .paul/phases/07-lo-fi-granular/07-01-SUMMARY.md
+Last session: 2026-06-08 (session 16)
+Stopped at: 07-02 UNIFY complete
+Next action: /paul:plan 07-03 (vinyl simulation or granular engine — check ROADMAP)
+Resume file: .paul/phases/07-lo-fi-granular/07-03-PLAN.md
 Git strategy: main
 Resume context:
-- 07-01 = LoFiProcessor DSP (BitCrusher + ZOH SR reducer + SP-1200/SP-303/8-bit presets)
-- Standalone class (no FxChain integration yet — that is 07-02)
-- Key design: ZOH order-first then bitcrush; phase_ initialized to 1.0f; k_sp1200={12.0f, 44100/26040}
-- 5 tests: LF1 transparent, LF2 8-bit exact value, LF3 ZOH hold+advance, LF4 SP-1200 contrast, LF5 DoD marker
-- CI Node.js 20 action upgrade still due before June 16, 2026
+- 07-01 complete: LoFiProcessor standalone (ZOH + bitcrusher, 114 tests)
+- 07-02 complete: LoFiProcessor wired into FxChain as first stage (119/119 tests)
+- FxParams: bit_depth=16.0f (transparent), sr_factor=1.0f (no reduction) — both p-lockable
+- PLockParam count is 8 (bit_depth=6, sr_factor=7)
+- Phase 7 DoD still requires: granular engine, vinyl simulation, SP-1200/SP-303 presets end-to-end
+- CI Node.js 20 action upgrade due before June 16, 2026
 
 ---
 *STATE.md — Updated after every significant action*

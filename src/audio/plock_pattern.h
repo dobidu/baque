@@ -10,7 +10,9 @@ enum class PLockParam : uint8_t {
     delay_mix = 3,
     delay_time = 4,
     sidechain_threshold = 5,
-    count = 6
+    bit_depth = 6,
+    sr_factor = 7,
+    count = 8
 };
 
 static constexpr int k_plock_param_count = static_cast<int>(PLockParam::count);

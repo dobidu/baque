@@ -2,7 +2,10 @@
 
 void FxChain::prepare(double sample_rate, int max_block_size) noexcept {
     sample_rate_ = sample_rate;
+    max_block_size_ = max_block_size;
     is_prepared_ = true;
+
+    lo_fi_.prepare(sample_rate, max_block_size);
 
     const auto block_size = static_cast<juce::uint32>(max_block_size);
 
@@ -65,6 +68,11 @@ void FxChain::process(juce::AudioBuffer<float>& buffer, const FxParams& params) 
     const float dly_mix = juce::jlimit(0.0f, 1.0f, delay_mix_smoother_.skip(num_samples));
     const float dly_t = juce::jlimit(0.001f, 2.0f, delay_time_smoother_.skip(num_samples));
 
+    // --- LoFi (primeiro: coloration na fonte, antes do FX chain) ---
+    // bit_depth/sr_factor aplicados direto — lo-fi e chaveamento discreto, sem ramp SmoothedValue.
+    // Adicionar SmoothedValue aqui silenciaria transientemente ao mudar preset — comportamento errado.
+    lo_fi_.process(buffer, params.bit_depth, params.sr_factor);
+
     // --- Filtro LP ---
     filter_l_.setCutoffFrequency(cutoff);
     filter_r_.setCutoffFrequency(cutoff);
@@ -117,6 +125,8 @@ void FxChain::process(juce::AudioBuffer<float>& buffer, const FxParams& params) 
 }
 
 void FxChain::reset() noexcept {
+    lo_fi_.prepare(sample_rate_, max_block_size_);
+
     filter_l_.reset();
     filter_r_.reset();
     reverb_.reset();
