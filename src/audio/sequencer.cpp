@@ -22,7 +22,11 @@ void Sequencer::generate(const TransportState& transport,
                          FeelEngine* feel_engine,
                          int64_t block_start_sample,
                          const PLockPattern* plock_pattern,
-                         PLockBatch* plock_batch_out) noexcept {
+                         PLockBatch* plock_batch_out,
+                         const PerfState* perf) noexcept {
+    // any_solo: 1×/bloco (não por lane). Se alguma lane está soloed, só soloed são audíveis.
+    const bool any_solo =
+        perf != nullptr && std::any_of(perf->solo.begin(), perf->solo.end(), [](bool b) { return b; });
     // Detecção de regressão de ppq (loop/restart do DAW) — limpa fila de notas diferidas. (M3)
     if (feel_engine && transport.is_playing && last_ppq_ > 0.0 && transport.ppq_position < last_ppq_ - 1e-6) {
         feel_engine->prepare();
@@ -113,10 +117,22 @@ void Sequencer::generate(const TransportState& transport,
                 add_with_feel(juce::MidiMessage::noteOff(1, prev_note), clamped_pos, prev_step);
             }
 
+            // Trig condition (fill) + audibilidade (mute/solo) — Fase 8-04.
+            // GATE A FIRA INTEIRA como unidade (auditoria M1): note_triggered + note-on só quando
+            // dispara de verdade. Step suprimido NÃO toca o NoteTracker (senão o próximo note-off
+            // referenciaria nota que nunca soou). Note-off (acima) permanece incondicional.
+            const StepPattern::TrigCondition cond = pattern_.get_trig(lane, step);
+            const bool trig_ok =
+                (cond == StepPattern::TrigCondition::always) ||
+                (cond == StepPattern::TrigCondition::fill && perf != nullptr && perf->fill_active) ||
+                (cond == StepPattern::TrigCondition::not_fill && (perf == nullptr || !perf->fill_active));
+            const bool audible = perf == nullptr || (!perf->mute[static_cast<size_t>(lane)] &&
+                                                     (!any_solo || perf->solo[static_cast<size_t>(lane)]));
+
             // Note-on: registra no NoteTracker; aplica vel_scale + humanize se feel ativo.
             // INVARIANT: vel jitter applied here (before add_with_feel) so PRNG advances
             // in order vel[×2] → timing[×2] per note-on. Must not be reordered.
-            if (pattern_.is_active(lane, step)) {
+            if (pattern_.is_active(lane, step) && trig_ok && audible) {
                 const uint8_t note = pattern_.get_note(lane, step);
                 note_tracker_.note_triggered(lane, note);
                 uint8_t vel = 100;

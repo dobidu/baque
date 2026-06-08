@@ -4,10 +4,14 @@
 #include "audio/feel_pattern.h"
 #include "audio/fx_chain.h"
 #include "audio/fx_params.h"
+#include "audio/gater_processor.h"
 #include "audio/pad_bank.h"
+#include "audio/perf_state.h"
 #include "audio/plock_pattern.h"
+#include "audio/scatter_engine.h"
 #include "audio/scheduler.h"
 #include "audio/sequencer.h"
+#include "audio/tape_stop_processor.h"
 #include "audio/transport_state.h"
 #include "audio/voice_pool.h"
 
@@ -85,6 +89,17 @@ class BaqueProcessor : public juce::AudioProcessor {
 
     // FX chain — filter/reverb/delay with SmoothedValue (Fase 6-02)
     FxChain fx_chain_;
+
+    // Scatter perf FX — opera no mix wet completo pós-FxChain (Fase 8-02)
+    ScatterEngine scatter_;
+
+    // Perf FX pós-scatter (Fase 8-03): gater (gate beat-synced) → tape_stop (freio mestre, último)
+    GaterProcessor gater_;
+    TapeStopProcessor tape_stop_;
+
+    // Estado de performance do sequenciador (Fase 8-04): fills (trig conditions) + mute/solo.
+    // Single-writer (sem UI/APVTS em v1); Fase 10 deve migrar p/ atomics ao adicionar writers.
+    PerfState perf_state_;
 
     static constexpr int k_state_version = 2;
 

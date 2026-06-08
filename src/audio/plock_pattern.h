@@ -15,7 +15,11 @@ enum class PLockParam : uint8_t {
     granular_spray = 8,
     granular_pitch_spread = 9,
     granular_freeze = 10,
-    count = 11
+    scatter_type = 11,
+    scatter_depth = 12,
+    tape_stop = 13,
+    gate_depth = 14,
+    count = 15
 };
 
 static constexpr int k_plock_param_count = static_cast<int>(PLockParam::count);

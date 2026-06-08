@@ -15,4 +15,8 @@ struct FxParams {
     float granular_spray = 0.0f;        // [0, 1]; 0 = no scatter
     float granular_pitch_spread = 0.0f; // [0, 1]; 0 = no pitch variation
     float granular_freeze = 0.0f;       // >= 0.5f = freeze on (float boolean convention); 0.0 = off
+    float scatter_type = 0.0f;          // 0 = off, 1-10 = preset de glitch (discreto)
+    float scatter_depth = 0.0f;         // [0, 1]; 0 = sem efeito (wet/dry)
+    float tape_stop = 0.0f;             // [0, 1]; 0 = normal, 1 = parado (halt→silêncio)
+    float gate_depth = 0.0f;            // [0, 1]; 0 = sem gate, 1 = chop total
 };

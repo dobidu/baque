@@ -110,7 +110,7 @@ TEST_CASE("LC4 - PLockParam bit_depth and sr_factor enum indices correct", "[lo_
     // Same acceptance pattern as PL6 (audit-SR1 from Phase 6-01).
     REQUIRE(static_cast<int>(PLockParam::bit_depth) == 6);
     REQUIRE(static_cast<int>(PLockParam::sr_factor) == 7);
-    REQUIRE(k_plock_param_count == 11);
+    REQUIRE(k_plock_param_count == 15);
 
     FxParams fx{};
     fx.bit_depth = 4.0f;

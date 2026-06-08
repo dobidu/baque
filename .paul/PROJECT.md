@@ -20,8 +20,8 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 |-----------|-------|
 | Type | Application (audio plugin) |
 | Version | 0.0.0 |
-| Status | Phase 6 complete — Phase 7 (Lo-fi + Granular) next |
-| Last Updated | 2026-06-07 |
+| Status | Phase 8 complete — Phase 9 (MIDI / Hardware) next |
+| Last Updated | 2026-06-08 |
 
 ## Requirements
 
@@ -61,6 +61,9 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Lo-fi Coloration** — LoFiProcessor: bitcrusher (quantize step = 2^(bit_depth−1)), ZOH SR reduction (integer decimation, std::pow hoisted); bit_depth + sr_factor p-lockable (PLockParam 6/7); SP-1200/SP-303 character achievable — Phase 7
 - [x] **Granular Engine v1** — GranularProcessor: 16-grain pre-allocated pool, 8192-sample ring capture buffer, Hann window, linear interpolation for pitch shift, freeze mode; granular_spray/pitch_spread/freeze p-lockable (PLockParam 8/9/10) — Phase 7
 - [x] **Phase 7 DoD** — SP-1200/SP-303 lo-fi via bit_depth/sr_factor; granular freeze/clouds stable; all 11 PLockParam entries dispatched; 129/129 tests — Phase 7
+- [x] **Scatter / Performance FX** — ScatterEngine (ring + repeat/reverse/gate/decimate, type 0-10 + depth, beat-synced, freeze-by-copy no-feedback) post-FxChain; TapeStopProcessor (resample halt→silence, per-sample smoothed); GaterProcessor (1/16 beat-synced amplitude gate, anti-click fade); all APVTS + p-lockable (PLockParam 11-14, count 15); order voices→fx_chain→scatter→gater→tape_stop — Phase 8
+- [x] **Fills + mute/solo** — StepPattern TrigCondition (always/fill/not_fill) + Sequencer fill gating; PerfState mute/solo per-lane groups (mute suppresses, solo isolates, mute wins); fire gated as unit (suppressed step doesn't poison NoteTracker) — Phase 8
+- [x] **Phase 8 DoD** — live scatter+tape+gater no dropout (200-block finite); fills via trig conditions add hits; 165/165 tests — Phase 8
 
 ### Active (In Progress)
 None yet.
@@ -132,6 +135,11 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | FxChain processes LP→reverb→delay→sidechain in that order | Sidechain as last stage allows it to duck the full wet mix (including reverb tail and echo); filter before reverb prevents LP-filtered signal from being reverbed at full bandwidth | 2026-06-07 | Active |
 | PLockParam enum + stack-allocated PLockBatch (8 slots/step) | RT-safe; no allocation; fixed capacity sufficient for all 6 FxParams fields | 2026-06-07 | Active |
 | sidechain_threshold=0.0f disables compression (not -60.0f) | 0dBFS threshold → IIR envelope of any normal signal stays below 1.0 linear → no gain reduction. -60dBFS = maximum compression | 2026-06-07 | Active |
+| processBlock FX order: voices → fx_chain → scatter → gater → tape_stop | Perf FX operate on full wet mix; tape_stop last as master halt | 2026-06-08 | Active |
+| Scatter freeze-by-copy ring; tape-stop halt→silence (gain=rate, no DC) | No self-capture/feedback in scatter; DC offset on master is a hazard | 2026-06-08 | Active |
+| Sequencer fire gated as unit (trig + mute/solo); note-off unconditional | Suppressed step must not poison NoteTracker; note-off always emitted prevents stuck notes | 2026-06-08 | Active |
+| PerfState single-writer (fill/mute/solo), not yet atomic | Phase 10 UI writers must upgrade to atomics/command queue (mirrors pad-params) | 2026-06-08 | Active |
+| Scene morph deferred to Phase 10/11 | Performance gesture coupled to scenes/UI; out of Phase 8 DoD | 2026-06-08 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -171,4 +179,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-08 after Phase 7 (Lo-fi + Granular)*
+*Last updated: 2026-06-08 after Phase 8 (Scatter / Perf FX)*

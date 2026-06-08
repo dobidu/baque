@@ -15,8 +15,8 @@ status = "in_progress"
 phases = 13
 
 [phase]
-number = 8
-name = "Scatter / Perf FX"
+number = 9
+name = "MIDI / Hardware"
 status = "not_started"
 plans_completed = 0
 
@@ -27,6 +27,6 @@ position = "IDLE"
 groom = true
 
 [stats]
-total_plans = 24
-total_phases = 16
-last_activity = "2026-06-08T08:00:00Z"
+total_plans = 28
+total_phases = 17
+last_activity = "2026-06-08T18:00:00Z"

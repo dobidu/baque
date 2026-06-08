@@ -142,7 +142,7 @@ TEST_CASE("PL5 - disabled PLockPattern emits no events", "[plock]") {
 // nullptr and the dereference crashes. Static check here confirms enum sanity.
 TEST_CASE("PL6 - PLockParam enum count correct", "[plock]") {
     REQUIRE(k_plock_param_count == static_cast<int>(PLockParam::count));
-    REQUIRE(k_plock_param_count == 11);
+    REQUIRE(k_plock_param_count == 15);
 }
 
 // PL7: multiple steps firing in same block accumulate all p-lock events

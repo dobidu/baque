@@ -131,7 +131,7 @@ TEST_CASE("GC4 - PLockParam granular enum indices correct", "[granular]") {
     REQUIRE(static_cast<int>(PLockParam::granular_spray) == 8);
     REQUIRE(static_cast<int>(PLockParam::granular_pitch_spread) == 9);
     REQUIRE(static_cast<int>(PLockParam::granular_freeze) == 10);
-    REQUIRE(k_plock_param_count == 11);
+    REQUIRE(k_plock_param_count == 15);
 
     FxParams fx{};
     fx.granular_spray = 0.5f;

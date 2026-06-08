@@ -11,21 +11,28 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 8 (Scatter / Perf FX) — ready to plan
+**Current focus:** Phase 8 complete ✅ — transition to Phase 9 (MIDI / Hardware)
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 8 of 13 (Scatter / Perf FX) — Ready to plan
-Plan: Not started
-Status: Ready to plan Phase 8
-Last activity: 2026-06-08 — Phase 7 complete (07-04 UNIFY + transition)
+Phase: 8 of 13 (Scatter / Perf FX) — ✅ Complete (4/4 plans)
+Plan: 08-04 complete (loop closed) — fills + mute/solo + Phase 8 DoD, 165/165 tests
+Status: Phase 8 complete — ready to plan Phase 9
+Last activity: 2026-06-08 — 08-04 UNIFY + Phase 8 transition (feat(08) committed)
+
+Phase 8 decomposition (4-plan, mirrors Phase 6/7):
+- 08-01: ScatterEngine standalone (ring + repeat/reverse/gate/decimate + type 1-10 + depth + beat-sync) ✅ 2026-06-08
+- 08-02: ScatterEngine wired into processBlock (post-FxChain) + scatter_type/depth APVTS + p-lock (PLockParam 11/12) ✅ 2026-06-08
+- 08-03: TapeStop + Gater perf FX, wired post-scatter, APVTS + p-lock (PLockParam 13/14, count 15) ✅ 2026-06-08
+- 08-04: Fills via trig conditions + mute/solo groups + Phase 8 DoD (scene morph deferred) ✅ 2026-06-08
 
 Progress:
-- Milestone: [████████░░] 62%
+- Milestone: [██████░░░░] 62% (8/13 phases complete)
 - Phase 5: [██████████] 100% ✅
 - Phase 6: [██████████] 100% ✅ (4/4 plans done)
 - Phase 7: [██████████] 100% ✅ (4/4 plans done)
+- Phase 8: [██████████] 100% ✅ (4/4 plans done)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -44,7 +51,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓          ✓     [Phase 7 loop complete — ready for Phase 8 PLAN]
+  ✓        ✓        ✓          ✓     [Phase 8 complete — transition done; ready for Phase 9 PLAN]
 ```
 
 ## Accumulated Context
@@ -85,6 +92,10 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-07: Enterprise audit on 07-02. Applied 1 must-have (T1 verify expanded to catch PL6 regression), 2 strongly-recommended (no-SmoothedValue comment for lo-fi, LC4 dispatch limitation documented). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | 2026-06-08: Enterprise audit on 07-03. Applied 1 must-have (GR3/GR4 explicit fill phase — without it tests read zero capture → vacuous fail), 2 strongly-recommended (jassert(length>0) in hann(), spawn_grain skip documented). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | 2026-06-08: Enterprise audit on 07-04. Applied 1 must-have (LC4 regression — test_lo_fi_chain.cpp asserts k_plock_param_count==8, becomes 11; boundary said DO NOT CHANGE but plan must update it), 2 strongly-recommended (granular always-on comment in fx_chain.cpp SR1; granular_freeze threshold >=0.5f in FxParams comment SR2). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 08-01. Applied 1 must-have (M1: ring read-anchor/freeze invariant — read_anchor_ frozen per slice trails write_pos_ by slice_len, slice_len < ring_size_, slice phase persists across blocks → no feedback/overlap; depth=0 exact dry), 2 strongly-recommended (SR1 stereo coherence — slice phase/gate/decimate shared L+R; SR2 reset() zeros ring+heads, SC9 test). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 8 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 08-02. Applied 1 must-have (M1: integration unverified — removed "degrade to ID check" hedge; require SCH4 post-FxChain ordering test + SCH5 real processBlock smoke; test_transport proves BaqueProcessor instantiable), 2 strongly-recommended (SR1 jlimit(0,k_num_types) clamp on scatter_type before dispatch — p-lock can push out-of-range → 08-01 jassert; SR2 document p-lock>APVTS precedence + grep guard for stray ==11 count asserts). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 8 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 08-03. Applied 1 must-have (M1: tape-stop halt must go to SILENCE via gain→0, not hold last sample — DC offset on master = speaker/pluginval hazard), 2 strongly-recommended (SR1 per-sample SmoothedValue for tape rate not per-block coef — zipper; SR2 mandatory GT6 processBlock wiring smoke — prepare-forgotten → silent no-op, 08-02 M1 lesson). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 8 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 08-04. Applied 1 must-have (M1: gate the whole fire as a unit — note_triggered + note-on; suppressed fill/muted step must NOT update NoteTracker else next note-off mis-targets; note-off stays unconditional; AC-7+TF5 guard), 2 strongly-recommended (SR1 PerfState single-writer contract doc — Phase 10 UI must use atomics/command queue, mirrors Phase-4 pad-params; SR2 TF5 suppression-interaction regression test). Deferred 3 (ratio trigs, fill/mute/solo UI, scene morph). Verdict: conditionally acceptable → upgraded | Phase 8 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -96,23 +107,32 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | Song mode depth — chaining only in v1? | ESCOPO §14.6 | M | Phase 3 planning |
 | Multi-out in v1 vs v1.1 | ESCOPO §14.7 | M | Phase 9/10 planning |
 | Upgrade CI actions/checkout + cache from v4→v5 (Node.js 20 deprecated) | Phase 1 | S | Before June 16, 2026 (deadline from GitHub) |
+| Scene morph (perf FX, ESCOPO §4.7) deferred from 08-04 — performance gesture coupled to scenes/UI | Phase 8 | M | Phase 10 (UI/UX) or 11 (presets/scenes) |
 
 ### Blockers/Concerns
 None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-08 (session 18)
-Stopped at: Phase 7 complete — UNIFY + transition done; Phase 8 ready to plan
-Next action: /paul:plan for Phase 8 (Scatter / Perf FX)
+Last session: 2026-06-08 (session 19)
+Stopped at: Phase 8 complete (4/4) — transition done; Phase 9 ready to plan
+Next action: /paul:plan for Phase 9 (MIDI / Hardware)
 Resume file: .paul/ROADMAP.md
 Git strategy: main
 Resume context:
-- Phase 7 complete: LoFiProcessor + GranularProcessor wired into FxChain, both p-lockable (11 PLockParam entries)
-- 129/129 tests; clang-format clean; Phase 7 DoD (GC5) confirmed
-- FxChain order: LoFi → Granular → LP → Reverb → Delay → Sidechain
-- Granular bypass at neutral params (bypass if spray=0 AND pitch=0 AND freeze=false)
-- CI Node.js 20 action upgrade due before June 16, 2026
+- Phase 8 COMPLETE: Scatter + TapeStop + Gater perf FX (post-FxChain, APVTS + p-lock, PLockParam 11-14, count 15); fills via trig conditions (StepPattern TrigCondition always/fill/not_fill); mute/solo groups (PerfState); 165/165 tests; feat(08) committed
+- processBlock order: voices → fx_chain → scatter → gater → tape_stop
+- Sequencer::generate now takes const PerfState* perf (default nullptr = legacy); fire gated as unit, note-off unconditional
+- PerfState single-writer — Phase 10 UI must upgrade to atomics/command queue
+- Phase 9 (MIDI / Hardware): MIDI out, clock master/slave, CC out, MIDI learn, hybrid INT/EXT lanes, TR-8/TR-8S templates. Note deferred items: MIDI channel routing global since Phase 3 → Phase 9 must add per-lane channel filter (STATE decision). Research likely (clock jitter, TR-8 mapping validation).
+- 165/165 tests baseline; Catch2 ASCII-only + PRE_TEST
+- CI Node.js 20 action upgrade due before June 16, 2026 (8 days)
+- Scene morph deferred → Phase 10/11
+
+### Git State
+Last commit: (set after feat(08) commit below)
+Branch: main
+Feature branches merged: none
 
 ---
 *STATE.md — Updated after every significant action*

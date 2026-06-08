@@ -7,7 +7,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(baque_tests test_smoke.cpp test_voice.cpp test_transport.cpp test_sequencer.cpp test_pad_bank.cpp test_slicer.cpp test_time_stretch.cpp test_feel_engine.cpp test_feel_presets.cpp test_plock.cpp test_fx_chain.cpp test_sidechain_comp.cpp test_fx_plock_dod.cpp test_lo_fi.cpp test_lo_fi_chain.cpp test_granular.cpp test_granular_chain.cpp)
+add_executable(baque_tests test_smoke.cpp test_voice.cpp test_transport.cpp test_sequencer.cpp test_pad_bank.cpp test_slicer.cpp test_time_stretch.cpp test_feel_engine.cpp test_feel_presets.cpp test_plock.cpp test_fx_chain.cpp test_sidechain_comp.cpp test_fx_plock_dod.cpp test_lo_fi.cpp test_lo_fi_chain.cpp test_granular.cpp test_granular_chain.cpp test_scatter.cpp test_scatter_chain.cpp test_tape_stop.cpp test_gater.cpp test_trig_fills.cpp test_mute_solo.cpp test_phase8_dod.cpp)
 
 target_link_libraries(baque_tests
     PRIVATE

@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 7 of 13 complete
+Phases: 8 of 13 complete
 
 ## Phases
 
@@ -31,7 +31,7 @@ Phases: 7 of 13 complete
 | 5 | Feel Engine ⭐ (Fase 4) | 3 | ✅ Complete | 2026-06-06 |
 | 6 | FX + P-locks (Fase 5) | 4 | ✅ Complete | 2026-06-07 |
 | 7 | Lo-fi + Granular (Fase 6) | 4 | ✅ Complete | 2026-06-08 |
-| 8 | Scatter / Perf FX (Fase 7) | TBD | Not started | - |
+| 8 | Scatter / Perf FX (Fase 7) | 4 | ✅ Complete | 2026-06-08 |
 | 9 | MIDI / Hardware (Fase 8) | TBD | Not started | - |
 | 10 | UI/UX (Fase 9) | TBD | Not started | - |
 | 11 | Presets & Library (Fase 10) | TBD | Not started | - |
@@ -120,11 +120,17 @@ Phases: 7 of 13 complete
 - [x] 07-03: GranularProcessor standalone (grain pool + freeze + spray + pitch_spread, 124/124 tests) ✅ 2026-06-08
 - [x] 07-04: GranularProcessor wired into FxChain; granular params p-lockable; Phase 7 DoD (129/129 tests) ✅ 2026-06-08
 
-### Phase 8: Scatter / Perf FX (Fase 7)
+### Phase 8: Scatter / Perf FX (Fase 7) ✅
 **Goal:** Scatter, beat-repeat, gater, tape-stop, fills
 **Depends on:** Phase 7
 **Research:** Unlikely
-**DoD:** Live scatter without dropout; fills via trig conditions
+**DoD:** Live scatter without dropout; fills via trig conditions ✅ 2026-06-08
+
+**Plans (4-plan decomposition):**
+- [x] 08-01: ScatterEngine standalone (ring + repeat/reverse/gate/decimate + type 1-10 + depth + beat-sync, 139/139 tests) ✅ 2026-06-08
+- [x] 08-02: Wire into processBlock (post-FxChain) + scatter_type/scatter_depth APVTS + p-lockable (PLockParam 11/12, count 13, 144/144 tests) ✅ 2026-06-08
+- [x] 08-03: TapeStop (halt→silence) + Gater (1/16 beat-synced) perf FX, post-scatter, APVTS + p-lock (PLockParam 13/14, count 15, 153/153 tests) ✅ 2026-06-08
+- [ ] 08-04: Fills via trig conditions (extend StepPattern) + mute/solo groups + Phase 8 DoD (scene morph deferred → Phase 10/11)
 
 ### Phase 9: MIDI / Hardware (Fase 8)
 **Goal:** MIDI out, clock sync, CC, MIDI learn, hybrid mode
@@ -158,4 +164,4 @@ Phases: 7 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-08 — Phase 7 complete*
+*Last updated: 2026-06-08 — Phase 8 complete*

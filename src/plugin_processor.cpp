@@ -29,6 +29,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout BaqueProcessor::create_param
                                                            "Sidechain Threshold",
                                                            juce::NormalisableRange<float>{-60.0f, 0.0f},
                                                            -12.0f));
+    // Scatter perf FX (Fase 8-02): type discreto 0-10 (0=off), depth contínuo 0-1. APVTS default
+    // neutro + override por p-lock (mesmo contrato de filter_cutoff/etc).
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{"scatter_type", 1}, "Scatter Type", juce::NormalisableRange<float>{0.0f, 10.0f, 1.0f}, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{"scatter_depth", 1}, "Scatter Depth", juce::NormalisableRange<float>{0.0f, 1.0f}, 0.0f));
+    // Perf FX 08-03: tape-stop (0=normal, 1=parado) + gater depth (0=off, 1=chop total)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{"tape_stop", 1}, "Tape Stop", juce::NormalisableRange<float>{0.0f, 1.0f}, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{"gate_depth", 1}, "Gate Depth", juce::NormalisableRange<float>{0.0f, 1.0f}, 0.0f));
     return layout;
 }
 
@@ -48,6 +59,9 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
     feel_engine_.prepare();
     feel_engine_.set_seed(feel_pattern_.seed);
     fx_chain_.prepare(sample_rate, samples_per_block);
+    scatter_.prepare(sample_rate, samples_per_block);
+    gater_.prepare(sample_rate, samples_per_block);
+    tape_stop_.prepare(sample_rate, samples_per_block);
     block_start_sample_ = 0;
 
     // Decodifica o sample de teste no pad 0 apenas uma vez (guarda de realocação).
@@ -80,6 +94,9 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
 
 void BaqueProcessor::releaseResources() {
     fx_chain_.reset();
+    scatter_.reset();
+    gater_.reset();
+    tape_stop_.reset();
 }
 
 bool BaqueProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const {
@@ -123,6 +140,11 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     fx_params.delay_mix = *apvts_.getRawParameterValue("delay_mix");
     fx_params.delay_time = *apvts_.getRawParameterValue("delay_time");
     fx_params.sidechain_threshold = *apvts_.getRawParameterValue("sidechain_threshold");
+    fx_params.scatter_type = *apvts_.getRawParameterValue("scatter_type");
+    fx_params.scatter_depth = *apvts_.getRawParameterValue("scatter_depth");
+    fx_params.tape_stop = *apvts_.getRawParameterValue("tape_stop");
+    fx_params.gate_depth = *apvts_.getRawParameterValue("gate_depth");
+    // PRECEDÊNCIA: snapshot do APVTS primeiro; apply_plock_batch (abaixo) sobrescreve por step.
 
     // Gera eventos MIDI do sequenciador no buffer pré-alocado (limpa antes de preencher)
     midi_buffer_seq_.clear();
@@ -135,7 +157,8 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
                         feel_pattern_.enabled ? &feel_engine_ : nullptr,
                         block_start_sample_,
                         plock_pattern_.enabled ? &plock_pattern_ : nullptr,
-                        &plock_batch);
+                        &plock_batch,
+                        &perf_state_); // fills (trig conditions) + mute/solo (Fase 8-04)
     apply_plock_batch(plock_batch, fx_params);
     block_start_sample_ += static_cast<int64_t>(num_frames);
 
@@ -158,6 +181,18 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     }
 
     fx_chain_.process(buffer, fx_params);
+
+    // Scatter é a última etapa de performance — opera no mix wet completo (incl. cauda de
+    // reverb/delay), estilo TR-8. CLAMP a [0, k_num_types]: um p-lock pode empurrar scatter_type
+    // p/ fora de [0,10] → sem clamp, ScatterEngine dispara jassert em debug. bpm de transport_
+    // (sem playhead mantém default 120.0).
+    const int scatter_type = juce::jlimit(0, ScatterEngine::k_num_types, juce::roundToInt(fx_params.scatter_type));
+    scatter_.process(buffer, scatter_type, fx_params.scatter_depth, transport_.bpm);
+
+    // Perf FX pós-scatter (Fase 8-03): gater → tape_stop (tape_stop por último, freio mestre).
+    // clamp [0,1] defensivo (p-lock pode sair de range).
+    gater_.process(buffer, juce::jlimit(0.0f, 1.0f, fx_params.gate_depth), transport_.bpm);
+    tape_stop_.process(buffer, juce::jlimit(0.0f, 1.0f, fx_params.tape_stop));
 }
 
 void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) noexcept {
@@ -195,6 +230,18 @@ void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) no
             break;
         case PLockParam::granular_freeze:
             fx.granular_freeze = batch.events[i].value;
+            break;
+        case PLockParam::scatter_type:
+            fx.scatter_type = batch.events[i].value;
+            break;
+        case PLockParam::scatter_depth:
+            fx.scatter_depth = batch.events[i].value;
+            break;
+        case PLockParam::tape_stop:
+            fx.tape_stop = batch.events[i].value;
+            break;
+        case PLockParam::gate_depth:
+            fx.gate_depth = batch.events[i].value;
             break;
         // INVARIANT: every PLockParam value must have a case above.
         // WARNING: adding a new PLockParam enum value without adding a case here will silently

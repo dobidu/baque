@@ -78,6 +78,9 @@ target_sources(BAQUE
         src/audio/sidechain_comp.cpp
         src/audio/lo_fi_processor.cpp
         src/audio/granular_processor.cpp
+        src/audio/scatter_engine.cpp
+        src/audio/tape_stop_processor.cpp
+        src/audio/gater_processor.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

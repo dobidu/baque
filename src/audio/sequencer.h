@@ -3,6 +3,7 @@
 #include "feel_engine.h"
 #include "feel_pattern.h"
 #include "note_tracker.h"
+#include "perf_state.h"
 #include "plock_pattern.h"
 #include "step_clock.h"
 #include "step_pattern.h"
@@ -31,7 +32,8 @@ class Sequencer {
                   FeelEngine* feel_engine = nullptr,
                   int64_t block_start_sample = 0,
                   const PLockPattern* plock_pattern = nullptr,
-                  PLockBatch* plock_batch_out = nullptr) noexcept;
+                  PLockBatch* plock_batch_out = nullptr,
+                  const PerfState* perf = nullptr) noexcept;
 
     // Define padrão imediatamente (sem esperar transição 15→0). Uso: setup inicial e testes.
     void set_pattern(const StepPattern& p) noexcept;
