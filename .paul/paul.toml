@@ -18,7 +18,7 @@ phases = 13
 number = 7
 name = "Lo-fi + Granular"
 status = "in_progress"
-plans_completed = 2
+plans_completed = 3
 
 [loop]
 position = "UNIFY"

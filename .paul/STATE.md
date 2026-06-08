@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 7 (Lo-fi + Granular) — in progress (07-02 complete; 07-03 next)
+**Current focus:** Phase 7 (Lo-fi + Granular) — in progress (07-03 complete; 07-04 next)
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 7 of 13 (Lo-fi + Granular) — In progress
-Plan: 07-02 complete ✅; 07-03 next
-Status: 07-02 UNIFY complete; Phase 7 in progress
-Last activity: 2026-06-08 — 07-02 APPLY+UNIFY: LoFiProcessor wired into FxChain, 119/119 tests
+Plan: 07-03 complete; 07-04 next (GranularProcessor FxChain integration + Phase 7 DoD)
+Status: 07-03 UNIFY complete
+Last activity: 2026-06-08 — 07-03 APPLY+UNIFY complete; 124/124 tests
 
 Progress:
 - Milestone: [███████░░░] 54%
@@ -44,7 +44,7 @@ Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
   ✓        ✓        ✓          ✓
-          [07-02 loop closed — 07-03 next]
+          [07-03 complete; next: /paul:plan 07-04]
 ```
 
 ## Accumulated Context
@@ -83,6 +83,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-07: 06-04 APPLY — PD2 plan assertion inverted (plan said peak_tight < peak_loose, but LOW threshold = MORE compression = LOWER output). Fixed: variables renamed hi_thresh/lo_thresh, assertion flipped. PD1 threshold -60→0dBFS (low threshold = max compression, not disabled). PD4 delay_time 2.0f→0.001f for non-zero SR2 check | Phase 6 | Plan spec error caught during APPLY; test semantics corrected; 109/109 pass |
 | 2026-06-07: Enterprise audit on 07-01. Applied 1 must-have (std::pow hoisted from per-sample loop), 2 strongly-recommended (channel cap to 2, LF3 == comment). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | 2026-06-07: Enterprise audit on 07-02. Applied 1 must-have (T1 verify expanded to catch PL6 regression), 2 strongly-recommended (no-SmoothedValue comment for lo-fi, LC4 dispatch limitation documented). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 07-03. Applied 1 must-have (GR3/GR4 explicit fill phase — without it tests read zero capture → vacuous fail), 2 strongly-recommended (jassert(length>0) in hann(), spawn_grain skip documented). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -100,17 +101,20 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-08 (session 16)
-Stopped at: 07-02 UNIFY complete
-Next action: /paul:plan 07-03 (vinyl simulation or granular engine — check ROADMAP)
-Resume file: .paul/phases/07-lo-fi-granular/07-03-PLAN.md
+Last session: 2026-06-08 (session 17)
+Stopped at: 07-03 UNIFY complete
+Next action: /paul:plan 07-04
+Resume file: .paul/phases/07-lo-fi-granular/07-03-SUMMARY.md
 Git strategy: main
 Resume context:
-- 07-01 complete: LoFiProcessor standalone (ZOH + bitcrusher, 114 tests)
-- 07-02 complete: LoFiProcessor wired into FxChain as first stage (119/119 tests)
-- FxParams: bit_depth=16.0f (transparent), sr_factor=1.0f (no reduction) — both p-lockable
-- PLockParam count is 8 (bit_depth=6, sr_factor=7)
-- Phase 7 DoD still requires: granular engine, vinyl simulation, SP-1200/SP-303 presets end-to-end
+- 07-01 complete: LoFiProcessor standalone (ZOH + bitcrusher, 119 tests baseline)
+- 07-02 complete: LoFiProcessor wired into FxChain, 119/119 tests
+- 07-03 complete: GranularProcessor standalone (grain pool + freeze + spray + pitch_spread), 124/124 tests
+- 07-04 = GranularProcessor FxChain integration + Phase 7 DoD tests
+  - Add granular_ member to FxChain; wire into process() after sidechain (or before?)
+  - Add FxParams fields: granular_spray, granular_pitch_spread, granular_freeze
+  - Add PLockParam entries for granular params
+  - Phase 7 DoD end-to-end test with [dod] tag
 - CI Node.js 20 action upgrade due before June 16, 2026
 
 ---
