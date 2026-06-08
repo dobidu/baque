@@ -12,4 +12,7 @@ struct FxParams {
     float sidechain_threshold = -12.0f; // dBFS [-60, 0]
     float bit_depth = 16.0f;            // bits [4, 24]; 16 = transparent
     float sr_factor = 1.0f;             // ZOH factor [1, 4]; 1.0 = no reduction
+    float granular_spray = 0.0f;        // [0, 1]; 0 = no scatter
+    float granular_pitch_spread = 0.0f; // [0, 1]; 0 = no pitch variation
+    float granular_freeze = 0.0f;       // >= 0.5f = freeze on (float boolean convention); 0.0 = off
 };

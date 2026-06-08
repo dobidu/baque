@@ -12,7 +12,10 @@ enum class PLockParam : uint8_t {
     sidechain_threshold = 5,
     bit_depth = 6,
     sr_factor = 7,
-    count = 8
+    granular_spray = 8,
+    granular_pitch_spread = 9,
+    granular_freeze = 10,
+    count = 11
 };
 
 static constexpr int k_plock_param_count = static_cast<int>(PLockParam::count);

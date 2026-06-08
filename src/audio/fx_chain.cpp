@@ -6,6 +6,7 @@ void FxChain::prepare(double sample_rate, int max_block_size) noexcept {
     is_prepared_ = true;
 
     lo_fi_.prepare(sample_rate, max_block_size);
+    granular_.prepare(sample_rate, max_block_size);
 
     const auto block_size = static_cast<juce::uint32>(max_block_size);
 
@@ -73,6 +74,17 @@ void FxChain::process(juce::AudioBuffer<float>& buffer, const FxParams& params) 
     // Adicionar SmoothedValue aqui silenciaria transientemente ao mudar preset — comportamento errado.
     lo_fi_.process(buffer, params.bit_depth, params.sr_factor);
 
+    // --- Granular (segundo: clouds/freeze, após lo-fi, antes do FX chain) ---
+    // granular_freeze convertido float→bool: >= 0.5f = true.
+    // Sem SmoothedValue: freeze é chaveamento discreto, não crossfade.
+    // Bypass quando todos os params são neutros (spray=0, pitch=0, freeze=false):
+    // grains lêem do capture buffer — se vazio, output seria silêncio (destruiria sinal).
+    // Passthrough em params neutros é correto: sem efeito audível esperado.
+    // wet/dry mix deferred to Phase 10 UI.
+    const bool granular_freeze = params.granular_freeze >= 0.5f;
+    if (params.granular_spray > 0.0f || params.granular_pitch_spread > 0.0f || granular_freeze)
+        granular_.process(buffer, params.granular_spray, params.granular_pitch_spread, granular_freeze);
+
     // --- Filtro LP ---
     filter_l_.setCutoffFrequency(cutoff);
     filter_r_.setCutoffFrequency(cutoff);
@@ -126,6 +138,7 @@ void FxChain::process(juce::AudioBuffer<float>& buffer, const FxParams& params) 
 
 void FxChain::reset() noexcept {
     lo_fi_.prepare(sample_rate_, max_block_size_);
+    granular_.reset();
 
     filter_l_.reset();
     filter_r_.reset();

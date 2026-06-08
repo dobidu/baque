@@ -11,26 +11,21 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 7 (Lo-fi + Granular) — in progress (07-03 complete; 07-04 next)
+**Current focus:** Phase 8 (Scatter / Perf FX) — ready to plan
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 7 of 13 (Lo-fi + Granular) — In progress
-Plan: 07-03 complete; 07-04 next (GranularProcessor FxChain integration + Phase 7 DoD)
-Status: 07-03 UNIFY complete
-Last activity: 2026-06-08 — 07-03 APPLY+UNIFY complete; 124/124 tests
+Phase: 8 of 13 (Scatter / Perf FX) — Ready to plan
+Plan: Not started
+Status: Ready to plan Phase 8
+Last activity: 2026-06-08 — Phase 7 complete (07-04 UNIFY + transition)
 
 Progress:
-- Milestone: [███████░░░] 54%
-- Phase 4: [██████████] 100% ✅
+- Milestone: [████████░░] 62%
 - Phase 5: [██████████] 100% ✅
 - Phase 6: [██████████] 100% ✅ (4/4 plans done)
-
-Phase 5 complete (Feel Engine ⭐):
-- 05-01: FeelPattern + FeelEngine + per-step timing offset ✅ 2026-06-05
-- 05-02: Gaussian humanize (Box-Muller) + xorshift32 PRNG seeding ✅ 2026-06-06
-- 05-03: Feel presets (6 named grooves) + Phase 5 DoD ✅ 2026-06-06
+- Phase 7: [██████████] 100% ✅ (4/4 plans done)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -38,13 +33,18 @@ Phase 6 complete ✅:
 - 06-03: SidechainCompressor (IIR envelope follower + 8:1 gain computer, 104/104 tests) ✅ 2026-06-07
 - 06-04: Phase 6 DoD — integration tests (p-lock→FxChain→output, 109/109 tests) ✅ 2026-06-07
 
+Phase 7 complete ✅ (Lo-fi + Granular):
+- 07-01: LoFiProcessor standalone (bitcrusher + ZOH SR reduction, 114/114 tests) ✅ 2026-06-08
+- 07-02: LoFiProcessor wired into FxChain, bit_depth/sr_factor p-lockable (119/119 tests) ✅ 2026-06-08
+- 07-03: GranularProcessor standalone (grain pool + freeze + spray + pitch_spread, 124/124 tests) ✅ 2026-06-08
+- 07-04: GranularProcessor wired into FxChain, 3 granular PLockParam entries, Phase 7 DoD (129/129 tests) ✅ 2026-06-08
+
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓          ✓
-          [07-03 complete; next: /paul:plan 07-04]
+  ✓        ✓        ✓          ✓     [Phase 7 loop complete — ready for Phase 8 PLAN]
 ```
 
 ## Accumulated Context
@@ -84,6 +84,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-07: Enterprise audit on 07-01. Applied 1 must-have (std::pow hoisted from per-sample loop), 2 strongly-recommended (channel cap to 2, LF3 == comment). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | 2026-06-07: Enterprise audit on 07-02. Applied 1 must-have (T1 verify expanded to catch PL6 regression), 2 strongly-recommended (no-SmoothedValue comment for lo-fi, LC4 dispatch limitation documented). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | 2026-06-08: Enterprise audit on 07-03. Applied 1 must-have (GR3/GR4 explicit fill phase — without it tests read zero capture → vacuous fail), 2 strongly-recommended (jassert(length>0) in hann(), spawn_grain skip documented). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 07-04. Applied 1 must-have (LC4 regression — test_lo_fi_chain.cpp asserts k_plock_param_count==8, becomes 11; boundary said DO NOT CHANGE but plan must update it), 2 strongly-recommended (granular always-on comment in fx_chain.cpp SR1; granular_freeze threshold >=0.5f in FxParams comment SR2). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 7 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -101,20 +102,16 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-08 (session 17)
-Stopped at: 07-03 UNIFY complete
-Next action: /paul:plan 07-04
-Resume file: .paul/phases/07-lo-fi-granular/07-03-SUMMARY.md
+Last session: 2026-06-08 (session 18)
+Stopped at: Phase 7 complete — UNIFY + transition done; Phase 8 ready to plan
+Next action: /paul:plan for Phase 8 (Scatter / Perf FX)
+Resume file: .paul/ROADMAP.md
 Git strategy: main
 Resume context:
-- 07-01 complete: LoFiProcessor standalone (ZOH + bitcrusher, 119 tests baseline)
-- 07-02 complete: LoFiProcessor wired into FxChain, 119/119 tests
-- 07-03 complete: GranularProcessor standalone (grain pool + freeze + spray + pitch_spread), 124/124 tests
-- 07-04 = GranularProcessor FxChain integration + Phase 7 DoD tests
-  - Add granular_ member to FxChain; wire into process() after sidechain (or before?)
-  - Add FxParams fields: granular_spray, granular_pitch_spread, granular_freeze
-  - Add PLockParam entries for granular params
-  - Phase 7 DoD end-to-end test with [dod] tag
+- Phase 7 complete: LoFiProcessor + GranularProcessor wired into FxChain, both p-lockable (11 PLockParam entries)
+- 129/129 tests; clang-format clean; Phase 7 DoD (GC5) confirmed
+- FxChain order: LoFi → Granular → LP → Reverb → Delay → Sidechain
+- Granular bypass at neutral params (bypass if spray=0 AND pitch=0 AND freeze=false)
 - CI Node.js 20 action upgrade due before June 16, 2026
 
 ---

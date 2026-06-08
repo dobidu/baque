@@ -58,6 +58,9 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Phase 5 DoD** — Dilla Drunk and Burial Broken perceptible (avg|timing|>20ms / range>100ms) and seed-reproducible; 84/84 tests — Phase 5
 - [x] **FX Chain + P-locks** — StateVariableTPT LP filter (20Hz–20kHz, Q 0.1–20), juce::dsp reverb + delay (SmoothedValue 20ms ramp, 0.45 feedback), SidechainCompressor (IIR envelope 5ms/200ms, 8:1 hard-knee), PLockPattern stack (8 params/step), apply_plock_batch() in processBlock — Phase 6
 - [x] **Phase 6 DoD** — P-lock automates any param per step (filter/reverb/delay/sidechain measurably different); sidechain pump functional; 109/109 tests — Phase 6
+- [x] **Lo-fi Coloration** — LoFiProcessor: bitcrusher (quantize step = 2^(bit_depth−1)), ZOH SR reduction (integer decimation, std::pow hoisted); bit_depth + sr_factor p-lockable (PLockParam 6/7); SP-1200/SP-303 character achievable — Phase 7
+- [x] **Granular Engine v1** — GranularProcessor: 16-grain pre-allocated pool, 8192-sample ring capture buffer, Hann window, linear interpolation for pitch shift, freeze mode; granular_spray/pitch_spread/freeze p-lockable (PLockParam 8/9/10) — Phase 7
+- [x] **Phase 7 DoD** — SP-1200/SP-303 lo-fi via bit_depth/sr_factor; granular freeze/clouds stable; all 11 PLockParam entries dispatched; 129/129 tests — Phase 7
 
 ### Active (In Progress)
 None yet.
@@ -168,4 +171,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-07 after Phase 6 (FX + P-locks)*
+*Last updated: 2026-06-08 after Phase 7 (Lo-fi + Granular)*

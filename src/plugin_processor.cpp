@@ -187,6 +187,15 @@ void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) no
         case PLockParam::sr_factor:
             fx.sr_factor = batch.events[i].value;
             break;
+        case PLockParam::granular_spray:
+            fx.granular_spray = batch.events[i].value;
+            break;
+        case PLockParam::granular_pitch_spread:
+            fx.granular_pitch_spread = batch.events[i].value;
+            break;
+        case PLockParam::granular_freeze:
+            fx.granular_freeze = batch.events[i].value;
+            break;
         // INVARIANT: every PLockParam value must have a case above.
         // WARNING: adding a new PLockParam enum value without adding a case here will silently
         // swallow p-lock events for that param. This default exists only as a safety net.

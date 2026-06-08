@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 6 of 13 complete
+Phases: 7 of 13 complete
 
 ## Phases
 
@@ -30,7 +30,7 @@ Phases: 6 of 13 complete
 | 4 | Sample Engine (Fase 3) | 4 | ✅ Complete | 2026-06-05 |
 | 5 | Feel Engine ⭐ (Fase 4) | 3 | ✅ Complete | 2026-06-06 |
 | 6 | FX + P-locks (Fase 5) | 4 | ✅ Complete | 2026-06-07 |
-| 7 | Lo-fi + Granular (Fase 6) | TBD | 🔵 In progress | - |
+| 7 | Lo-fi + Granular (Fase 6) | 4 | ✅ Complete | 2026-06-08 |
 | 8 | Scatter / Perf FX (Fase 7) | TBD | Not started | - |
 | 9 | MIDI / Hardware (Fase 8) | TBD | Not started | - |
 | 10 | UI/UX (Fase 9) | TBD | Not started | - |
@@ -109,11 +109,16 @@ Phases: 6 of 13 complete
 - [x] 06-03: SidechainCompressor (IIR envelope follower + 8:1 gain computer, 104/104 tests) ✅ 2026-06-07
 - [x] 06-04: Phase 6 DoD — integration tests (p-lock→FxChain→output, 109/109 tests) ✅ 2026-06-07
 
-### Phase 7: Lo-fi + Granular (Fase 6)
+### Phase 7: Lo-fi + Granular (Fase 6) ✅
 **Goal:** Bitcrush, SR reduction, vinyl, tape; granular engine. Integrates R&D-TS refinements.
 **Depends on:** Phase 6 + R&D-TS advanced work
-**Research:** Likely (SP-1200/303 character modeling, grain pool optimization)
-**DoD:** SP-1200/SP-303 presets; granular freeze/clouds stable
+**DoD:** SP-1200/SP-303 presets; granular freeze/clouds stable ✅ 2026-06-08
+
+**Plans:**
+- [x] 07-01: LoFiProcessor standalone (bitcrusher + ZOH SR reduction, 114/114 tests) ✅ 2026-06-08
+- [x] 07-02: LoFiProcessor wired into FxChain; bit_depth/sr_factor p-lockable (119/119 tests) ✅ 2026-06-08
+- [x] 07-03: GranularProcessor standalone (grain pool + freeze + spray + pitch_spread, 124/124 tests) ✅ 2026-06-08
+- [x] 07-04: GranularProcessor wired into FxChain; granular params p-lockable; Phase 7 DoD (129/129 tests) ✅ 2026-06-08
 
 ### Phase 8: Scatter / Perf FX (Fase 7)
 **Goal:** Scatter, beat-repeat, gater, tape-stop, fills
@@ -153,4 +158,4 @@ Phases: 6 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-07 — Phase 6 complete*
+*Last updated: 2026-06-08 — Phase 7 complete*

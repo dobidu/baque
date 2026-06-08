@@ -1,5 +1,6 @@
 #pragma once
 #include "fx_params.h"
+#include "granular_processor.h"
 #include "lo_fi_processor.h"
 #include "sidechain_comp.h"
 
@@ -45,6 +46,8 @@ class FxChain {
 
     // LoFi processor — bitcrusher + ZOH SR reducer, primeiro estágio do chain (Fase 7-02)
     LoFiProcessor lo_fi_;
+    // Granular processor — grain pool + freeze + spray + pitch spread, segundo estágio (Fase 7-04)
+    GranularProcessor granular_;
     int max_block_size_ = 512; // armazenado em prepare() para uso em reset()
 
     static constexpr float k_smooth_time_s = 0.02f;  // 20ms ramp — sem cliques em p-lock
