@@ -85,6 +85,9 @@ void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
     mix_left_.assign(static_cast<std::vector<float>::size_type>(samples_per_block), 0.0f);
     mix_right_.assign(static_cast<std::vector<float>::size_type>(samples_per_block), 0.0f);
     midi_buffer_seq_.ensureSize(512); // 32 eventos × ~12 bytes + margem
+    midi_buffer_ext_.ensureSize(512); // saída MIDI das lanes EXT (Fase 9-01)
+    was_playing_ = false;
+    midi_clock_.prepare(sample_rate);
 
     // Inicializa suavização de ganho (10ms de ramp)
     gain_smoother_.reset(sample_rate, 0.01);
@@ -97,6 +100,7 @@ void BaqueProcessor::releaseResources() {
     scatter_.reset();
     gater_.reset();
     tape_stop_.reset();
+    midi_clock_.reset();
 }
 
 bool BaqueProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const {
@@ -148,6 +152,7 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
 
     // Gera eventos MIDI do sequenciador no buffer pré-alocado (limpa antes de preencher)
     midi_buffer_seq_.clear();
+    midi_buffer_ext_.clear(); // saída MIDI das lanes EXT (Fase 9-01)
     PLockBatch plock_batch;
     sequencer_.generate(transport_,
                         midi_buffer_seq_,
@@ -158,7 +163,9 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
                         block_start_sample_,
                         plock_pattern_.enabled ? &plock_pattern_ : nullptr,
                         &plock_batch,
-                        &perf_state_); // fills (trig conditions) + mute/solo (Fase 8-04)
+                        &perf_state_,       // fills (trig conditions) + mute/solo (Fase 8-04)
+                        &lane_routing_,     // roteamento INT/EXT/BOTH por lane (Fase 9-01)
+                        &midi_buffer_ext_); // saída MIDI das lanes EXT
     apply_plock_batch(plock_batch, fx_params);
     block_start_sample_ += static_cast<int64_t>(num_frames);
 
@@ -193,6 +200,38 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     // clamp [0,1] defensivo (p-lock pode sair de range).
     gater_.process(buffer, juce::jlimit(0.0f, 1.0f, fx_params.gate_depth), transport_.bpm);
     tape_stop_.process(buffer, juce::jlimit(0.0f, 1.0f, fx_params.tape_stop));
+
+    // STOP-FLUSH (auditoria 09-01 M1): na borda toca→para, generate() não emite mais note-offs;
+    // sem isto o hardware externo seguraria notas. Emite All Notes Off (CC123) por canal EXT/BOTH
+    // único. Canais dedup via flags locais (sem alocação).
+    if (was_playing_ && !transport_.is_playing) {
+        std::array<bool, 17> ch_done{}; // índices 1..16
+        for (int lane = 0; lane < StepPattern::k_num_lanes; ++lane) {
+            const LaneMode m = lane_routing_.mode[static_cast<size_t>(lane)];
+            if (m == LaneMode::external || m == LaneMode::both) {
+                const int ch = lane_routing_.channel_of(lane);
+                if (!ch_done[static_cast<size_t>(ch)]) {
+                    ch_done[static_cast<size_t>(ch)] = true;
+                    midi_buffer_ext_.addEvent(juce::MidiMessage::allNotesOff(ch), 0);
+                }
+            }
+        }
+    }
+    was_playing_ = transport_.is_playing;
+
+    // MIDI clock master (Fase 9-02): emite 0xF8/start/stop/continue no mesmo buffer EXT.
+    // Ordem: notas EXT → stop-flush → clock → clear+addEvents (invariante 09-02).
+    midi_clock_.process(midi_buffer_ext_,
+                        transport_.bpm,
+                        transport_.ppq_position,
+                        num_frames,
+                        transport_.is_playing,
+                        clock_master_);
+
+    // Saída MIDI das lanes EXT (Fase 9-01): MIDI-in do host já foi consumido acima
+    // (scheduler_.process(midi_messages,...)). Substitui o buffer de saída pelos eventos gerados.
+    midi_messages.clear();
+    midi_messages.addEvents(midi_buffer_ext_, 0, num_frames, 0);
 }
 
 void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) noexcept {

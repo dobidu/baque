@@ -2,6 +2,7 @@
 
 #include "feel_engine.h"
 #include "feel_pattern.h"
+#include "lane_routing.h"
 #include "note_tracker.h"
 #include "perf_state.h"
 #include "plock_pattern.h"
@@ -33,7 +34,9 @@ class Sequencer {
                   int64_t block_start_sample = 0,
                   const PLockPattern* plock_pattern = nullptr,
                   PLockBatch* plock_batch_out = nullptr,
-                  const PerfState* perf = nullptr) noexcept;
+                  const PerfState* perf = nullptr,
+                  const LaneRouting* routing = nullptr,
+                  juce::MidiBuffer* midi_ext = nullptr) noexcept;
 
     // Define padrão imediatamente (sem esperar transição 15→0). Uso: setup inicial e testes.
     void set_pattern(const StepPattern& p) noexcept;

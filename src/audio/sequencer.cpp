@@ -23,7 +23,9 @@ void Sequencer::generate(const TransportState& transport,
                          int64_t block_start_sample,
                          const PLockPattern* plock_pattern,
                          PLockBatch* plock_batch_out,
-                         const PerfState* perf) noexcept {
+                         const PerfState* perf,
+                         const LaneRouting* routing,
+                         juce::MidiBuffer* midi_ext) noexcept {
     // any_solo: 1×/bloco (não por lane). Se alguma lane está soloed, só soloed são audíveis.
     const bool any_solo =
         perf != nullptr && std::any_of(perf->solo.begin(), perf->solo.end(), [](bool b) { return b; });
@@ -109,12 +111,25 @@ void Sequencer::generate(const TransportState& transport,
         const int prev_step = (step + StepPattern::k_num_steps - 1) % StepPattern::k_num_steps;
 
         for (int lane = 0; lane < StepPattern::k_num_lanes; ++lane) {
+            // Roteamento por lane (Fase 9-01): internal toca voz, external emite MIDI out, both ambos.
+            const LaneMode mode = routing != nullptr ? routing->mode[static_cast<size_t>(lane)] : LaneMode::internal;
+            const bool is_int = (mode == LaneMode::internal || mode == LaneMode::both);
+            const bool is_ext = (mode == LaneMode::external || mode == LaneMode::both);
+
             // Note-off via NoteTracker — usa nota rastreada; fallback para nota do padrão
             // (NoteTracker = 0 no primeiro bloco — fallback evita nota presa no início)
             if (pattern_.is_active(lane, prev_step)) {
-                const uint8_t tracked = note_tracker_.get_active_note(lane);
-                const uint8_t prev_note = (tracked != 0) ? tracked : pattern_.get_note(lane, prev_step);
-                add_with_feel(juce::MidiMessage::noteOff(1, prev_note), clamped_pos, prev_step);
+                // INT: nota rastreada (fallback padrão). EXT: nota do padrão DIRETA (auditoria SR1 —
+                // o NoteTracker só é populado no caminho INT; lane external-only teria tracker vazio).
+                if (is_int) {
+                    const uint8_t tracked = note_tracker_.get_active_note(lane);
+                    const uint8_t prev_note = (tracked != 0) ? tracked : pattern_.get_note(lane, prev_step);
+                    add_with_feel(juce::MidiMessage::noteOff(1, prev_note), clamped_pos, prev_step);
+                }
+                if (is_ext && midi_ext != nullptr) {
+                    const uint8_t prev_note = pattern_.get_note(lane, prev_step);
+                    midi_ext->addEvent(juce::MidiMessage::noteOff(routing->channel_of(lane), prev_note), clamped_pos);
+                }
             }
 
             // Trig condition (fill) + audibilidade (mute/solo) — Fase 8-04.
@@ -134,7 +149,6 @@ void Sequencer::generate(const TransportState& transport,
             // in order vel[×2] → timing[×2] per note-on. Must not be reordered.
             if (pattern_.is_active(lane, step) && trig_ok && audible) {
                 const uint8_t note = pattern_.get_note(lane, step);
-                note_tracker_.note_triggered(lane, note);
                 uint8_t vel = 100;
                 if (feel && feel->enabled) {
                     const float scaled = std::clamp(100.0f * feel->steps[step].vel_scale, 1.0f, 127.0f);
@@ -143,7 +157,14 @@ void Sequencer::generate(const TransportState& transport,
                         vel = feel_engine->apply_vel_jitter(vel, feel->humanize_vel_pct);
                     }
                 }
-                add_with_feel(juce::MidiMessage::noteOn(1, note, vel), clamped_pos, step);
+                if (is_int) {
+                    note_tracker_.note_triggered(lane, note); // tracker só no caminho INT (SR1)
+                    add_with_feel(juce::MidiMessage::noteOn(1, note, vel), clamped_pos, step);
+                }
+                if (is_ext && midi_ext != nullptr) {
+                    // EXT: clamped_pos (com swing); humanize/defer do feel não em v1 (refinamento futuro)
+                    midi_ext->addEvent(juce::MidiMessage::noteOn(routing->channel_of(lane), note, vel), clamped_pos);
+                }
             }
         }
     }

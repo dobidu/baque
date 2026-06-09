@@ -11,15 +11,21 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 8 complete ✅ — transition to Phase 9 (MIDI / Hardware)
+**Current focus:** Phase 9 (MIDI / Hardware) — in progress (2/4 plans)
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 8 of 13 (Scatter / Perf FX) — ✅ Complete (4/4 plans)
-Plan: 08-04 complete (loop closed) — fills + mute/solo + Phase 8 DoD, 165/165 tests
-Status: Phase 8 complete — ready to plan Phase 9
-Last activity: 2026-06-08 — 08-04 UNIFY + Phase 8 transition (feat(08) committed)
+Phase: 9 of 13 (MIDI / Hardware) — In progress (2/4 plans)
+Plan: 09-02 complete ✅; 09-03 not started
+Status: 09-02 APPLY + UNIFY complete; 182/182 tests
+Last activity: 2026-06-08 — 09-02 APPLY complete — MidiClock 24ppqn + start/stop/continue + last_tick_ monotonic guard
+
+Phase 9 decomposition (4-plan, MIDI/Hardware):
+- 09-01: Per-lane routing (INT/EXT/BOTH + channel) + Sequencer EXT MIDI out + processBlock merge + stop-flush ✅ 2026-06-08
+- 09-02: MIDI clock OUT master (24ppqn + start/stop/continue + monotonic guard) ✅ 2026-06-08
+- 09-03: CC out (p-locks→CC, drive TR-8 scatter) + MIDI in + MIDI learn
+- 09-04: TR-8/TR-8S mapping templates + Phase 9 DoD (drives real TR-8 — manual hardware verify)
 
 Phase 8 decomposition (4-plan, mirrors Phase 6/7):
 - 08-01: ScatterEngine standalone (ring + repeat/reverse/gate/decimate + type 1-10 + depth + beat-sync) ✅ 2026-06-08
@@ -51,7 +57,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓          ✓     [Phase 8 complete — transition done; ready for Phase 9 PLAN]
+  ✓        ✓        ✓          ✓     [09-02 complete; next: /paul:plan 09-03]
 ```
 
 ## Accumulated Context
@@ -96,6 +102,8 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-08: Enterprise audit on 08-02. Applied 1 must-have (M1: integration unverified — removed "degrade to ID check" hedge; require SCH4 post-FxChain ordering test + SCH5 real processBlock smoke; test_transport proves BaqueProcessor instantiable), 2 strongly-recommended (SR1 jlimit(0,k_num_types) clamp on scatter_type before dispatch — p-lock can push out-of-range → 08-01 jassert; SR2 document p-lock>APVTS precedence + grep guard for stray ==11 count asserts). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 8 | Plan strengthened for enterprise standards |
 | 2026-06-08: Enterprise audit on 08-03. Applied 1 must-have (M1: tape-stop halt must go to SILENCE via gain→0, not hold last sample — DC offset on master = speaker/pluginval hazard), 2 strongly-recommended (SR1 per-sample SmoothedValue for tape rate not per-block coef — zipper; SR2 mandatory GT6 processBlock wiring smoke — prepare-forgotten → silent no-op, 08-02 M1 lesson). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 8 | Plan strengthened for enterprise standards |
 | 2026-06-08: Enterprise audit on 08-04. Applied 1 must-have (M1: gate the whole fire as a unit — note_triggered + note-on; suppressed fill/muted step must NOT update NoteTracker else next note-off mis-targets; note-off stays unconditional; AC-7+TF5 guard), 2 strongly-recommended (SR1 PerfState single-writer contract doc — Phase 10 UI must use atomics/command queue, mirrors Phase-4 pad-params; SR2 TF5 suppression-interaction regression test). Deferred 3 (ratio trigs, fill/mute/solo UI, scene morph). Verdict: conditionally acceptable → upgraded | Phase 8 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 09-01. Applied 1 must-have (M1: transport-stop strands EXT notes on hardware — generate() early-returns when stopped → emit All-Notes-Off CC123 per EXT channel on play→stop edge), 2 strongly-recommended (SR1 EXT note-off note = pattern.get_note(lane,prev_step) not INT NoteTracker which is empty for external-only lanes; SR2 MR8 stop-flush + MR9 note-off-source tests). Deferred 3 (live mode-change orphan, EXT humanize, MIDI-thru). Verdict: conditionally acceptable → upgraded | Phase 9 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 09-02. Applied 1 must-have (M1: monotonic clock — last_tick_ absolute index, emit only n>last_tick_, resync on ppq regression; recomputing from ppq alone double/drops 0xF8 at block boundaries → TR-8 tempo glitch, fails DoD), 2 strongly-recommended (SR1 MC8 two-block-sum-24 boundary + MC9 regression tests; SR2 document start/stop at offset-0, clocks sample-accurate). Deferred 3 (slave/PLL, SPP, real-hardware jitter). Verdict: conditionally acceptable → upgraded | Phase 9 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -114,25 +122,27 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-08 (session 19)
-Stopped at: Phase 8 complete (4/4) — transition done; Phase 9 ready to plan
-Next action: /paul:plan for Phase 9 (MIDI / Hardware)
-Resume file: .paul/ROADMAP.md
-Git strategy: main
+Last session: 2026-06-08 (session 20)
+Stopped at: 09-02 APPLY + UNIFY complete
+Next action: /paul:plan 09-03 (CC out + MIDI in + MIDI learn)
+Resume file: .paul/phases/09-midi-hardware/09-02-SUMMARY.md
+09-02 done: MidiClock (src/audio/midi_clock.h/.cpp); 24ppqn 0xF8 + start/stop/continue; last_tick_ monotonic guard (M1); clock_master_ public bool (default false); emitted to midi_buffer_ext_ after stop-flush before clear+addEvents; prepare/reset in prepareToPlay/releaseResources; 9 MC tests; 182/182 green.
+09-01 done: LaneRouting (src/audio/lane_routing.h, mode[16] INT/EXT/BOTH + channel[16]); Sequencer::generate(...,routing,midi_ext) emits EXT note per lane on its channel; lane_routing_ PUBLIC member; processBlock merges midi_buffer_ext_ → midi_messages out after MIDI-in; stop-flush All-Notes-Off (CC123) per EXT channel on play→stop edge (was_playing_). EXT note-off uses pattern note (not INT tracker). 173/173 tests.
+Git strategy: main (Phase 9 commit at phase transition — like Phase 8)
 Resume context:
-- Phase 8 COMPLETE: Scatter + TapeStop + Gater perf FX (post-FxChain, APVTS + p-lock, PLockParam 11-14, count 15); fills via trig conditions (StepPattern TrigCondition always/fill/not_fill); mute/solo groups (PerfState); 165/165 tests; feat(08) committed
-- processBlock order: voices → fx_chain → scatter → gater → tape_stop
-- Sequencer::generate now takes const PerfState* perf (default nullptr = legacy); fire gated as unit, note-off unconditional
-- PerfState single-writer — Phase 10 UI must upgrade to atomics/command queue
-- Phase 9 (MIDI / Hardware): MIDI out, clock master/slave, CC out, MIDI learn, hybrid INT/EXT lanes, TR-8/TR-8S templates. Note deferred items: MIDI channel routing global since Phase 3 → Phase 9 must add per-lane channel filter (STATE decision). Research likely (clock jitter, TR-8 mapping validation).
-- 165/165 tests baseline; Catch2 ASCII-only + PRE_TEST
-- CI Node.js 20 action upgrade due before June 16, 2026 (8 days)
-- Scene morph deferred → Phase 10/11
+- Phase 9 in progress (2/4): 09-01 ✅ + 09-02 ✅
+- processBlock order: voices → fx_chain → scatter → gater → tape_stop → [EXT notes in midi_buffer_ext_] → stop-flush → clock → midi_messages.clear()+addEvents(ext)
+- MidiClock invariants: 24ppqn; last_tick_ absolute index; ppq regression resyncs last_tick_=ceil(ppq_start*24)-1; master=false→silence; start ppq≤0.01 else continue
+- clock_master_ single-writer (public, like lane_routing_); UI/automation phase atomicizes
+- 182/182 tests; Catch2 ASCII-only + PRE_TEST
+- CI Node.js 20 action upgrade due before June 16, 2026 (8 days — critical)
+- Deferred: slave/PLL, SPP, sub-block transport position, real TR-8 jitter (09-04 DoD)
 
 ### Git State
-Last commit: (set after feat(08) commit below)
+Last commit: b20d99f — feat(08): Phase 8 complete — Scatter / Perf FX
 Branch: main
 Feature branches merged: none
+Uncommitted: 09-01 + 09-02 changes (staged for phase-transition commit after 09-04)
 
 ---
 *STATE.md — Updated after every significant action*

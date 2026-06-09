@@ -32,7 +32,7 @@ Phases: 8 of 13 complete
 | 6 | FX + P-locks (Fase 5) | 4 | ✅ Complete | 2026-06-07 |
 | 7 | Lo-fi + Granular (Fase 6) | 4 | ✅ Complete | 2026-06-08 |
 | 8 | Scatter / Perf FX (Fase 7) | 4 | ✅ Complete | 2026-06-08 |
-| 9 | MIDI / Hardware (Fase 8) | TBD | Not started | - |
+| 9 | MIDI / Hardware (Fase 8) | 4 (planned) | In progress | - |
 | 10 | UI/UX (Fase 9) | TBD | Not started | - |
 | 11 | Presets & Library (Fase 10) | TBD | Not started | - |
 | 12 | Hardening (Fase 11) | TBD | Not started | - |
@@ -137,6 +137,12 @@ Phases: 8 of 13 complete
 **Depends on:** Phase 3 (sequencer); ordered after FX phases per ESCOPO
 **Research:** Likely (clock jitter, TR-8 mapping validation)
 **DoD:** Drives real TR-8 in sync; internal+external lanes in same pattern
+
+**Plans (4-plan decomposition):**
+- [x] 09-01: Per-lane routing (INT/EXT/BOTH + channel) + Sequencer EXT MIDI out + processBlock merge + stop-flush (173/173 tests) ✅ 2026-06-08
+- [x] 09-02: MIDI clock OUT master (24 ppqn + start/stop/continue + last_tick_ monotonic guard, 182/182 tests) ✅ 2026-06-08
+- [ ] 09-03: CC out (p-locks→CC) + MIDI in + MIDI learn
+- [ ] 09-04: TR-8/TR-8S mapping templates + Phase 9 DoD (real-TR-8 manual hardware verify)
 
 ### Phase 10: UI/UX (Fase 9)
 **Goal:** LookAndFeel, all 6 screens, visualizers, undo/redo

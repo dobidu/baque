@@ -5,6 +5,8 @@
 #include "audio/fx_chain.h"
 #include "audio/fx_params.h"
 #include "audio/gater_processor.h"
+#include "audio/lane_routing.h"
+#include "audio/midi_clock.h"
 #include "audio/pad_bank.h"
 #include "audio/perf_state.h"
 #include "audio/plock_pattern.h"
@@ -57,6 +59,14 @@ class BaqueProcessor : public juce::AudioProcessor {
     // APVTS — parâmetros automatizáveis expostos ao host
     juce::AudioProcessorValueTreeState apvts_;
 
+    // Roteamento por lane INT/EXT/BOTH + canal MIDI (Fase 9-01) — público p/ teste/UI futura
+    // (mesmo padrão de apvts_). Single-writer: UI futura → atomics/command queue.
+    LaneRouting lane_routing_;
+
+    // Clock master: true → BAQUE clocka hardware externo via MIDI out (Fase 9-02).
+    // Público (como lane_routing_); UI/automação futura. Single-writer.
+    bool clock_master_ = false;
+
     // API de padrão para binding de UI futuro (03-02)
     void set_next_pattern(const StepPattern& p) noexcept { sequencer_.set_next_pattern(p); }
 
@@ -76,6 +86,10 @@ class BaqueProcessor : public juce::AudioProcessor {
 
     // Buffer de eventos MIDI do sequenciador (pré-alocado em prepareToPlay)
     juce::MidiBuffer midi_buffer_seq_;
+
+    // Buffer de saída MIDI das lanes EXT (Fase 9-01, pré-alocado); fundido em midi_messages
+    juce::MidiBuffer midi_buffer_ext_;
+    bool was_playing_ = false; // borda de parada → All Notes Off nos canais EXT (stop-flush)
 
     TransportState transport_;
 
@@ -100,6 +114,9 @@ class BaqueProcessor : public juce::AudioProcessor {
     // Estado de performance do sequenciador (Fase 8-04): fills (trig conditions) + mute/solo.
     // Single-writer (sem UI/APVTS em v1); Fase 10 deve migrar p/ atomics ao adicionar writers.
     PerfState perf_state_;
+
+    // MIDI clock master (Fase 9-02): emite 0xF8 24ppqn + start/stop/continue no midi_buffer_ext_.
+    MidiClock midi_clock_;
 
     static constexpr int k_state_version = 2;
 

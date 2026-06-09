@@ -81,6 +81,7 @@ target_sources(BAQUE
         src/audio/scatter_engine.cpp
         src/audio/tape_stop_processor.cpp
         src/audio/gater_processor.cpp
+        src/audio/midi_clock.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)
