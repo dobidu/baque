@@ -132,7 +132,7 @@ None.
 Last session: 2026-06-10 (session 24)
 Stopped at: Phase 9 complete — 09-04 unified + Tier-3 spec conformance; phase-transition commit created; ready to plan Phase 10 (UI/UX)
 Next action: /paul:plan for Phase 10 (UI/UX)
-Resume file: .paul/ROADMAP.md
+Resume file: .paul/HANDOFF-2026-06-10.md
 Phase 9 shipped (MIDI / Hardware): per-lane routing, EXT note out + stop-flush, 24ppqn clock master, CC out, MIDI in, MIDI learn, TR-8/TR-8S templates, hybrid INT/EXT DoD. 209/209 tests.
 09-04 + Tier-3: src/audio/hardware_templates.h (TR-8/TR-8S templates, value-safe CCs baked from chart) + src/audio/tr8_midi_spec.h (Roland chart source-of-truth) + test_hardware_templates.cpp (HT1-4) + test_phase9_dod.cpp (P9D1-6 via processBlock) + test_tr8_spec_conformance.cpp (TS1-5). AC-6 = verified-by-spec.
 processBlock order: voices → fx_chain → scatter → gater → tape_stop → [EXT notes in midi_buffer_ext_] → stop-flush → clock → midi_messages.clear()+addEvents(ext)
@@ -140,10 +140,10 @@ Phase 10 entry note: lane_routing_, cc_out_, clock_master_, hardware-template ap
 CI: actions/checkout+cache v4→v5 on branch ci/node20-actions-v5, PR #1 (https://github.com/dobidu/baque/pull/1) — STILL OPEN, merge before June 16 (6 days).
 
 ### Git State
-Last commit: (Phase 9 transition commit — see below)
+Last commit: c6792d7 — feat(09): Phase 9 complete — MIDI / Hardware
 Branch: main
 Feature branches merged: none
-Uncommitted: none after transition commit
+Uncommitted: .claude/ (framework/skills config — intentionally untracked, not part of Phase 9)
 
 ---
 *STATE.md — Updated after every significant action*
