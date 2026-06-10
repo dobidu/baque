@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 8 of 13 complete
+Phases: 9 of 13 complete
 
 ## Phases
 
@@ -32,8 +32,8 @@ Phases: 8 of 13 complete
 | 6 | FX + P-locks (Fase 5) | 4 | ✅ Complete | 2026-06-07 |
 | 7 | Lo-fi + Granular (Fase 6) | 4 | ✅ Complete | 2026-06-08 |
 | 8 | Scatter / Perf FX (Fase 7) | 4 | ✅ Complete | 2026-06-08 |
-| 9 | MIDI / Hardware (Fase 8) | 4 (planned) | In progress | - |
-| 10 | UI/UX (Fase 9) | TBD | Not started | - |
+| 9 | MIDI / Hardware (Fase 8) | 4 | ✅ Complete | 2026-06-10 |
+| 10 | UI/UX (Fase 9) | TBD | 🔵 Next | - |
 | 11 | Presets & Library (Fase 10) | TBD | Not started | - |
 | 12 | Hardening (Fase 11) | TBD | Not started | - |
 | 13 | Release (Fase 12) | TBD | Not started | - |
@@ -138,11 +138,13 @@ Phases: 8 of 13 complete
 **Research:** Likely (clock jitter, TR-8 mapping validation)
 **DoD:** Drives real TR-8 in sync; internal+external lanes in same pattern
 
+**DoD:** Drives real TR-8 in sync; internal+external lanes in same pattern ✅ 2026-06-10 (merged MIDI + note/CC map spec-verified vs Roland chart)
+
 **Plans (4-plan decomposition):**
 - [x] 09-01: Per-lane routing (INT/EXT/BOTH + channel) + Sequencer EXT MIDI out + processBlock merge + stop-flush (173/173 tests) ✅ 2026-06-08
 - [x] 09-02: MIDI clock OUT master (24 ppqn + start/stop/continue + last_tick_ monotonic guard, 182/182 tests) ✅ 2026-06-08
-- [ ] 09-03: CC out (p-locks→CC) + MIDI in + MIDI learn
-- [ ] 09-04: TR-8/TR-8S mapping templates + Phase 9 DoD (real-TR-8 manual hardware verify)
+- [x] 09-03: CC out (p-locks→CC) + MIDI in + MIDI learn (195/195 tests) ✅ 2026-06-09
+- [x] 09-04: TR-8/TR-8S templates + Phase 9 DoD; AC-6 resolved verified-by-spec (Tier-3: note/CC map machine-checked vs Roland's published MIDI Implementation Chart; value-safe CCs baked; 209/209 tests) ✅ 2026-06-10
 
 ### Phase 10: UI/UX (Fase 9)
 **Goal:** LookAndFeel, all 6 screens, visualizers, undo/redo
@@ -170,4 +172,4 @@ Phases: 8 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-08 — Phase 8 complete*
+*Last updated: 2026-06-10 — Phase 9 complete*

@@ -20,8 +20,8 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 |-----------|-------|
 | Type | Application (audio plugin) |
 | Version | 0.0.0 |
-| Status | Phase 8 complete — Phase 9 (MIDI / Hardware) next |
-| Last Updated | 2026-06-08 |
+| Status | Phase 9 complete — Phase 10 (UI/UX) next |
+| Last Updated | 2026-06-10 |
 
 ## Requirements
 
@@ -64,6 +64,9 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Scatter / Performance FX** — ScatterEngine (ring + repeat/reverse/gate/decimate, type 0-10 + depth, beat-synced, freeze-by-copy no-feedback) post-FxChain; TapeStopProcessor (resample halt→silence, per-sample smoothed); GaterProcessor (1/16 beat-synced amplitude gate, anti-click fade); all APVTS + p-lockable (PLockParam 11-14, count 15); order voices→fx_chain→scatter→gater→tape_stop — Phase 8
 - [x] **Fills + mute/solo** — StepPattern TrigCondition (always/fill/not_fill) + Sequencer fill gating; PerfState mute/solo per-lane groups (mute suppresses, solo isolates, mute wins); fire gated as unit (suppressed step doesn't poison NoteTracker) — Phase 8
 - [x] **Phase 8 DoD** — live scatter+tape+gater no dropout (200-block finite); fills via trig conditions add hits; 165/165 tests — Phase 8
+- [x] **MIDI I/O + hybrid mode** — per-lane routing (INT/EXT/BOTH + channel), Sequencer EXT note out + stop-flush (All-Notes-Off), MidiClock 24ppqn master (start/stop/continue, monotonic guard), CC out (p-lock→CC), MIDI in + MIDI learn (atomic arm/capture); processBlock merge — Phase 9
+- [x] **TR-8/TR-8S templates** — one-call note map + channel + CC-slot apply (non-destructive to step programming); note/CC numbers spec-verified against Roland's published MIDI Implementation Chart (TR-8 v1.11); value-safe continuous CCs (scatter_depth/reverb/delay) baked in — Phase 9
+- [x] **Phase 9 DoD** — hybrid INT/EXT pattern drives correct merged MIDI via processBlock (EXT notes on TR-8 note/channel + note-off, exact 24ppqn clock, internal lane fires audio without MIDI leak, stop-flush, additive CC); real-TR-8 byte mapping verified-by-spec; 209/209 tests — Phase 9
 
 ### Active (In Progress)
 None yet.
@@ -140,6 +143,11 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | Sequencer fire gated as unit (trig + mute/solo); note-off unconditional | Suppressed step must not poison NoteTracker; note-off always emitted prevents stuck notes | 2026-06-08 | Active |
 | PerfState single-writer (fill/mute/solo), not yet atomic | Phase 10 UI writers must upgrade to atomics/command queue (mirrors pad-params) | 2026-06-08 | Active |
 | Scene morph deferred to Phase 10/11 | Performance gesture coupled to scenes/UI; out of Phase 8 DoD | 2026-06-08 | Active |
+| EXT-buffer ordering: notes → stop-flush → clock → clear+addEvents | Stop-flush must precede clock so All-Notes-Off lands before the stop; merged after MIDI-in | 2026-06-08 | Active |
+| MidiClock monotonic via last_tick_ absolute index | Recomputing 0xF8 from ppq alone double/drops clocks at block boundaries → TR-8 tempo glitch; resync on ppq regression | 2026-06-08 | Active |
+| MIDI-learn is an audio-thread writer (atomic arm/disarm handshake) | learn_arm std::atomic<int> release/acquire; bindings audio-owned during capture; CcLearnMap non-copyable; Phase 10 UI snapshots | 2026-06-09 | Active |
+| TR-8/TR-8S template = single-writer setup; non-destructive apply | set_note only (never set_active/set_trig/clear); routing+cc reset intentional; Phase 10 UI atomicizes | 2026-06-09 | Active |
+| AC-6 hardware sign-off resolved verified-by-spec | Roland's published MIDI Implementation Chart (TR-8 v1.11) IS the firmware spec for note/CC numbers; machine-checking the template against it confirms the byte mapping without a physical unit. scatter_type value-curve still needs hardware | 2026-06-10 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -151,7 +159,7 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | Polyphony | ≥64 voices, no dropout | - | Not started |
 | Audio thread allocations | Zero (instrumented asserts) | - | Not started |
 | Feel reproducibility | "Dilla Drunk" / "Burial Broken" perceptible + seed-reproducible | Dilla avg|timing|=23.75ms, seed=313 ✓; Burial range=160ms, seed=666 ✓ | ✅ Phase 5 |
-| Hardware sync | Drives real TR-8 in sync (clock jitter measured) | - | Not started |
+| Hardware sync | Drives real TR-8 in sync (clock jitter measured) | Merged MIDI stream + note/CC map spec-verified vs Roland chart (209 tests); physical jitter measurement + scatter_type value-curve await a unit | ✅ Phase 9 (software + spec) |
 | SoundTouch fork | Transient preservation beats baseline SoundTouch on harness metrics | - | Not started |
 | DAW compatibility | Reaper, Live, Logic, Bitwig, FL | - | Not started |
 
@@ -179,4 +187,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-08 after Phase 8 (Scatter / Perf FX)*
+*Last updated: 2026-06-10 after Phase 9 (MIDI / Hardware)*

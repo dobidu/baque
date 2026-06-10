@@ -166,8 +166,64 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
                         &perf_state_,       // fills (trig conditions) + mute/solo (Fase 8-04)
                         &lane_routing_,     // roteamento INT/EXT/BOTH por lane (Fase 9-01)
                         &midi_buffer_ext_); // saída MIDI das lanes EXT
+    // Inbound CC (Fase 9-03): itera midi_messages ANTES de apply_plock_batch → precedência
+    // APVTS < inbound CC < p-lock. Iteração read-only: notas chegam ao scheduler depois (intocadas).
+    // MIDI learn: só controller event liga (AC-6); note-on enquanto armado é ignorado.
+    {
+        const int armed = cc_learn_.learn_arm.load(std::memory_order_acquire);
+        bool captured = false; // latch: captura só o 1° controller neste bloco enquanto armado
+        for (const auto meta : midi_messages) {
+            const auto& msg = meta.getMessage();
+            if (!msg.isController())
+                continue;
+            const int cc = msg.getControllerNumber();
+            const int ch = msg.getChannel();
+            const int val = msg.getControllerValue();
+
+            if (armed != static_cast<int>(PLockParam::count) && !captured) {
+                // Reusa binding existente com mesmo target (rebind), senão appende
+                const PLockParam tgt = static_cast<PLockParam>(armed);
+                int slot = -1;
+                for (int j = 0; j < cc_learn_.count; ++j) {
+                    if (cc_learn_.bindings[static_cast<size_t>(j)].target == tgt) {
+                        slot = j;
+                        break;
+                    }
+                }
+                if (slot < 0 && cc_learn_.count < CcLearnMap::k_max)
+                    slot = cc_learn_.count++;
+                // Silently drops if full (no overflow — array bounded, RT-safe)
+                if (slot >= 0) {
+                    cc_learn_.set_binding(slot, {static_cast<uint8_t>(cc), static_cast<uint8_t>(ch), tgt});
+                }
+                cc_learn_.learn_arm.store(static_cast<int>(PLockParam::count),
+                                          std::memory_order_release); // disarm
+                captured = true;
+                // O CC recém-ligado também aplica este bloco (fall-through)
+            }
+
+            apply_cc_to_fx(cc, ch, val, fx_params);
+        }
+    }
+
     apply_plock_batch(plock_batch, fx_params);
     block_start_sample_ += static_cast<int64_t>(num_frames);
+
+    // CC out (Fase 9-03): emite p-locks como CC MIDI no canal EXT para drive do hardware.
+    // Posição: após apply_plock_batch (batch preenchido), antes de stop-flush/clock (invariante 09-02).
+    // Offset 0 (block-granular; PLockEvent sem sample offset — sub-bloco CC adiado para v1.x).
+    if (cc_out_.enabled) {
+        for (int i = 0; i < plock_batch.count; ++i) {
+            const PLockParam param = plock_batch.events[i].param;
+            const auto idx = static_cast<size_t>(param);
+            if (cc_out_.cc_enabled[idx]) {
+                const int val = juce::jlimit(
+                    0, 127, juce::roundToInt(plock_param_norm(param, plock_batch.events[i].value) * 127.0f));
+                midi_buffer_ext_.addEvent(
+                    juce::MidiMessage::controllerEvent(cc_out_.channel_of(), cc_out_.cc_number[idx], val), 0);
+            }
+        }
+    }
 
     // Despacha sequenciador e MIDI externo — duas chamadas separadas (sem merge = sem alloc)
     // Roteamento nota → pad dentro do Scheduler (pad vazio = ignora em silêncio)
@@ -221,12 +277,8 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
 
     // MIDI clock master (Fase 9-02): emite 0xF8/start/stop/continue no mesmo buffer EXT.
     // Ordem: notas EXT → stop-flush → clock → clear+addEvents (invariante 09-02).
-    midi_clock_.process(midi_buffer_ext_,
-                        transport_.bpm,
-                        transport_.ppq_position,
-                        num_frames,
-                        transport_.is_playing,
-                        clock_master_);
+    midi_clock_.process(
+        midi_buffer_ext_, transport_.bpm, transport_.ppq_position, num_frames, transport_.is_playing, clock_master_);
 
     // Saída MIDI das lanes EXT (Fase 9-01): MIDI-in do host já foi consumido acima
     // (scheduler_.process(midi_messages,...)). Substitui o buffer de saída pelos eventos gerados.
@@ -291,14 +343,101 @@ void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) no
     }
 }
 
+// Aplica CC inbound ao FxParams via bindings de cc_learn_ (AC-3).
+// Cobre todos os 15 PLockParams (SR1: sem campo ignorado silenciosamente).
+// switch default jassert: enum é exaustivo; nunca deve chegar lá.
+void BaqueProcessor::apply_cc_to_fx(int cc, int channel, int value, FxParams& fx) noexcept {
+    for (int i = 0; i < cc_learn_.count; ++i) {
+        const auto& b = cc_learn_.bindings[static_cast<size_t>(i)];
+        if (b.channel == 0 || b.target == PLockParam::count)
+            continue;
+        if (static_cast<int>(b.cc) != cc || static_cast<int>(b.channel) != channel)
+            continue;
+        const float denorm = plock_param_denorm(b.target, static_cast<float>(value) / 127.0f);
+        switch (b.target) {
+        case PLockParam::filter_cutoff:
+            fx.filter_cutoff = denorm;
+            break;
+        case PLockParam::filter_res:
+            fx.filter_res = denorm;
+            break;
+        case PLockParam::reverb_mix:
+            fx.reverb_mix = denorm;
+            break;
+        case PLockParam::delay_mix:
+            fx.delay_mix = denorm;
+            break;
+        case PLockParam::delay_time:
+            fx.delay_time = denorm;
+            break;
+        case PLockParam::sidechain_threshold:
+            fx.sidechain_threshold = denorm;
+            break;
+        case PLockParam::bit_depth:
+            fx.bit_depth = denorm;
+            break;
+        case PLockParam::sr_factor:
+            fx.sr_factor = denorm;
+            break;
+        case PLockParam::granular_spray:
+            fx.granular_spray = denorm;
+            break;
+        case PLockParam::granular_pitch_spread:
+            fx.granular_pitch_spread = denorm;
+            break;
+        case PLockParam::granular_freeze:
+            fx.granular_freeze = denorm;
+            break;
+        case PLockParam::scatter_type:
+            fx.scatter_type = denorm;
+            break;
+        case PLockParam::scatter_depth:
+            fx.scatter_depth = denorm;
+            break;
+        case PLockParam::tape_stop:
+            fx.tape_stop = denorm;
+            break;
+        case PLockParam::gate_depth:
+            fx.gate_depth = denorm;
+            break;
+        default:
+            jassertfalse; // PLockParam::count ou desconhecido — inalcançável
+            break;
+        }
+    }
+}
+
+void BaqueProcessor::apply_hardware_template(const HardwareTemplate& t) noexcept {
+    // Copia o padrão ativo (preserva ativações/trigs/p-locks — audit 09-04 SR1); aplica o template
+    // (reseta routing+cc_out, reescreve só as notas das lanes mapeadas); re-instala imediato.
+    // NÃO partir de um StepPattern default — apagaria o beat do usuário (perda de dados).
+    StepPattern p = sequencer_.pattern();
+    apply_template(t, lane_routing_, cc_out_, p);
+    sequencer_.set_pattern(p);
+}
+
 juce::AudioProcessorEditor* BaqueProcessor::createEditor() {
     return new BaqueEditor(*this);
 }
 
 void BaqueProcessor::getStateInformation(juce::MemoryBlock& dest_data) {
-    // Serializa o estado do APVTS + versão do schema
     auto state = apvts_.copyState();
     state.setProperty("version", k_state_version, nullptr);
+
+    // Persiste cc_learn_ (Fase 9-03, state v3): bindings inbound CC → PLockParam.
+    // learn_arm NÃO é persistido (transiente; atômico — M1).
+    juce::ValueTree cc_tree("cc_learn");
+    cc_tree.setProperty("count", cc_learn_.count, nullptr);
+    for (int i = 0; i < cc_learn_.count; ++i) {
+        const auto& b = cc_learn_.bindings[static_cast<size_t>(i)];
+        juce::ValueTree child("binding");
+        child.setProperty("cc", static_cast<int>(b.cc), nullptr);
+        child.setProperty("channel", static_cast<int>(b.channel), nullptr);
+        child.setProperty("target", static_cast<int>(b.target), nullptr);
+        cc_tree.addChild(child, -1, nullptr);
+    }
+    state.addChild(cc_tree, -1, nullptr);
+
     juce::MemoryOutputStream stream(dest_data, true);
     state.writeToStream(stream);
 }
@@ -308,9 +447,36 @@ void BaqueProcessor::setStateInformation(const void* data, int size_in_bytes) {
     if (!state.isValid())
         return;
 
-    // Versão futura: migrar campos incompatíveis aqui se necessário
     if (state.hasType(apvts_.state.getType()))
         apvts_.replaceState(state);
+
+    // Restaura cc_learn_ (Fase 9-03, state v3).
+    // Ausente em estado pre-v3 → mapa vazio, sem erro (compatibilidade retroativa).
+    // learn_arm sempre resetado: nunca persistir estado de arm (já garantido por clear()).
+    cc_learn_.clear();
+    const auto cc_tree = state.getChildWithName("cc_learn");
+    if (cc_tree.isValid()) {
+        const int saved_count = juce::jlimit(0, CcLearnMap::k_max, static_cast<int>(cc_tree.getProperty("count", 0)));
+        int idx = 0;
+        for (int i = 0; i < cc_tree.getNumChildren() && idx < saved_count; ++i) {
+            const auto child = cc_tree.getChild(i);
+            if (!child.hasType("binding"))
+                continue;
+            const int cc = static_cast<int>(child.getProperty("cc", 0));
+            const int ch = static_cast<int>(child.getProperty("channel", 0));
+            const int tgt = static_cast<int>(child.getProperty("target", static_cast<int>(PLockParam::count)));
+            // Descarta binding fora de faixa (estado corrompido/hostil — AC-5)
+            if (cc < 0 || cc > 127)
+                continue;
+            if (ch < 1 || ch > 16)
+                continue;
+            if (tgt < 0 || tgt >= k_plock_param_count)
+                continue;
+            cc_learn_.set_binding(idx,
+                                  {static_cast<uint8_t>(cc), static_cast<uint8_t>(ch), static_cast<PLockParam>(tgt)});
+            cc_learn_.count = ++idx;
+        }
+    }
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {

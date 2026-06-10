@@ -11,21 +11,21 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 9 (MIDI / Hardware) — in progress (2/4 plans)
+**Current focus:** Phase 10 (UI/UX) — ready to plan
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 9 of 13 (MIDI / Hardware) — In progress (2/4 plans)
-Plan: 09-02 complete ✅; 09-03 not started
-Status: 09-02 APPLY + UNIFY complete; 182/182 tests
-Last activity: 2026-06-08 — 09-02 APPLY complete — MidiClock 24ppqn + start/stop/continue + last_tick_ monotonic guard
+Phase: 10 of 13 (UI/UX) — ready to plan (Phase 9 complete 4/4)
+Plan: Not started
+Status: Ready to plan Phase 10
+Last activity: 2026-06-10 — Phase 9 complete (09-04 unified + Tier-3 spec conformance); transitioned to Phase 10
 
-Phase 9 decomposition (4-plan, MIDI/Hardware):
+Phase 9 decomposition (4-plan, MIDI/Hardware) ✅:
 - 09-01: Per-lane routing (INT/EXT/BOTH + channel) + Sequencer EXT MIDI out + processBlock merge + stop-flush ✅ 2026-06-08
 - 09-02: MIDI clock OUT master (24ppqn + start/stop/continue + monotonic guard) ✅ 2026-06-08
-- 09-03: CC out (p-locks→CC, drive TR-8 scatter) + MIDI in + MIDI learn
-- 09-04: TR-8/TR-8S mapping templates + Phase 9 DoD (drives real TR-8 — manual hardware verify)
+- 09-03: CC out (p-locks→CC, drive TR-8 scatter) + MIDI in + MIDI learn ✅ 2026-06-09
+- 09-04: TR-8/TR-8S mapping templates + Phase 9 DoD; AC-6 hardware sign-off resolved verified-by-spec (Tier-3: note/CC map machine-checked vs Roland's published MIDI Implementation Chart, 209/209 tests) ✅ 2026-06-10
 
 Phase 8 decomposition (4-plan, mirrors Phase 6/7):
 - 08-01: ScatterEngine standalone (ring + repeat/reverse/gate/decimate + type 1-10 + depth + beat-sync) ✅ 2026-06-08
@@ -34,11 +34,12 @@ Phase 8 decomposition (4-plan, mirrors Phase 6/7):
 - 08-04: Fills via trig conditions + mute/solo groups + Phase 8 DoD (scene morph deferred) ✅ 2026-06-08
 
 Progress:
-- Milestone: [██████░░░░] 62% (8/13 phases complete)
+- Milestone: [███████░░░] 69% (9/13 phases complete)
 - Phase 5: [██████████] 100% ✅
 - Phase 6: [██████████] 100% ✅ (4/4 plans done)
 - Phase 7: [██████████] 100% ✅ (4/4 plans done)
 - Phase 8: [██████████] 100% ✅ (4/4 plans done)
+- Phase 9: [██████████] 100% ✅ (4/4 plans done)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -57,7 +58,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓          ✓     [09-02 complete; next: /paul:plan 09-03]
+  ✓        ✓        ✓        ✓     [Phase 9 complete — ready to plan Phase 10]
 ```
 
 ## Accumulated Context
@@ -104,6 +105,9 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-08: Enterprise audit on 08-04. Applied 1 must-have (M1: gate the whole fire as a unit — note_triggered + note-on; suppressed fill/muted step must NOT update NoteTracker else next note-off mis-targets; note-off stays unconditional; AC-7+TF5 guard), 2 strongly-recommended (SR1 PerfState single-writer contract doc — Phase 10 UI must use atomics/command queue, mirrors Phase-4 pad-params; SR2 TF5 suppression-interaction regression test). Deferred 3 (ratio trigs, fill/mute/solo UI, scene morph). Verdict: conditionally acceptable → upgraded | Phase 8 | Plan strengthened for enterprise standards |
 | 2026-06-08: Enterprise audit on 09-01. Applied 1 must-have (M1: transport-stop strands EXT notes on hardware — generate() early-returns when stopped → emit All-Notes-Off CC123 per EXT channel on play→stop edge), 2 strongly-recommended (SR1 EXT note-off note = pattern.get_note(lane,prev_step) not INT NoteTracker which is empty for external-only lanes; SR2 MR8 stop-flush + MR9 note-off-source tests). Deferred 3 (live mode-change orphan, EXT humanize, MIDI-thru). Verdict: conditionally acceptable → upgraded | Phase 9 | Plan strengthened for enterprise standards |
 | 2026-06-08: Enterprise audit on 09-02. Applied 1 must-have (M1: monotonic clock — last_tick_ absolute index, emit only n>last_tick_, resync on ppq regression; recomputing from ppq alone double/drops 0xF8 at block boundaries → TR-8 tempo glitch, fails DoD), 2 strongly-recommended (SR1 MC8 two-block-sum-24 boundary + MC9 regression tests; SR2 document start/stop at offset-0, clocks sample-accurate). Deferred 3 (slave/PLL, SPP, real-hardware jitter). Verdict: conditionally acceptable → upgraded | Phase 9 | Plan strengthened for enterprise standards |
+| 2026-06-08: Enterprise audit on 09-03. Applied 1 must-have (M1: MIDI-learn is an audio-thread WRITER not single-writer — learn_arm must be std::atomic<int> release/acquire arm-disarm handshake; bindings audio-owned during capture; CcLearnMap non-copyable → mutate in place; Phase 10 UI snapshots, mirrors pad-params/PerfState), 2 strongly-recommended (SR1 single k_param_range[15] source-of-truth read by both norm+denorm — no drift; inbound CC covers all 15 params, removed arbitrary 10-field restriction; switch default jasserts; SR2 AC-6 controller-only capture + CC-out additive note/clock invariant + per-field state-load clamps cc[0,127]/channel[1,16]/target[0,15)). Deferred 3 (sub-block CC timing, log cutoff law, NRPN/14-bit+smoothing). Verdict: conditionally acceptable → upgraded | Phase 9 | Plan strengthened for enterprise standards |
+| 2026-06-09: Enterprise audit on 09-04. Applied 1 must-have (M1: Phase-9 DoD INT-lane check was vacuous — pass on idle lane; now requires non-zero audio proving the lane fired before asserting no-INT-MIDI; DoD must drive processBlock not Sequencer::generate — 08-02 lesson), 2 strongly-recommended (SR1 apply_template non-destructive: set_note only, never set_active/set_trig/clear; added Sequencer::current_pattern() accessor; processor apply copies current pattern not fresh default — no data loss; routing+cc reset documented intentional; SR2 DoD asserts EXT note-off on gate close + EXACT 24ppqn clock count not >0). Deferred 3 (TR-8S assignable routing+CC banks, template import/export file format, automated clock-jitter measurement). Verdict: conditionally acceptable → upgraded | Phase 9 | Plan strengthened for enterprise standards |
+| 2026-06-10: 09-04 Tier-3 — AC-6 hardware sign-off resolved VERIFIED-BY-SPEC instead of deferred. Built tr8_midi_spec.h from Roland's published MIDI Implementation Chart (TR-8 v1.11) + test_tr8_spec_conformance.cpp (TS1-TS5) machine-checking the hand-written template against it. Note map spec-verified (every note matches chart primary). Value-safe continuous CCs baked ON from chart (scatter_depth=69, reverb=91, delay_mix=16, delay_time=17); scatter_type=68 known but OFF (discrete value-curve needs physical unit). Fixed P9D5 cc 16→69 (16=DELAY LEVEL per chart). 209/209 tests | Phase 9 | Published implementation chart IS the firmware spec for note/CC numbers → byte-level mapping confirmed without hardware; reverses 09-04 audit "CC off until hardware" for continuous CCs |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -116,33 +120,30 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | Multi-out in v1 vs v1.1 | ESCOPO §14.7 | M | Phase 9/10 planning |
 | Upgrade CI actions/checkout + cache from v4→v5 (Node.js 20 deprecated) | Phase 1 | S | Before June 16, 2026 (deadline from GitHub) |
 | Scene morph (perf FX, ESCOPO §4.7) deferred from 08-04 — performance gesture coupled to scenes/UI | Phase 8 | M | Phase 10 (UI/UX) or 11 (presets/scenes) |
+| TR-8 scatter_type CC68 value-curve — number known, but BAQUE 0-10 types over TR-8 0-127 select map needs a physical unit to confirm; slot ships OFF | Phase 9 | S | When a real TR-8 is on hand (observational, no CI gate) |
+| TR-8S assignable per-instrument routing + TR-8S-only CC banks (beyond shared GM default) | Phase 9 | M | Phase 10/11 |
+| Hardware template import/export file format (load/save custom mappings) | Phase 9 | M | Phase 11 (presets, ESCOPO §10) |
 
 ### Blockers/Concerns
-None yet.
+None.
 
 ## Session Continuity
 
-Last session: 2026-06-08 (session 20)
-Stopped at: 09-02 APPLY + UNIFY complete
-Next action: /paul:plan 09-03 (CC out + MIDI in + MIDI learn)
-Resume file: .paul/phases/09-midi-hardware/09-02-SUMMARY.md
-09-02 done: MidiClock (src/audio/midi_clock.h/.cpp); 24ppqn 0xF8 + start/stop/continue; last_tick_ monotonic guard (M1); clock_master_ public bool (default false); emitted to midi_buffer_ext_ after stop-flush before clear+addEvents; prepare/reset in prepareToPlay/releaseResources; 9 MC tests; 182/182 green.
-09-01 done: LaneRouting (src/audio/lane_routing.h, mode[16] INT/EXT/BOTH + channel[16]); Sequencer::generate(...,routing,midi_ext) emits EXT note per lane on its channel; lane_routing_ PUBLIC member; processBlock merges midi_buffer_ext_ → midi_messages out after MIDI-in; stop-flush All-Notes-Off (CC123) per EXT channel on play→stop edge (was_playing_). EXT note-off uses pattern note (not INT tracker). 173/173 tests.
-Git strategy: main (Phase 9 commit at phase transition — like Phase 8)
-Resume context:
-- Phase 9 in progress (2/4): 09-01 ✅ + 09-02 ✅
-- processBlock order: voices → fx_chain → scatter → gater → tape_stop → [EXT notes in midi_buffer_ext_] → stop-flush → clock → midi_messages.clear()+addEvents(ext)
-- MidiClock invariants: 24ppqn; last_tick_ absolute index; ppq regression resyncs last_tick_=ceil(ppq_start*24)-1; master=false→silence; start ppq≤0.01 else continue
-- clock_master_ single-writer (public, like lane_routing_); UI/automation phase atomicizes
-- 182/182 tests; Catch2 ASCII-only + PRE_TEST
-- CI Node.js 20 action upgrade due before June 16, 2026 (8 days — critical)
-- Deferred: slave/PLL, SPP, sub-block transport position, real TR-8 jitter (09-04 DoD)
+Last session: 2026-06-10 (session 24)
+Stopped at: Phase 9 complete — 09-04 unified + Tier-3 spec conformance; phase-transition commit created; ready to plan Phase 10 (UI/UX)
+Next action: /paul:plan for Phase 10 (UI/UX)
+Resume file: .paul/ROADMAP.md
+Phase 9 shipped (MIDI / Hardware): per-lane routing, EXT note out + stop-flush, 24ppqn clock master, CC out, MIDI in, MIDI learn, TR-8/TR-8S templates, hybrid INT/EXT DoD. 209/209 tests.
+09-04 + Tier-3: src/audio/hardware_templates.h (TR-8/TR-8S templates, value-safe CCs baked from chart) + src/audio/tr8_midi_spec.h (Roland chart source-of-truth) + test_hardware_templates.cpp (HT1-4) + test_phase9_dod.cpp (P9D1-6 via processBlock) + test_tr8_spec_conformance.cpp (TS1-5). AC-6 = verified-by-spec.
+processBlock order: voices → fx_chain → scatter → gater → tape_stop → [EXT notes in midi_buffer_ext_] → stop-flush → clock → midi_messages.clear()+addEvents(ext)
+Phase 10 entry note: lane_routing_, cc_out_, clock_master_, hardware-template apply are SINGLE-WRITER setup structs — UI must atomicize / command-queue before live edits (same contract as pad-params + PerfState).
+CI: actions/checkout+cache v4→v5 on branch ci/node20-actions-v5, PR #1 (https://github.com/dobidu/baque/pull/1) — STILL OPEN, merge before June 16 (6 days).
 
 ### Git State
-Last commit: b20d99f — feat(08): Phase 8 complete — Scatter / Perf FX
+Last commit: (Phase 9 transition commit — see below)
 Branch: main
 Feature branches merged: none
-Uncommitted: 09-01 + 09-02 changes (staged for phase-transition commit after 09-04)
+Uncommitted: none after transition commit
 
 ---
 *STATE.md — Updated after every significant action*
