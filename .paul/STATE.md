@@ -139,15 +139,15 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-10 (session 25)
-Stopped at: 10-01 planned + audited; PR #1 unblocked mid-merge (origin/main was 23 commits stale → pushed; PR branch rebuilt as main+cherry-pick 8603864; CI running, ubuntu flaked SIGTERM)
-Next action: finish PR #1 merge (gh pr checks 1 → rerun ubuntu flake → merge when green; watch macOS GR4), then /paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md
+Last session: 2026-06-10 (session 26)
+Stopped at: CI monitoring — PR #1 lint+windows PASS, ubuntu SIGTERM flake, macOS still pending; no src/ changes
+Next action: `gh pr checks 1` → if macOS green rerun ubuntu → merge; if macOS GR4 red fix first; then /paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md
 Resume file: .paul/HANDOFF-phase10-plan01-audited.md
 Resume context:
+- PR #1 (run 27253122002): lint ✓, windows ✓, ubuntu SIGTERM flake (exit 143), macOS pending — GR4 (test_granular.cpp:114 pitch_spread contrast) is open risk
 - 10-01 = UI→engine command queue (SPSC AbstractFifo) + UiStateSnapshot; retires ALL Phase 4/8/9 single-writer contracts before any UI component
 - Audit M1: getState/setState must bracket suspendProcessing + message-thread pre-drain (structs become audio-owned) — UI8 test proves it
 - Phase 10 = 7-plan decomposition (see Current Position); 10-04 parallel candidate after 10-02
-- PR #1 risk: GR4 (test_granular.cpp:114) failed on macOS at stale snapshot — if red on current code, real platform bug, fix before merge
 Phase 9 shipped (MIDI / Hardware): per-lane routing, EXT note out + stop-flush, 24ppqn clock master, CC out, MIDI in, MIDI learn, TR-8/TR-8S templates, hybrid INT/EXT DoD. 209/209 tests.
 09-04 + Tier-3: src/audio/hardware_templates.h (TR-8/TR-8S templates, value-safe CCs baked from chart) + src/audio/tr8_midi_spec.h (Roland chart source-of-truth) + test_hardware_templates.cpp (HT1-4) + test_phase9_dod.cpp (P9D1-6 via processBlock) + test_tr8_spec_conformance.cpp (TS1-5). AC-6 = verified-by-spec.
 processBlock order: voices → fx_chain → scatter → gater → tape_stop → [EXT notes in midi_buffer_ext_] → stop-flush → clock → midi_messages.clear()+addEvents(ext)

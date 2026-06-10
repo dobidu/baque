@@ -1,7 +1,7 @@
 # PAUL Handoff
 
-**Date:** 2026-06-10 (session 25, updated at second pause)
-**Status:** paused — 10-01 planned + audited, APPLY not started; PR #1 merge in flight (CI running)
+**Date:** 2026-06-10 (session 26)
+**Status:** paused — 10-01 planned + audited, APPLY not started; PR #1 CI still running (macOS pending)
 
 ---
 
@@ -28,7 +28,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 
 ---
 
-## What Was Done (this session)
+## What Was Done (sessions 25–26)
 
 - Resumed at clean Phase 9→10 boundary; consumed + archived HANDOFF-2026-06-10.md.
 - **Phase 10 decomposition confirmed (complex track, 7 plans):**
@@ -49,31 +49,45 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
   - SR2: `push()` debug-jassert message thread; `apply_template` invalid id jassert+IGNORE (never clamp — clamp = wrong hardware silently)
   - Deferred 3: queue-full UI policy (10-02), EXT-only pulse (10-03), APVTS mute/solo automation (10-05)
 - STATE/ROADMAP/paul.toml/ledger synced; WIP commit `c55bcc1` pushed.
-- **PR #1 unblocked (second half of session):**
-  - Root cause found: **origin/main was 23 commits stale** (stuck at Phase-4 commit `10c39bb`, 2026-06-05) — Phases 4–9 never pushed, never CI-tested on macOS/Windows. **Pushed main** (`10c39bb..c55bcc1`).
-  - Old PR branch carried stale Phase-9-wip code → both red checks were artifacts (clang-format violations at 09-02 snapshot; GR4 granular test from 182-test era). Verified lint clean locally on current code.
-  - **Rebuilt PR branch:** deleted old `ci/node20-actions-v5`, recreated from current main + cherry-pick of the CI bump → commit `8603864`, force-pushed. PR diff now = `ci.yml` only (3 lines, checkout/cache v4→v5).
+- **PR #1 unblocked:**
+  - Root cause: origin/main was 23 commits stale (stuck at Phase-4 commit `10c39bb`). Pushed main (`10c39bb..c55bcc1`).
+  - Rebuilt PR branch: deleted old `ci/node20-actions-v5`, recreated from current main + cherry-pick of CI bump → commit `8603864`, force-pushed. PR diff = `ci.yml` only (3 lines, checkout/cache v4→v5).
+- Session 26: CI monitoring only — no src/ changes.
 
 ---
 
 ## What's In Progress
 
-- **PR #1 CI running** (run 27253122002): lint PASS, ubuntu FAILED with runner-shutdown SIGTERM (exit 143 — infra flake, NOT code), macOS + Windows pending (~1h legs). Rerun of ubuntu blocked until run completes ("cannot be rerun" while jobs pending).
-- Background watcher on `gh pr checks 1 --watch` active in the paused session; in a fresh session just check `gh pr checks 1`.
-- Main CI also running on `c55bcc1` (first main run since Phase 4 — first macOS/Windows exposure for Phases 5–9 code).
-- **Open risk:** GR4 (`test_granular.cpp:114`, pitch_spread contrast test) failed on macOS at the old snapshot. May be a REAL macOS-specific issue — current code's macOS leg decides. If it fails: platform bug, fix before merge; do NOT merge red.
-- PAUL code work: nothing mid-flight; 10-01 ready for APPLY; src/ untouched.
+- **PR #1 CI running** (run 27253122002):
+  - Lint: PASS ✓
+  - Windows: PASS ✓ (7m2s — Phases 5–9 work on Windows)
+  - Ubuntu: FAIL — exit code 143 (SIGTERM infra flake, confirmed not code)
+  - macOS: **PENDING** (GR4 open risk — see below)
+- Main branch CI (run 27253315540) also in progress (first macOS/Windows run since Phase 4).
+- PAUL code work: nothing mid-flight. 10-01 ready for APPLY; src/ untouched.
+
+---
+
+## Open Risk
+
+**GR4** (`tests/test_granular.cpp:114`, pitch_spread contrast test) failed on macOS at stale snapshot. Current code's macOS leg decides if it's a real platform bug. If macOS is red:
+- Read `tests/test_granular.cpp:114` (GR4 test)
+- Likely FP or platform-rand sensitivity
+- Fix on main first, then merge PR
+
+Do NOT merge PR #1 if macOS is red.
 
 ---
 
 ## What's Next
 
-**Immediate (CI, time-critical):**
-1. `gh pr checks 1` — when run 27253122002 completes: ubuntu red from flake → `gh run rerun 27253122002 --failed`.
-2. All green → `gh pr merge 1 --squash --delete-branch` (or rebase-merge; single commit either way). Deadline **June 16** (Node.js 20 deprecation).
-3. If macOS GR4 fails on current code → real bug: read `tests/test_granular.cpp:114` (GR4), likely FP/platform-rand sensitivity; fix on main first, then merge PR.
+**Immediate (CI, time-critical, deadline June 16):**
+1. `gh pr checks 1` — check if macOS completed.
+2. If macOS green → `gh run rerun 27253122002 --failed` (rerun ubuntu flake) → merge when all green.
+3. If macOS GR4 red → fix bug first, then rerun.
+4. Merge: `gh pr merge 1 --squash --delete-branch`
 
-**Then (PAUL loop):** `/paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md` → `/paul:unify 10-01` → `/paul:plan` 10-02 (LookAndFeel + design system).
+**Then (PAUL loop):** `/paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md`
 
 ---
 
@@ -94,9 +108,10 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 ## Resume Instructions
 
 1. Read `.paul/STATE.md` for latest position.
-2. Loop at PLAN+AUDIT done; APPLY pending — no checkpoint mid-task.
-3. Run `/paul:resume`, then `/paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md`.
+2. Check PR #1: `gh pr checks 1`
+3. If macOS done + green → rerun ubuntu → merge. If macOS red → fix GR4 first.
+4. After PR merged → `/paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md`
 
 ---
 
-*Handoff created: 2026-06-10*
+*Handoff created: 2026-06-10 (updated session 26)*
