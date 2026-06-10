@@ -1,7 +1,7 @@
 # PAUL Handoff
 
-**Date:** 2026-06-10 (session 25)
-**Status:** paused — 10-01 planned + audited, APPLY not started
+**Date:** 2026-06-10 (session 25, updated at second pause)
+**Status:** paused — 10-01 planned + audited, APPLY not started; PR #1 merge in flight (CI running)
 
 ---
 
@@ -48,24 +48,32 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
   - SR1: lane pulse derived by scanning `midi_buffer_seq_` note-ons (lane = note − 36), NOT hooking Sequencer internals; auto-respects 08-04 gating; EXT-only lanes don't pulse (documented v1 limit)
   - SR2: `push()` debug-jassert message thread; `apply_template` invalid id jassert+IGNORE (never clamp — clamp = wrong hardware silently)
   - Deferred 3: queue-full UI policy (10-02), EXT-only pulse (10-03), APVTS mute/solo automation (10-05)
-- STATE/ROADMAP/paul.toml/ledger synced.
+- STATE/ROADMAP/paul.toml/ledger synced; WIP commit `c55bcc1` pushed.
+- **PR #1 unblocked (second half of session):**
+  - Root cause found: **origin/main was 23 commits stale** (stuck at Phase-4 commit `10c39bb`, 2026-06-05) — Phases 4–9 never pushed, never CI-tested on macOS/Windows. **Pushed main** (`10c39bb..c55bcc1`).
+  - Old PR branch carried stale Phase-9-wip code → both red checks were artifacts (clang-format violations at 09-02 snapshot; GR4 granular test from 182-test era). Verified lint clean locally on current code.
+  - **Rebuilt PR branch:** deleted old `ci/node20-actions-v5`, recreated from current main + cherry-pick of the CI bump → commit `8603864`, force-pushed. PR diff now = `ci.yml` only (3 lines, checkout/cache v4→v5).
 
 ---
 
 ## What's In Progress
 
-- Nothing mid-flight in code. 10-01 plan ready for execution; src/ untouched this session.
-- Uncommitted: `.paul/` updates (plan, audit, state) + untracked `.claude/` (intentional).
+- **PR #1 CI running** (run 27253122002): lint PASS, ubuntu FAILED with runner-shutdown SIGTERM (exit 143 — infra flake, NOT code), macOS + Windows pending (~1h legs). Rerun of ubuntu blocked until run completes ("cannot be rerun" while jobs pending).
+- Background watcher on `gh pr checks 1 --watch` active in the paused session; in a fresh session just check `gh pr checks 1`.
+- Main CI also running on `c55bcc1` (first main run since Phase 4 — first macOS/Windows exposure for Phases 5–9 code).
+- **Open risk:** GR4 (`test_granular.cpp:114`, pitch_spread contrast test) failed on macOS at the old snapshot. May be a REAL macOS-specific issue — current code's macOS leg decides. If it fails: platform bug, fix before merge; do NOT merge red.
+- PAUL code work: nothing mid-flight; 10-01 ready for APPLY; src/ untouched.
 
 ---
 
 ## What's Next
 
-**Immediate:** `/paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md` — execute the command-queue plan.
+**Immediate (CI, time-critical):**
+1. `gh pr checks 1` — when run 27253122002 completes: ubuntu red from flake → `gh run rerun 27253122002 --failed`.
+2. All green → `gh pr merge 1 --squash --delete-branch` (or rebase-merge; single commit either way). Deadline **June 16** (Node.js 20 deprecation).
+3. If macOS GR4 fails on current code → real bug: read `tests/test_granular.cpp:114` (GR4), likely FP/platform-rand sensitivity; fix on main first, then merge PR.
 
-**After that:** `/paul:unify 10-01`, then `/paul:plan` for 10-02 (LookAndFeel + design system).
-
-**Time-critical, separate:** CI `actions/checkout`+`cache` v4→v5, **PR #1** (https://github.com/dobidu/baque/pull/1) — STILL OPEN, **merge before June 16** (Node.js 20 deprecation, ~6 days).
+**Then (PAUL loop):** `/paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md` → `/paul:unify 10-01` → `/paul:plan` 10-02 (LookAndFeel + design system).
 
 ---
 
