@@ -61,7 +61,12 @@ jobs:
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
       # --- Compilar ---
-      - name: Build
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: cmake --build build --config Release -j$(nproc)
+
+      - name: Build (macOS / Windows)
+        if: runner.os != 'Linux'
         run: cmake --build build --config Release -j
 
       # --- Testes (ctest) ---
