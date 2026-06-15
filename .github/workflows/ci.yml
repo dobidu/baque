@@ -38,6 +38,11 @@ jobs:
           key: fetchcontent-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt') }}
           restore-keys: fetchcontent-${{ matrix.os }}-
 
+      # Nuke stale subbuild/build dirs — sources stay; prevents generator-mismatch on runner upgrades
+      - name: Clean stale FetchContent build artifacts
+        run: find build/_deps -maxdepth 1 \( -name "*-build" -o -name "*-subbuild" \) -exec rm -rf {} + 2>/dev/null || true
+        shell: bash
+
       # --- Dependências Linux ---
       - name: Install Linux deps
         if: runner.os == 'Linux'
