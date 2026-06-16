@@ -21,7 +21,7 @@ status = "in_progress"
 plans_completed = 1
 
 [loop]
-position = "PLAN"
+position = "UNIFY"
 plan = "10-02"
 plan_path = "phases/10-ui-ux/10-02-PLAN.md"
 

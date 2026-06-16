@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 10 (UI/UX) — 10-02 planned, awaiting audit + apply
+**Current focus:** Phase 10 (UI/UX) — 10-02 UNIFY complete; human-verify + CI pending before 10-03
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 10 of 13 (UI/UX) — In Progress (2/7 plans planning)
-Plan: 10-02 — PLAN created + audited, awaiting APPLY
-Status: 10-02 plan audited — 1 must-have + 5 strongly-recommended applied; ready for APPLY
-Last activity: 2026-06-15 — 10-02 AUDIT complete
+Phase: 10 of 13 (UI/UX) — In Progress (2/7 plans complete)
+Plan: 10-02 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
+Status: 226/226 tests pass; human-verify + CI gate pending; next = human-verify then 10-03
+Last activity: 2026-06-15 — 10-02 UNIFY complete
 
 Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
