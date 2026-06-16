@@ -1,11 +1,12 @@
 #include "header_component.h"
 
 static constexpr const char* k_nav_labels[HeaderComponent::NUM_SCREENS] = {
-    "PERFORM", "FX", "MIX", "PERF FX", "BROWSER", "MIDI"
-};
+    "PERFORM", "FX", "MIX", "PERF FX", "BROWSER", "MIDI"};
 
 HeaderComponent::HeaderComponent(BaqueProcessor& proc, BaqueLookAndFeel& laf)
-    : proc_(proc), laf_(laf), meter_(proc.ui_snapshot()) {
+    : proc_(proc)
+    , laf_(laf)
+    , meter_(proc.ui_snapshot()) {
     buildNavButtons();
 
     bpm_label_.setJustificationType(juce::Justification::centred);
@@ -62,7 +63,7 @@ void HeaderComponent::visibilityChanged() {
 
 void HeaderComponent::timerCallback() {
     const auto& snap = proc_.ui_snapshot();
-    const float bpm  = snap.bpm.load(std::memory_order_relaxed);
+    const float bpm = snap.bpm.load(std::memory_order_relaxed);
     bpm_label_.setText(juce::String(bpm, 1) + " BPM", juce::dontSendNotification);
 }
 

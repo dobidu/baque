@@ -5,7 +5,6 @@
 #include <juce_audio_formats/juce_audio_formats.h>
 
 #include <BinaryData.h>
-
 #include <algorithm>
 #include <cmath>
 
@@ -228,18 +227,17 @@ void BaqueProcessor::dispatch_ui_command(const UiCommand& cmd) noexcept {
         // StepPattern não tem campo velocity por step em v1 — deferred para 10-03.
         break;
     case UiCommandType::set_plock: {
-        const int step  = juce::jlimit(0, PLockPattern::k_steps - 1, cmd.b);
+        const int step = juce::jlimit(0, PLockPattern::k_steps - 1, cmd.b);
         const int param = juce::jlimit(0, k_plock_param_count - 1, cmd.c);
-        plock_pattern_.steps[step].values[param] =
-            juce::jlimit(k_param_range[static_cast<std::size_t>(param)].lo,
-                         k_param_range[static_cast<std::size_t>(param)].hi,
-                         cmd.f);
+        plock_pattern_.steps[step].values[param] = juce::jlimit(k_param_range[static_cast<std::size_t>(param)].lo,
+                                                                k_param_range[static_cast<std::size_t>(param)].hi,
+                                                                cmd.f);
         plock_pattern_.steps[step].active[param] = true;
         plock_pattern_.enabled = true;
         break;
     }
     case UiCommandType::clear_plock: {
-        const int step  = juce::jlimit(0, PLockPattern::k_steps - 1, cmd.b);
+        const int step = juce::jlimit(0, PLockPattern::k_steps - 1, cmd.b);
         const int param = juce::jlimit(0, k_plock_param_count - 1, cmd.c);
         plock_pattern_.steps[step].active[param] = false;
         break;
@@ -438,22 +436,21 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     // Campos relaxed: coerência por-campo é suficiente; tearing entre campos aceito por design.
     {
         const double ppq_in = std::fmod(transport_.ppq_position, StepClock::k_ppq_per_pattern);
-        const auto snap_step = static_cast<int32_t>(transport_.is_playing
-            ? std::min(static_cast<int>(ppq_in / StepClock::k_ppq_per_step), 15)
-            : -1);
+        const auto snap_step = static_cast<int32_t>(
+            transport_.is_playing ? std::min(static_cast<int>(ppq_in / StepClock::k_ppq_per_step), 15) : -1);
         ui_snapshot_.current_step.store(snap_step, std::memory_order_relaxed);
         ui_snapshot_.is_playing.store(transport_.is_playing, std::memory_order_relaxed);
         ui_snapshot_.bpm.store(static_cast<float>(transport_.bpm), std::memory_order_relaxed);
         ui_snapshot_.master_peak_l.store(buffer.getMagnitude(0, 0, num_frames), std::memory_order_relaxed);
-        const float peak_r = buffer.getNumChannels() > 1
-            ? buffer.getMagnitude(1, 0, num_frames)
-            : ui_snapshot_.master_peak_l.load(std::memory_order_relaxed);
+        const float peak_r = buffer.getNumChannels() > 1 ? buffer.getMagnitude(1, 0, num_frames)
+                                                         : ui_snapshot_.master_peak_l.load(std::memory_order_relaxed);
         ui_snapshot_.master_peak_r.store(peak_r, std::memory_order_relaxed);
         // lane_last_velocity: derivado de midi_buffer_seq_ (SR1 — sem plumbing no Sequencer).
         // Mute/fill-gate já aplicados: steps suprimidos não emitem note-on.
         for (const auto meta : midi_buffer_seq_) {
             const auto& msg = meta.getMessage();
-            if (!msg.isNoteOn()) continue;
+            if (!msg.isNoteOn())
+                continue;
             const int lane = msg.getNoteNumber() - PadBank::k_base_note;
             if (lane >= 0 && lane < 16)
                 ui_snapshot_.lane_last_velocity[static_cast<std::size_t>(lane)].store(
@@ -613,8 +610,10 @@ void BaqueProcessor::getStateInformation(juce::MemoryBlock& dest_data) {
 
     juce::ValueTree routing("routing");
     for (int i = 0; i < StepPattern::k_num_lanes; ++i) {
-        routing.setProperty("mode" + juce::String(i), static_cast<int>(lane_routing_.mode[static_cast<size_t>(i)]), nullptr);
-        routing.setProperty("ch" + juce::String(i), static_cast<int>(lane_routing_.channel[static_cast<size_t>(i)]), nullptr);
+        routing.setProperty(
+            "mode" + juce::String(i), static_cast<int>(lane_routing_.mode[static_cast<size_t>(i)]), nullptr);
+        routing.setProperty(
+            "ch" + juce::String(i), static_cast<int>(lane_routing_.channel[static_cast<size_t>(i)]), nullptr);
     }
     state.addChild(routing, -1, nullptr);
 
@@ -623,7 +622,8 @@ void BaqueProcessor::getStateInformation(juce::MemoryBlock& dest_data) {
     cc_out.setProperty("channel", static_cast<int>(cc_out_.channel), nullptr);
     for (int i = 0; i < k_plock_param_count; ++i) {
         cc_out.setProperty("en" + juce::String(i), cc_out_.cc_enabled[static_cast<size_t>(i)] ? 1 : 0, nullptr);
-        cc_out.setProperty("cc" + juce::String(i), static_cast<int>(cc_out_.cc_number[static_cast<size_t>(i)]), nullptr);
+        cc_out.setProperty(
+            "cc" + juce::String(i), static_cast<int>(cc_out_.cc_number[static_cast<size_t>(i)]), nullptr);
     }
     state.addChild(cc_out, -1, nullptr);
 
@@ -680,9 +680,11 @@ void BaqueProcessor::setStateInformation(const void* data, int size_in_bytes) {
     const auto cc_out_tree = state.getChildWithName("cc_out_v4");
     if (cc_out_tree.isValid()) {
         cc_out_.enabled = static_cast<int>(cc_out_tree.getProperty("enabled", 0)) != 0;
-        cc_out_.channel = static_cast<uint8_t>(juce::jlimit(1, 16, static_cast<int>(cc_out_tree.getProperty("channel", 1))));
+        cc_out_.channel =
+            static_cast<uint8_t>(juce::jlimit(1, 16, static_cast<int>(cc_out_tree.getProperty("channel", 1))));
         for (int i = 0; i < k_plock_param_count; ++i) {
-            cc_out_.cc_enabled[static_cast<size_t>(i)] = static_cast<int>(cc_out_tree.getProperty("en" + juce::String(i), 0)) != 0;
+            cc_out_.cc_enabled[static_cast<size_t>(i)] =
+                static_cast<int>(cc_out_tree.getProperty("en" + juce::String(i), 0)) != 0;
             cc_out_.cc_number[static_cast<size_t>(i)] = static_cast<uint8_t>(
                 juce::jlimit(0, 127, static_cast<int>(cc_out_tree.getProperty("cc" + juce::String(i), 0))));
         }

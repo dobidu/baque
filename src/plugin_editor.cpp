@@ -1,14 +1,14 @@
 #include "plugin_editor.h"
+
 #include "plugin_processor.h"
 
 static constexpr const char* k_screen_names[BaqueEditor::k_num_screens] = {
-    "PERFORM", "FX", "MIX", "PERF FX", "BROWSER", "MIDI"
-};
+    "PERFORM", "FX", "MIX", "PERF FX", "BROWSER", "MIDI"};
 
 BaqueEditor::BaqueEditor(BaqueProcessor& p)
-    : AudioProcessorEditor(&p),
-      look_and_feel_(BaqueLookAndFeel::Theme::barro),
-      header_(p, look_and_feel_) {
+    : AudioProcessorEditor(&p)
+    , look_and_feel_(BaqueLookAndFeel::Theme::barro)
+    , header_(p, look_and_feel_) {
     setLookAndFeel(&look_and_feel_);
 
     for (int i = 0; i < k_num_screens; ++i) {

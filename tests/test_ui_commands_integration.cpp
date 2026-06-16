@@ -15,9 +15,9 @@ constexpr int k_block_s = 512;
 constexpr int k_block_full = 98304; // covers all 16 steps at 120 bpm
 
 struct UITestPlayHead : juce::AudioPlayHead {
-    bool   playing = true;
-    double ppq     = 0.0;
-    double bpm     = 120.0;
+    bool playing = true;
+    double ppq = 0.0;
+    double bpm = 120.0;
     juce::Optional<PositionInfo> getPosition() const override {
         PositionInfo info;
         info.setIsPlaying(playing);
@@ -74,7 +74,7 @@ TEST_CASE("UI1 set_mute suppresses lane note-on in next processBlock", "[ui_comm
 
     UITestPlayHead ph;
     proc.setPlayHead(&ph);
-    proc.lane_routing_.mode[0]    = LaneMode::external;
+    proc.lane_routing_.mode[0] = LaneMode::external;
     proc.lane_routing_.channel[0] = 1;
 
     // Unmuted: note-on ch1 note36 expected
@@ -108,7 +108,7 @@ TEST_CASE("UI2 set_lane_mode and set_lane_channel redirect to MIDI out", "[ui_co
     ph.ppq = 0.0;
     const auto midi = run_full(proc);
     REQUIRE(count_note_on(midi, 36, 10) > 0); // note on ch10
-    REQUIRE(count_note_on(midi, 36, 1) == 0);  // not on default ch1
+    REQUIRE(count_note_on(midi, 36, 1) == 0); // not on default ch1
 }
 
 // UI3: apply_template TR-8 rewires routing+cc and rewrites mapped lane notes;
@@ -182,7 +182,7 @@ TEST_CASE("UI5 set_step activates step and note fires in next processBlock", "[u
 
     UITestPlayHead ph;
     proc.setPlayHead(&ph);
-    proc.lane_routing_.mode[0]    = LaneMode::external;
+    proc.lane_routing_.mode[0] = LaneMode::external;
     proc.lane_routing_.channel[0] = 1;
 
     // No steps active → no note-on
@@ -219,8 +219,8 @@ TEST_CASE("UI6 snapshot fields coherent after playing processBlock", "[ui_comman
     REQUIRE(step >= 0);
     REQUIRE(step < 16);
     REQUIRE(snap.bpm.load() == Catch::Approx(120.0f));
-    REQUIRE(snap.master_peak_l.load() > 0.0f);           // test_kick_wav fires → audio > 0
-    REQUIRE(snap.lane_last_velocity[0].load() == 100);    // default sequencer velocity
+    REQUIRE(snap.master_peak_l.load() > 0.0f);         // test_kick_wav fires → audio > 0
+    REQUIRE(snap.lane_last_velocity[0].load() == 100); // default sequencer velocity
 }
 
 // UI7: command FIFO order preserved — last command in queue wins.
@@ -233,11 +233,15 @@ TEST_CASE("UI7 command FIFO order set_solo last command wins", "[ui_commands]") 
     StepPattern p{};
     for (int s : {0, 4, 8, 12})
         p.set_active(0, s, false);
-    p.set_active(0, 0, true); p.set_note(0, 0, 36);
-    p.set_active(1, 0, true); p.set_note(1, 0, 38);
+    p.set_active(0, 0, true);
+    p.set_note(0, 0, 36);
+    p.set_active(1, 0, true);
+    p.set_note(1, 0, 38);
     proc.set_pattern(p);
-    proc.lane_routing_.mode[0]    = LaneMode::external; proc.lane_routing_.channel[0] = 1;
-    proc.lane_routing_.mode[1]    = LaneMode::external; proc.lane_routing_.channel[1] = 1;
+    proc.lane_routing_.mode[0] = LaneMode::external;
+    proc.lane_routing_.channel[0] = 1;
+    proc.lane_routing_.mode[1] = LaneMode::external;
+    proc.lane_routing_.channel[1] = 1;
 
     UITestPlayHead ph;
     proc.setPlayHead(&ph);
@@ -267,7 +271,7 @@ TEST_CASE("UI8 getStateInformation drains queue before serialising lane_routing"
     proc.getStateInformation(state);
 
     // Source processor must reflect dispatched commands
-    REQUIRE(proc.lane_routing_.mode[3]    == LaneMode::external);
+    REQUIRE(proc.lane_routing_.mode[3] == LaneMode::external);
     REQUIRE(proc.lane_routing_.channel[3] == 7);
 
     // Restore into fresh processor
@@ -275,6 +279,6 @@ TEST_CASE("UI8 getStateInformation drains queue before serialising lane_routing"
     proc2.prepareToPlay(k_sr, k_block_s);
     proc2.setStateInformation(state.getData(), static_cast<int>(state.getSize()));
 
-    REQUIRE(proc2.lane_routing_.mode[3]    == LaneMode::external);
+    REQUIRE(proc2.lane_routing_.mode[3] == LaneMode::external);
     REQUIRE(proc2.lane_routing_.channel[3] == 7);
 }

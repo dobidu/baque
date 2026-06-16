@@ -10,18 +10,18 @@
 // Mapeamento de campos a/b/c/f por tipo documentado inline.
 enum class UiCommandType : uint8_t {
     // --- PerfState: fills, mute, solo ---
-    set_fill,                // c=fill_active(bool)
-    set_mute,                // a=lane[0,15], c=muted(bool)
-    set_solo,                // a=lane[0,15], c=solo(bool)
+    set_fill, // c=fill_active(bool)
+    set_mute, // a=lane[0,15], c=muted(bool)
+    set_solo, // a=lane[0,15], c=solo(bool)
     // --- Roteamento por lane ---
-    set_lane_mode,           // a=lane[0,15], c=LaneMode(0=int,1=ext,2=both)
-    set_lane_channel,        // a=lane[0,15], c=channel[0,16] (0→1 no emit)
+    set_lane_mode,    // a=lane[0,15], c=LaneMode(0=int,1=ext,2=both)
+    set_lane_channel, // a=lane[0,15], c=channel[0,16] (0→1 no emit)
     // --- Clock master ---
-    set_clock_master,        // c=enabled(bool)
+    set_clock_master, // c=enabled(bool)
     // --- CC out ---
-    set_cc_out_enabled,      // c=enabled(bool)
-    set_cc_out_channel,      // c=channel[1,16]
-    set_cc_slot,             // a=param_index[0,14], b=cc_number[0,127], c=enabled(bool)
+    set_cc_out_enabled, // c=enabled(bool)
+    set_cc_out_channel, // c=channel[1,16]
+    set_cc_slot,        // a=param_index[0,14], b=cc_number[0,127], c=enabled(bool)
     // --- Parâmetros de pad ---
     set_pad_gain,            // a=pad[0,15], f=gain
     set_pad_pan,             // a=pad[0,15], f=pan[-1,1]
@@ -35,12 +35,12 @@ enum class UiCommandType : uint8_t {
     set_pad_adsr_sustain,    // a=pad[0,15], f=sustain[0,1]
     set_pad_adsr_release,    // a=pad[0,15], f=release_ms
     // --- Edição ao vivo do padrão ativo ---
-    set_step,                // a=lane[0,15], b=step[0,15], c=on(bool)
-    set_step_velocity,       // a=lane[0,15], b=step[0,15], c=velocity[0,127]
-    set_plock,               // a=lane[0,15], b=step[0,15], c=param_index[0,14], f=value(engine units)
-    clear_plock,             // a=lane[0,15], b=step[0,15], c=param_index[0,14]
+    set_step,          // a=lane[0,15], b=step[0,15], c=on(bool)
+    set_step_velocity, // a=lane[0,15], b=step[0,15], c=velocity[0,127]
+    set_plock,         // a=lane[0,15], b=step[0,15], c=param_index[0,14], f=value(engine units)
+    clear_plock,       // a=lane[0,15], b=step[0,15], c=param_index[0,14]
     // --- Template de hardware ---
-    apply_template,          // a=template_id(0=TR-8, 1=TR-8S)
+    apply_template, // a=template_id(0=TR-8, 1=TR-8S)
 };
 
 // Comando POD tagged-union: message thread → audio thread via UiCommandQueue.
@@ -50,7 +50,7 @@ struct UiCommand {
     int32_t a = 0; // significado depende do type (ver UiCommandType acima)
     int32_t b = 0;
     int32_t c = 0;
-    float   f = 0.0f;
+    float f = 0.0f;
 };
 static_assert(std::is_trivially_copyable_v<UiCommand>);
 
@@ -74,7 +74,8 @@ class UiCommandQueue {
     // AbstractFifo(N) holds at most N-1 items (one slot reserved for empty/full
     // bookkeeping). Allocate k_capacity+1 internally to expose exactly k_capacity
     // usable slots to callers — the stated 256-command capacity is the public contract.
-    UiCommandQueue() : fifo_(k_capacity + 1) {}
+    UiCommandQueue()
+        : fifo_(k_capacity + 1) {}
 
     // Enfileira um comando. Retorna false (descarta sem bloquear) se fila cheia.
     // DEBUG: jassert verifica que estamos na message thread (único produtor SPSC).
@@ -95,8 +96,7 @@ class UiCommandQueue {
 
     // Drena todos os comandos pendentes chamando apply(cmd) para cada um (FIFO).
     // Zero alocações; zero locks. Chamado pelo audio thread no topo de processBlock.
-    template <typename Fn>
-    void drain(Fn&& apply) {
+    template <typename Fn> void drain(Fn&& apply) {
         const int available = fifo_.getNumReady();
         if (available == 0)
             return;

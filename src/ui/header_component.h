@@ -1,13 +1,14 @@
 #pragma once
-#include <juce_gui_basics/juce_gui_basics.h>
-#include <array>
-#include <functional>
+#include "../plugin_processor.h"
 #include "baque_look_and_feel.h"
 #include "baque_meter.h"
-#include "../plugin_processor.h"
 
-class HeaderComponent : public juce::Component,
-                        private juce::Timer {
+#include <juce_gui_basics/juce_gui_basics.h>
+
+#include <array>
+#include <functional>
+
+class HeaderComponent : public juce::Component, private juce::Timer {
   public:
     enum Screen { PERFORM = 0, FX, MIX, PERF_FX, BROWSER, MIDI, NUM_SCREENS };
 
@@ -26,9 +27,9 @@ class HeaderComponent : public juce::Component,
     std::function<void(Screen)> on_screen_changed;
 
   private:
-    BaqueProcessor&    proc_;
-    BaqueLookAndFeel&  laf_;
-    BaqueMeter         meter_;
+    BaqueProcessor& proc_;
+    BaqueLookAndFeel& laf_;
+    BaqueMeter meter_;
 
     std::array<juce::TextButton, NUM_SCREENS> nav_buttons_;
 

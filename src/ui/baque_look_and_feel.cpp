@@ -1,4 +1,5 @@
 #include "baque_look_and_feel.h"
+
 #include <BinaryData.h>
 #include <cmath>
 
@@ -10,14 +11,12 @@ BaqueLookAndFeel::BaqueLookAndFeel(Theme t)
 }
 
 void BaqueLookAndFeel::loadTypefaces() {
-    ui_typeface_ = juce::Typeface::createSystemTypefaceFor(
-        BinaryData::SpaceGroteskMedium_ttf,
-        static_cast<size_t>(BinaryData::SpaceGroteskMedium_ttfSize));
+    ui_typeface_ = juce::Typeface::createSystemTypefaceFor(BinaryData::SpaceGroteskMedium_ttf,
+                                                           static_cast<size_t>(BinaryData::SpaceGroteskMedium_ttfSize));
     jassert(ui_typeface_ != nullptr);
 
     mono_typeface_ = juce::Typeface::createSystemTypefaceFor(
-        BinaryData::JetBrainsMonoRegular_ttf,
-        static_cast<size_t>(BinaryData::JetBrainsMonoRegular_ttfSize));
+        BinaryData::JetBrainsMonoRegular_ttf, static_cast<size_t>(BinaryData::JetBrainsMonoRegular_ttfSize));
     jassert(mono_typeface_ != nullptr);
 }
 
@@ -37,21 +36,21 @@ void BaqueLookAndFeel::buildGrainTexture() {
 
 void BaqueLookAndFeel::setTheme(Theme t) {
     theme_ = t;
-    const auto bg   = background();
+    const auto bg = background();
     const auto surf = surface();
-    const auto txt  = text();
+    const auto txt = text();
 
     setColour(juce::ResizableWindow::backgroundColourId, bg);
-    setColour(juce::DocumentWindow::backgroundColourId,  bg);
-    setColour(juce::Label::textColourId,                 txt);          // required for ScreenPlaceholder findColour()
-    setColour(juce::Label::backgroundColourId,           juce::Colours::transparentBlack);
-    setColour(juce::TextButton::buttonColourId,          surf);
-    setColour(juce::TextButton::buttonOnColourId,        surf);
-    setColour(juce::TextButton::textColourOffId,         txt);
-    setColour(juce::TextButton::textColourOnId,          bone());
-    setColour(juce::Slider::thumbColourId,               juce::Colour(0xffaaaaaa));
-    setColour(juce::Slider::trackColourId,               surf);
-    setColour(juce::Slider::backgroundColourId,          bg);
+    setColour(juce::DocumentWindow::backgroundColourId, bg);
+    setColour(juce::Label::textColourId, txt); // required for ScreenPlaceholder findColour()
+    setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack);
+    setColour(juce::TextButton::buttonColourId, surf);
+    setColour(juce::TextButton::buttonOnColourId, surf);
+    setColour(juce::TextButton::textColourOffId, txt);
+    setColour(juce::TextButton::textColourOnId, bone());
+    setColour(juce::Slider::thumbColourId, juce::Colour(0xffaaaaaa));
+    setColour(juce::Slider::trackColourId, surf);
+    setColour(juce::Slider::backgroundColourId, bg);
 
     if (ui_typeface_ != nullptr)
         setDefaultSansSerifTypeface(ui_typeface_);
@@ -59,44 +58,63 @@ void BaqueLookAndFeel::setTheme(Theme t) {
 
 juce::Colour BaqueLookAndFeel::background() const noexcept {
     switch (theme_) {
-        case Theme::barro:    return juce::Colour(0xff1a1410u);
-        case Theme::cinza:    return juce::Colour(0xff1a1a1au);
-        case Theme::maracatu: return juce::Colour(0xff0f0a18u);
-        case Theme::papel:    return juce::Colour(0xfff5f0e8u);
-        default:              return juce::Colour(0xff1a1410u);
+    case Theme::barro:
+        return juce::Colour(0xff1a1410u);
+    case Theme::cinza:
+        return juce::Colour(0xff1a1a1au);
+    case Theme::maracatu:
+        return juce::Colour(0xff0f0a18u);
+    case Theme::papel:
+        return juce::Colour(0xfff5f0e8u);
+    default:
+        return juce::Colour(0xff1a1410u);
     }
 }
 
 juce::Colour BaqueLookAndFeel::surface() const noexcept {
     switch (theme_) {
-        case Theme::barro:    return juce::Colour(0xff241c16u);
-        case Theme::cinza:    return juce::Colour(0xff252525u);
-        case Theme::maracatu: return juce::Colour(0xff1a1025u);
-        case Theme::papel:    return juce::Colour(0xffede5d8u);
-        default:              return juce::Colour(0xff241c16u);
+    case Theme::barro:
+        return juce::Colour(0xff241c16u);
+    case Theme::cinza:
+        return juce::Colour(0xff252525u);
+    case Theme::maracatu:
+        return juce::Colour(0xff1a1025u);
+    case Theme::papel:
+        return juce::Colour(0xffede5d8u);
+    default:
+        return juce::Colour(0xff241c16u);
     }
 }
 
 juce::Colour BaqueLookAndFeel::text() const noexcept {
     switch (theme_) {
-        case Theme::barro:    return juce::Colour(0xfff2e9ddu);
-        case Theme::cinza:    return juce::Colour(0xffe8e8e0u);
-        case Theme::maracatu: return juce::Colour(0xfff0e0ffu);
-        case Theme::papel:    return juce::Colour(0xff1a1410u);
-        default:              return juce::Colour(0xfff2e9ddu);
+    case Theme::barro:
+        return juce::Colour(0xfff2e9ddu);
+    case Theme::cinza:
+        return juce::Colour(0xffe8e8e0u);
+    case Theme::maracatu:
+        return juce::Colour(0xfff0e0ffu);
+    case Theme::papel:
+        return juce::Colour(0xff1a1410u);
+    default:
+        return juce::Colour(0xfff2e9ddu);
     }
 }
 
 void BaqueLookAndFeel::drawRotarySlider(juce::Graphics& g,
-                                         int x, int y, int width, int height,
-                                         float sliderPosProportional,
-                                         float rotaryStartAngle, float rotaryEndAngle,
-                                         juce::Slider& /*slider*/) {
-    const float cx = static_cast<float>(x) + static_cast<float>(width)  * 0.5f;
+                                        int x,
+                                        int y,
+                                        int width,
+                                        int height,
+                                        float sliderPosProportional,
+                                        float rotaryStartAngle,
+                                        float rotaryEndAngle,
+                                        juce::Slider& /*slider*/) {
+    const float cx = static_cast<float>(x) + static_cast<float>(width) * 0.5f;
     const float cy = static_cast<float>(y) + static_cast<float>(height) * 0.5f;
-    const float r  = std::min(static_cast<float>(width),
-                               static_cast<float>(height)) * 0.5f - 4.0f;
-    if (r <= 0.0f) return;
+    const float r = std::min(static_cast<float>(width), static_cast<float>(height)) * 0.5f - 4.0f;
+    if (r <= 0.0f)
+        return;
 
     // Body
     g.setColour(surface().darker(0.3f));
@@ -105,24 +123,21 @@ void BaqueLookAndFeel::drawRotarySlider(juce::Graphics& g,
     g.drawEllipse(cx - r, cy - r, r * 2.0f, r * 2.0f, 1.5f);
 
     const float trackW = std::max(2.0f, r * 0.12f);
-    const float arcR   = r - trackW;
+    const float arcR = r - trackW;
 
     // Track (full range)
     {
         juce::Path track;
-        track.addArc(cx - arcR, cy - arcR, arcR * 2.0f, arcR * 2.0f,
-                     rotaryStartAngle, rotaryEndAngle, true);
+        track.addArc(cx - arcR, cy - arcR, arcR * 2.0f, arcR * 2.0f, rotaryStartAngle, rotaryEndAngle, true);
         g.setColour(surface().brighter(0.4f));
         g.strokePath(track, juce::PathStrokeType(trackW));
     }
 
     // Value arc
-    const float angle = rotaryStartAngle + sliderPosProportional *
-                        (rotaryEndAngle - rotaryStartAngle);
+    const float angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
     if (angle > rotaryStartAngle) {
         juce::Path valueArc;
-        valueArc.addArc(cx - arcR, cy - arcR, arcR * 2.0f, arcR * 2.0f,
-                        rotaryStartAngle, angle, true);
+        valueArc.addArc(cx - arcR, cy - arcR, arcR * 2.0f, arcR * 2.0f, rotaryStartAngle, angle, true);
         g.setColour(ember());
         g.strokePath(valueArc, juce::PathStrokeType(trackW));
     }
@@ -136,15 +151,19 @@ void BaqueLookAndFeel::drawRotarySlider(juce::Graphics& g,
 }
 
 void BaqueLookAndFeel::drawLinearSlider(juce::Graphics& g,
-                                         int x, int y, int width, int height,
-                                         float sliderPos,
-                                         float /*minSliderPos*/, float /*maxSliderPos*/,
-                                         juce::Slider::SliderStyle style,
-                                         juce::Slider& slider) {
+                                        int x,
+                                        int y,
+                                        int width,
+                                        int height,
+                                        float sliderPos,
+                                        float /*minSliderPos*/,
+                                        float /*maxSliderPos*/,
+                                        juce::Slider::SliderStyle style,
+                                        juce::Slider& slider) {
     if (style == juce::Slider::LinearVertical) {
-        const float trackW  = 4.0f;
-        const float trackX  = static_cast<float>(x + width / 2) - trackW * 0.5f;
-        const float trackTop    = static_cast<float>(y + 4);
+        const float trackW = 4.0f;
+        const float trackX = static_cast<float>(x + width / 2) - trackW * 0.5f;
+        const float trackTop = static_cast<float>(y + 4);
         const float trackBottom = static_cast<float>(y + height - 4);
 
         g.setColour(surface().brighter(0.3f));
@@ -155,23 +174,22 @@ void BaqueLookAndFeel::drawLinearSlider(juce::Graphics& g,
         const float thumbX = static_cast<float>(x + 4);
         const float thumbY = sliderPos - thumbH * 0.5f;
 
-        juce::ColourGradient grad(juce::Colour(0xffcccccc), thumbX, thumbY,
-                                  juce::Colour(0xff666666), thumbX, thumbY + thumbH, false);
+        juce::ColourGradient grad(
+            juce::Colour(0xffcccccc), thumbX, thumbY, juce::Colour(0xff666666), thumbX, thumbY + thumbH, false);
         g.setGradientFill(grad);
         g.fillRoundedRectangle(thumbX, thumbY, thumbW, thumbH, 3.0f);
         g.setColour(juce::Colours::black.withAlpha(0.4f));
         g.drawRoundedRectangle(thumbX, thumbY, thumbW, thumbH, 3.0f, 1.0f);
     } else {
-        LookAndFeel_V4::drawLinearSlider(g, x, y, width, height,
-                                          sliderPos, 0.0f, 1.0f, style, slider);
+        LookAndFeel_V4::drawLinearSlider(g, x, y, width, height, sliderPos, 0.0f, 1.0f, style, slider);
     }
 }
 
 void BaqueLookAndFeel::drawButtonBackground(juce::Graphics& g,
-                                              juce::Button& button,
-                                              const juce::Colour& /*backgroundColour*/,
-                                              bool isMouseOverButton,
-                                              bool isButtonDown) {
+                                            juce::Button& button,
+                                            const juce::Colour& /*backgroundColour*/,
+                                            bool isMouseOverButton,
+                                            bool isButtonDown) {
     auto bounds = button.getLocalBounds().toFloat().reduced(0.5f);
     auto col = surface();
     if (isMouseOverButton || isButtonDown)
@@ -185,26 +203,20 @@ void BaqueLookAndFeel::drawButtonBackground(juce::Graphics& g,
 }
 
 void BaqueLookAndFeel::drawButtonText(juce::Graphics& g,
-                                       juce::TextButton& button,
-                                       bool /*isMouseOverButton*/,
-                                       bool /*isButtonDown*/) {
-    juce::Font f = (ui_typeface_ != nullptr)
-                   ? juce::Font(juce::FontOptions(ui_typeface_).withHeight(10.0f))
-                   : juce::Font(juce::FontOptions{}.withHeight(10.0f));
+                                      juce::TextButton& button,
+                                      bool /*isMouseOverButton*/,
+                                      bool /*isButtonDown*/) {
+    juce::Font f = (ui_typeface_ != nullptr) ? juce::Font(juce::FontOptions(ui_typeface_).withHeight(10.0f))
+                                             : juce::Font(juce::FontOptions{}.withHeight(10.0f));
     g.setFont(f);
     g.setColour(button.getToggleState() ? bone() : text());
-    g.drawFittedText(button.getButtonText(),
-                     button.getLocalBounds().reduced(2),
-                     juce::Justification::centred, 1);
+    g.drawFittedText(button.getButtonText(), button.getLocalBounds().reduced(2), juce::Justification::centred, 1);
 }
 
-void BaqueLookAndFeel::paintGrainOverlay(juce::Graphics& g,
-                                          juce::Rectangle<int> bounds,
-                                          float alpha) const {
+void BaqueLookAndFeel::paintGrainOverlay(juce::Graphics& g, juce::Rectangle<int> bounds, float alpha) const {
     if (!grain_texture_.isValid() || grain_intensity_ <= 0.0f)
         return;
     g.setOpacity(grain_intensity_ * alpha * 0.08f);
-    g.drawImage(grain_texture_, bounds.toFloat(),
-                juce::RectanglePlacement::fillDestination);
+    g.drawImage(grain_texture_, bounds.toFloat(), juce::RectanglePlacement::fillDestination);
     g.setOpacity(1.0f);
 }

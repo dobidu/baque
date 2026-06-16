@@ -1,6 +1,6 @@
-#include <catch2/catch_test_macros.hpp>
-
 #include "audio/ui_command_queue.h"
+
+#include <catch2/catch_test_macros.hpp>
 
 // QC1: FIFO order preserved across AbstractFifo wrap-around.
 // Total pushed > k_capacity; any ring-wrap bug corrupts ordering after the first cycle.
@@ -11,11 +11,9 @@ TEST_CASE("QC1 FIFO order preserved across wrap-around", "[queue]") {
     for (int i = 0; i < total; ++i) {
         UiCommand cmd;
         cmd.type = UiCommandType::set_mute;
-        cmd.a    = i;
+        cmd.a = i;
         REQUIRE(q.push(cmd));
-        q.drain([&](const UiCommand& c) {
-            REQUIRE(c.a == expected++);
-        });
+        q.drain([&](const UiCommand& c) { REQUIRE(c.a == expected++); });
     }
     REQUIRE(expected == total);
 }
@@ -26,18 +24,16 @@ TEST_CASE("QC2 push on full queue returns false contents intact", "[queue]") {
     for (int i = 0; i < UiCommandQueue::k_capacity; ++i) {
         UiCommand cmd;
         cmd.type = UiCommandType::set_solo;
-        cmd.a    = i;
+        cmd.a = i;
         REQUIRE(q.push(cmd));
     }
     UiCommand extra;
     extra.type = UiCommandType::set_solo;
-    extra.a    = -1; // sentinel: must never appear in drain
+    extra.a = -1; // sentinel: must never appear in drain
     REQUIRE_FALSE(q.push(extra));
 
     int count = 0;
-    q.drain([&](const UiCommand& c) {
-        REQUIRE(c.a == count++);
-    });
+    q.drain([&](const UiCommand& c) { REQUIRE(c.a == count++); });
     REQUIRE(count == UiCommandQueue::k_capacity);
 }
 
@@ -58,21 +54,23 @@ TEST_CASE("QC4 interleaved push drain preserves order", "[queue]") {
         for (int i = 0; i < n; ++i) {
             UiCommand cmd;
             cmd.type = UiCommandType::set_step;
-            cmd.a    = seq_in++;
+            cmd.a = seq_in++;
             REQUIRE(q.push(cmd));
         }
     };
-    auto drain_all = [&]() {
-        q.drain([&](const UiCommand& c) {
-            REQUIRE(c.a == seq_out++);
-        });
-    };
+    auto drain_all = [&]() { q.drain([&](const UiCommand& c) { REQUIRE(c.a == seq_out++); }); };
 
-    push_n(10); drain_all();  // 10 through
-    push_n(5);  push_n(8);   drain_all(); // 13 through
-    push_n(3);  drain_all();  // 3 through
-    push_n(20); drain_all();  // 20 through
-    push_n(1);  drain_all();  // 1 through
+    push_n(10);
+    drain_all(); // 10 through
+    push_n(5);
+    push_n(8);
+    drain_all(); // 13 through
+    push_n(3);
+    drain_all(); // 3 through
+    push_n(20);
+    drain_all(); // 20 through
+    push_n(1);
+    drain_all(); // 1 through
 
     REQUIRE(seq_in == seq_out);
     REQUIRE(seq_in == 47);

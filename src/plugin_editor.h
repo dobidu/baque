@@ -1,17 +1,20 @@
 #pragma once
 
-#include <juce_audio_processors/juce_audio_processors.h>
-#include <array>
-#include <memory>
 #include "ui/baque_look_and_feel.h"
 #include "ui/header_component.h"
+
+#include <juce_audio_processors/juce_audio_processors.h>
+
+#include <array>
+#include <memory>
 
 class BaqueProcessor;
 
 // Placeholder screen — replaced by a full screen component in the relevant plan.
 class ScreenPlaceholder : public juce::Component {
   public:
-    explicit ScreenPlaceholder(const juce::String& label) : label_(label) {}
+    explicit ScreenPlaceholder(const juce::String& label)
+        : label_(label) {}
     ~ScreenPlaceholder() override = default;
 
     void paint(juce::Graphics& g) override {
@@ -45,8 +48,8 @@ class BaqueEditor : public juce::AudioProcessorEditor {
     [[nodiscard]] Screen activeScreen() const noexcept { return active_screen_; }
 
   private:
-    BaqueLookAndFeel look_and_feel_;   // must be first — outlives all children
-    HeaderComponent  header_;
+    BaqueLookAndFeel look_and_feel_; // must be first — outlives all children
+    HeaderComponent header_;
     std::array<std::unique_ptr<ScreenPlaceholder>, k_num_screens> screens_;
     Screen active_screen_ = Screen::PERFORM;
 

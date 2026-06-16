@@ -1,8 +1,5 @@
 #pragma once
 
-#include "audio/ui_command_queue.h"
-#include "audio/ui_state_snapshot.h"
-
 #include "audio/feel_engine.h"
 #include "audio/feel_pattern.h"
 #include "audio/fx_chain.h"
@@ -20,6 +17,8 @@
 #include "audio/sequencer.h"
 #include "audio/tape_stop_processor.h"
 #include "audio/transport_state.h"
+#include "audio/ui_command_queue.h"
+#include "audio/ui_state_snapshot.h"
 #include "audio/voice_pool.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>

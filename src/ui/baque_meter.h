@@ -1,9 +1,9 @@
 #pragma once
-#include <juce_gui_basics/juce_gui_basics.h>
 #include "../audio/ui_state_snapshot.h"
 
-class BaqueMeter : public juce::Component,
-                   private juce::Timer {
+#include <juce_gui_basics/juce_gui_basics.h>
+
+class BaqueMeter : public juce::Component, private juce::Timer {
   public:
     explicit BaqueMeter(const UiStateSnapshot& snapshot);
     ~BaqueMeter() override = default;
@@ -14,7 +14,7 @@ class BaqueMeter : public juce::Component,
     [[nodiscard]] bool isTimerRunning() const noexcept { return juce::Timer::isTimerRunning(); }
 
   private:
-    static constexpr int   k_segments       = 12;
+    static constexpr int k_segments = 12;
     static constexpr float k_decay_per_tick = 0.92f;
 
     const UiStateSnapshot& snapshot_;
