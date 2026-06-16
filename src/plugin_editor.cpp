@@ -1,26 +1,59 @@
 #include "plugin_editor.h"
-
 #include "plugin_processor.h"
 
-BaqueEditor::BaqueEditor(BaqueProcessor& p)
-    : AudioProcessorEditor(&p) {
-    // Tamanho inicial — redimensionável na Fase 10
-    setSize(800, 600);
-    setResizable(true, true);
-    setResizeLimits(600, 400, 2560, 1440);
+static constexpr const char* k_screen_names[BaqueEditor::k_num_screens] = {
+    "PERFORM", "FX", "MIX", "PERF FX", "BROWSER", "MIDI"
+};
 
-    title_label_.setText("BAQUE", juce::dontSendNotification);
-    title_label_.setFont(juce::Font(48.0f, juce::Font::bold));
-    title_label_.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(title_label_);
+BaqueEditor::BaqueEditor(BaqueProcessor& p)
+    : AudioProcessorEditor(&p),
+      look_and_feel_(BaqueLookAndFeel::Theme::barro),
+      header_(p, look_and_feel_) {
+    setLookAndFeel(&look_and_feel_);
+
+    for (int i = 0; i < k_num_screens; ++i) {
+        screens_[i] = std::make_unique<ScreenPlaceholder>(k_screen_names[i]);
+        addChildComponent(*screens_[i]);
+    }
+
+    header_.on_screen_changed = [this](Screen s) { showScreen(s); };
+    addAndMakeVisible(header_);
+
+    showScreen(Screen::PERFORM);
+
+    // setSize last — triggers resized() which references screens_ and header_;
+    // all members must be initialised before this call.
+    setSize(1200, 800);
+    setResizable(true, true);
+    setResizeLimits(800, 600, 2560, 1440);
+}
+
+BaqueEditor::~BaqueEditor() {
+    setLookAndFeel(nullptr);
 }
 
 void BaqueEditor::paint(juce::Graphics& g) {
-    // Fundo escuro quente — paleta "Barro" (Fase 10 aplica design system completo)
-    g.fillAll(juce::Colour(0xff1a1410));
-    title_label_.setColour(juce::Label::textColourId, juce::Colour(0xffe8502e)); // ember
+    g.fillAll(look_and_feel_.background());
+    look_and_feel_.paintGrainOverlay(g, getLocalBounds());
 }
 
 void BaqueEditor::resized() {
-    title_label_.setBounds(getLocalBounds());
+    auto r = getLocalBounds();
+    header_.setBounds(r.removeFromTop(HeaderComponent::k_height));
+    for (auto& screen : screens_)
+        screen->setBounds(r);
+}
+
+void BaqueEditor::showScreen(Screen s) {
+    const int idx = static_cast<int>(s);
+    for (int i = 0; i < k_num_screens; ++i)
+        screens_[i]->setVisible(i == idx);
+    header_.setActiveScreen(s);
+    active_screen_ = s;
+}
+
+bool BaqueEditor::isScreenVisible(int screen_index) const noexcept {
+    if (screen_index < 0 || screen_index >= k_num_screens)
+        return false;
+    return screens_[screen_index]->isVisible();
 }

@@ -56,7 +56,10 @@ else()
 endif()
 
 juce_add_binary_data(BaqueAssets
-    SOURCES assets/test_kick.wav
+    SOURCES
+        assets/test_kick.wav
+        assets/fonts/SpaceGrotesk-Medium.ttf
+        assets/fonts/JetBrainsMono-Regular.ttf
 )
 
 target_sources(BAQUE
@@ -82,6 +85,9 @@ target_sources(BAQUE
         src/audio/tape_stop_processor.cpp
         src/audio/gater_processor.cpp
         src/audio/midi_clock.cpp
+        src/ui/baque_look_and_feel.cpp
+        src/ui/baque_meter.cpp
+        src/ui/header_component.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 10 (UI/UX) — ready to plan
+**Current focus:** Phase 10 (UI/UX) — 10-02 planned, awaiting audit + apply
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 10 of 13 (UI/UX) — Planning
-Plan: 10-01 created + audited, awaiting approval
-Status: PLAN audited (1 must-have + 2 strongly-recommended applied), ready for APPLY
-Last activity: 2026-06-10 — Enterprise audit on 10-01; AUDIT.md written; plan upgraded
+Phase: 10 of 13 (UI/UX) — In Progress (2/7 plans planning)
+Plan: 10-02 — PLAN created + audited, awaiting APPLY
+Status: 10-02 plan audited — 1 must-have + 5 strongly-recommended applied; ready for APPLY
+Last activity: 2026-06-15 — 10-02 AUDIT complete
 
 Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
@@ -43,7 +43,7 @@ Phase 8 decomposition (4-plan, mirrors Phase 6/7):
 - 08-04: Fills via trig conditions + mute/solo groups + Phase 8 DoD (scene morph deferred) ✅ 2026-06-08
 
 Progress:
-- Milestone: [███████░░░] 69% (9/13 phases complete)
+- Milestone: [███████░░░] 70% (9/13 phases complete + 10 in progress)
 - Phase 5: [██████████] 100% ✅
 - Phase 6: [██████████] 100% ✅ (4/4 plans done)
 - Phase 7: [██████████] 100% ✅ (4/4 plans done)
@@ -67,7 +67,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○        ○     [10-01 plan created, awaiting audit]
+  ✓        ✓        ○        ○     [10-02 audited, ready for APPLY]
 ```
 
 ## Accumulated Context
@@ -118,6 +118,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-09: Enterprise audit on 09-04. Applied 1 must-have (M1: Phase-9 DoD INT-lane check was vacuous — pass on idle lane; now requires non-zero audio proving the lane fired before asserting no-INT-MIDI; DoD must drive processBlock not Sequencer::generate — 08-02 lesson), 2 strongly-recommended (SR1 apply_template non-destructive: set_note only, never set_active/set_trig/clear; added Sequencer::current_pattern() accessor; processor apply copies current pattern not fresh default — no data loss; routing+cc reset documented intentional; SR2 DoD asserts EXT note-off on gate close + EXACT 24ppqn clock count not >0). Deferred 3 (TR-8S assignable routing+CC banks, template import/export file format, automated clock-jitter measurement). Verdict: conditionally acceptable → upgraded | Phase 9 | Plan strengthened for enterprise standards |
 | 2026-06-10: 09-04 Tier-3 — AC-6 hardware sign-off resolved VERIFIED-BY-SPEC instead of deferred. Built tr8_midi_spec.h from Roland's published MIDI Implementation Chart (TR-8 v1.11) + test_tr8_spec_conformance.cpp (TS1-TS5) machine-checking the hand-written template against it. Note map spec-verified (every note matches chart primary). Value-safe continuous CCs baked ON from chart (scatter_depth=69, reverb=91, delay_mix=16, delay_time=17); scatter_type=68 known but OFF (discrete value-curve needs physical unit). Fixed P9D5 cc 16→69 (16=DELAY LEVEL per chart). 209/209 tests | Phase 9 | Published implementation chart IS the firmware spec for note/CC numbers → byte-level mapping confirmed without hardware; reverses 09-04 audit "CC off until hardware" for continuous CCs |
 | 2026-06-10: Enterprise audit on 10-01. Applied 1 must-have (M1: state save/load race — moving struct ownership to audio thread makes getState/setState a data race; both must bracket suspendProcessing + message-thread pre-drain of the command queue, UI8 test), 2 strongly-recommended (SR1 lane pulse derived from midi_buffer_seq_ note-ons not Sequencer internals — auto-respects 08-04 gating, EXT-only no-pulse documented; SR2 push() debug-jassert message thread + apply_template invalid id jassert+ignore not clamp). Deferred 3 (queue-full UI policy → 10-02, EXT-only pulse → 10-03, APVTS mute/solo automation → 10-05). Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
+| 2026-06-15: Enterprise audit on 10-02. Applied 1 must-have (M1: font TTF files not committed to git — juce_add_binary_data configure fails on CI/fresh-clone with misleading error; added git-add step + git ls-files verification), 5 strongly-recommended (SR1 NAV switch test NAV1 + showScreen() public + isScreenVisible() accessor; SR2 grain overlay pre-baked juce::Image — no Random in paint(); SR3 setTheme() sets juce::Label::textColourId for ScreenPlaceholder findColour() — no cast; SR4 CI green gate on all 3 platforms before UNIFY; SR5 JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR for ScreenPlaceholder). Deferred 4. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -128,7 +129,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | Sample embed in presets (opt-in "collect & save"?) | ESCOPO §14.5 | M | Phase 11 (presets) |
 | Song mode depth — chaining only in v1? | ESCOPO §14.6 | M | Phase 3 planning |
 | Multi-out in v1 vs v1.1 | ESCOPO §14.7 | M | Phase 9/10 planning |
-| Upgrade CI actions/checkout + cache from v4→v5 (Node.js 20 deprecated) | Phase 1 | S | Before June 16, 2026 (deadline from GitHub) |
+| ~~Upgrade CI actions/checkout + cache from v4→v5~~ | Phase 1 | S | ✅ Done 2026-06-15 (PR #1) |
 | Scene morph (perf FX, ESCOPO §4.7) deferred from 08-04 — performance gesture coupled to scenes/UI | Phase 8 | M | Phase 10 (UI/UX) or 11 (presets/scenes) |
 | TR-8 scatter_type CC68 value-curve — number known, but BAQUE 0-10 types over TR-8 0-127 select map needs a physical unit to confirm; slot ships OFF | Phase 9 | S | When a real TR-8 is on hand (observational, no CI gate) |
 | TR-8S assignable per-instrument routing + TR-8S-only CC banks (beyond shared GM default) | Phase 9 | M | Phase 10/11 |
@@ -139,15 +140,17 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-10 (session 26)
-Stopped at: CI monitoring — PR #1 lint+windows PASS, ubuntu SIGTERM flake, macOS still pending; no src/ changes
-Next action: `gh pr checks 1` → if macOS green rerun ubuntu → merge; if macOS GR4 red fix first; then /paul:apply .paul/phases/10-ui-ux/10-01-PLAN.md
-Resume file: .paul/HANDOFF-phase10-plan01-audited.md
+Last session: 2026-06-15 (session 28)
+Stopped at: 10-02 PLAN created — awaiting enterprise audit
+Next action: /paul:apply .paul/phases/10-ui-ux/10-02-PLAN.md
+Resume file: .paul/phases/10-ui-ux/10-02-PLAN.md
 Resume context:
-- PR #1 (run 27253122002): lint ✓, windows ✓, ubuntu SIGTERM flake (exit 143), macOS pending — GR4 (test_granular.cpp:114 pitch_spread contrast) is open risk
-- 10-01 = UI→engine command queue (SPSC AbstractFifo) + UiStateSnapshot; retires ALL Phase 4/8/9 single-writer contracts before any UI component
-- Audit M1: getState/setState must bracket suspendProcessing + message-thread pre-drain (structs become audio-owned) — UI8 test proves it
-- Phase 10 = 7-plan decomposition (see Current Position); 10-04 parallel candidate after 10-02
+- 10-01 shipped: push_ui_command() is the sole live-mutation path; all Phase 4/8/9 single-writer contracts retired
+- ui_snapshot() ready for UI binding: current_step, is_playing, master_peak L/R, lane_last_velocity[16], bpm
+- EXT-only lanes do not pulse in lane_last_velocity (v1 limitation — revisit in 10-03)
+- set_step_velocity is no-op until 10-03 adds per-step velocity to StepPattern
+- State v4 saves lane_routing_, clock_master_, cc_out_; backward compat for pre-v4 presets
+- Phase 10 = 7-plan: 10-02 LookAndFeel/design system next; 10-04 parallel candidate after 10-02
 Phase 9 shipped (MIDI / Hardware): per-lane routing, EXT note out + stop-flush, 24ppqn clock master, CC out, MIDI in, MIDI learn, TR-8/TR-8S templates, hybrid INT/EXT DoD. 209/209 tests.
 09-04 + Tier-3: src/audio/hardware_templates.h (TR-8/TR-8S templates, value-safe CCs baked from chart) + src/audio/tr8_midi_spec.h (Roland chart source-of-truth) + test_hardware_templates.cpp (HT1-4) + test_phase9_dod.cpp (P9D1-6 via processBlock) + test_tr8_spec_conformance.cpp (TS1-5). AC-6 = verified-by-spec.
 processBlock order: voices → fx_chain → scatter → gater → tape_stop → [EXT notes in midi_buffer_ext_] → stop-flush → clock → midi_messages.clear()+addEvents(ext)
