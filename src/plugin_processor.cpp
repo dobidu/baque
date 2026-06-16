@@ -223,9 +223,12 @@ void BaqueProcessor::dispatch_ui_command(const UiCommand& cmd) noexcept {
         sequencer_.pattern().set_active(lane, step, cmd.c != 0);
         break;
     }
-    case UiCommandType::set_step_velocity:
-        // StepPattern não tem campo velocity por step em v1 — deferred para 10-03.
+    case UiCommandType::set_step_velocity: {
+        const int lane = juce::jlimit(0, StepPattern::k_num_lanes - 1, cmd.a);
+        const int step = juce::jlimit(0, StepPattern::k_num_steps - 1, cmd.b);
+        sequencer_.pattern().set_velocity(lane, step, static_cast<uint8_t>(juce::jlimit(1, 127, cmd.c)));
         break;
+    }
     case UiCommandType::set_plock: {
         const int step = juce::jlimit(0, PLockPattern::k_steps - 1, cmd.b);
         const int param = juce::jlimit(0, k_plock_param_count - 1, cmd.c);

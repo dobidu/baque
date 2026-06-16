@@ -78,6 +78,19 @@ class BaqueProcessor : public juce::AudioProcessor {
     // Snapshot do estado do engine — lido pela message thread para render de UI (Fase 10-01).
     [[nodiscard]] const UiStateSnapshot& ui_snapshot() const noexcept { return ui_snapshot_; }
 
+    // Advisory snapshot — message thread MAY observe partial state during bar-boundary swap
+    // (pattern_ = next_pattern_ is a full-struct assign by the audio thread, not atomic).
+    // Returns by VALUE to avoid reference aliasing into a being-swapped struct.
+    // NOT the same contract as UiStateSnapshot atomics. Display-only; tolerate torn data.
+    [[nodiscard]] StepPattern current_pattern() const noexcept { return sequencer_.pattern(); }
+
+    // Advisory read — message thread reads SamplePad params audio thread may write.
+    // Display only; no writes from message thread without push_ui_command.
+    [[nodiscard]] const SamplePad& current_pad(int idx) const noexcept {
+        jassert(idx >= 0 && idx < PadBank::k_num_pads);
+        return pad_bank_.pad(idx);
+    }
+
     // Roteamento por lane INT/EXT/BOTH + canal MIDI (Fase 9-01) — público p/ teste/UI.
     // CONTRATO: mutação ao vivo via push_ui_command(set_lane_mode/set_lane_channel).
     // Escrita direta válida apenas em setup/testes antes de o processamento começar.

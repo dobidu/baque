@@ -2,6 +2,7 @@
 
 #include "ui/baque_look_and_feel.h"
 #include "ui/header_component.h"
+#include "ui/perform_screen.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
@@ -50,7 +51,7 @@ class BaqueEditor : public juce::AudioProcessorEditor {
   private:
     BaqueLookAndFeel look_and_feel_; // must be first — outlives all children
     HeaderComponent header_;
-    std::array<std::unique_ptr<ScreenPlaceholder>, k_num_screens> screens_;
+    std::array<std::unique_ptr<juce::Component>, k_num_screens> screens_;
     Screen active_screen_ = Screen::PERFORM;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BaqueEditor)

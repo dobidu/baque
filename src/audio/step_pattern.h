@@ -14,10 +14,11 @@ class StepPattern {
     // DoD só precisa de always/fill/not_fill. always (default) = compat retroativa.
     enum class TrigCondition : uint8_t { always = 0, fill = 1, not_fill = 2 };
 
-    // Dados de um step: note MIDI + flag ativo + condição de trigger.
+    // Dados de um step: note MIDI + flag ativo + condição de trigger + velocity.
     struct Step {
         bool active = false;
-        uint8_t note = 36; // C2 = bumbo por convenção
+        uint8_t note = 36;      // C2 = bumbo por convenção
+        uint8_t velocity = 100; // 1–127; 0 reservado; default mf
         TrigCondition trig = TrigCondition::always;
     };
 
@@ -26,9 +27,11 @@ class StepPattern {
 
     [[nodiscard]] bool is_active(int lane, int step) const noexcept;
     [[nodiscard]] uint8_t get_note(int lane, int step) const noexcept;
+    [[nodiscard]] uint8_t get_velocity(int lane, int step) const noexcept;
     [[nodiscard]] TrigCondition get_trig(int lane, int step) const noexcept;
     void set_active(int lane, int step, bool val) noexcept;
     void set_note(int lane, int step, uint8_t note) noexcept;
+    void set_velocity(int lane, int step, uint8_t v) noexcept;
     void set_trig(int lane, int step, TrigCondition cond) noexcept;
 
   private:

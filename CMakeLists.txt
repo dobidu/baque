@@ -88,6 +88,10 @@ target_sources(BAQUE
         src/ui/baque_look_and_feel.cpp
         src/ui/baque_meter.cpp
         src/ui/header_component.cpp
+        src/ui/pad_grid_component.cpp
+        src/ui/sequencer_component.cpp
+        src/ui/sample_editor_component.cpp
+        src/ui/perform_screen.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

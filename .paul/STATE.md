@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 10 (UI/UX) — 10-02 UNIFY complete; human-verify + CI pending before 10-03
+**Current focus:** Phase 10 (UI/UX) — 10-03 PLAN created + audited, ready for APPLY
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 10 of 13 (UI/UX) — In Progress (2/7 plans complete)
-Plan: 10-02 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Status: 226/226 tests pass; human-verify ✓ approved 2026-06-16; CI gate pending; next = push + CI green then 10-03
-Last activity: 2026-06-15 — 10-02 UNIFY complete
+Plan: 10-03 — PLAN ✓ AUDIT ✓ ○ ○
+Status: 10-03 audited — conditionally acceptable → upgraded; 4 must-have + 4 strong applied; ready for APPLY
+Last activity: 2026-06-16 — Enterprise audit complete on 10-03-PLAN.md
 
 Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
@@ -67,7 +67,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○        ○     [10-02 audited, ready for APPLY]
+  ✓        ✓        ○        ○     [10-03 audited, ready for APPLY]
 ```
 
 ## Accumulated Context
@@ -118,6 +118,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-09: Enterprise audit on 09-04. Applied 1 must-have (M1: Phase-9 DoD INT-lane check was vacuous — pass on idle lane; now requires non-zero audio proving the lane fired before asserting no-INT-MIDI; DoD must drive processBlock not Sequencer::generate — 08-02 lesson), 2 strongly-recommended (SR1 apply_template non-destructive: set_note only, never set_active/set_trig/clear; added Sequencer::current_pattern() accessor; processor apply copies current pattern not fresh default — no data loss; routing+cc reset documented intentional; SR2 DoD asserts EXT note-off on gate close + EXACT 24ppqn clock count not >0). Deferred 3 (TR-8S assignable routing+CC banks, template import/export file format, automated clock-jitter measurement). Verdict: conditionally acceptable → upgraded | Phase 9 | Plan strengthened for enterprise standards |
 | 2026-06-10: 09-04 Tier-3 — AC-6 hardware sign-off resolved VERIFIED-BY-SPEC instead of deferred. Built tr8_midi_spec.h from Roland's published MIDI Implementation Chart (TR-8 v1.11) + test_tr8_spec_conformance.cpp (TS1-TS5) machine-checking the hand-written template against it. Note map spec-verified (every note matches chart primary). Value-safe continuous CCs baked ON from chart (scatter_depth=69, reverb=91, delay_mix=16, delay_time=17); scatter_type=68 known but OFF (discrete value-curve needs physical unit). Fixed P9D5 cc 16→69 (16=DELAY LEVEL per chart). 209/209 tests | Phase 9 | Published implementation chart IS the firmware spec for note/CC numbers → byte-level mapping confirmed without hardware; reverses 09-04 audit "CC off until hardware" for continuous CCs |
 | 2026-06-10: Enterprise audit on 10-01. Applied 1 must-have (M1: state save/load race — moving struct ownership to audio thread makes getState/setState a data race; both must bracket suspendProcessing + message-thread pre-drain of the command queue, UI8 test), 2 strongly-recommended (SR1 lane pulse derived from midi_buffer_seq_ note-ons not Sequencer internals — auto-respects 08-04 gating, EXT-only no-pulse documented; SR2 push() debug-jassert message thread + apply_template invalid id jassert+ignore not clamp). Deferred 3 (queue-full UI policy → 10-02, EXT-only pulse → 10-03, APVTS mute/solo automation → 10-05). Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
+| 2026-06-16: Enterprise audit on 10-03. Applied 4 must-have (M1 current_pattern by-value + correct doc; M2 PadGrid/Sequencer stopTimer() in dtor; M3 setFocusedPad/Lane/current_pad bounds guards; M4 toggleStep/setPlayMode return bool + non-vacuous tests), 4 strongly-recommended (SR1 no optimistic repaint; SR2 callback ownership; SR3 knob drag-target capture; SR4 forward-declare in perform_screen.h). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-15: Enterprise audit on 10-02. Applied 1 must-have (M1: font TTF files not committed to git — juce_add_binary_data configure fails on CI/fresh-clone with misleading error; added git-add step + git ls-files verification), 5 strongly-recommended (SR1 NAV switch test NAV1 + showScreen() public + isScreenVisible() accessor; SR2 grain overlay pre-baked juce::Image — no Random in paint(); SR3 setTheme() sets juce::Label::textColourId for ScreenPlaceholder findColour() — no cast; SR4 CI green gate on all 3 platforms before UNIFY; SR5 JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR for ScreenPlaceholder). Deferred 4. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
@@ -140,10 +141,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-15 (session 28)
-Stopped at: 10-02 PLAN created — awaiting enterprise audit
-Next action: /paul:apply .paul/phases/10-ui-ux/10-02-PLAN.md
-Resume file: .paul/phases/10-ui-ux/10-02-PLAN.md
+Last session: 2026-06-16 (session 29)
+Stopped at: 10-03 PLAN created
+Next action: /paul:apply .paul/phases/10-ui-ux/10-03-PLAN.md
+Resume file: .paul/phases/10-ui-ux/10-03-PLAN.md
 Resume context:
 - 10-01 shipped: push_ui_command() is the sole live-mutation path; all Phase 4/8/9 single-writer contracts retired
 - ui_snapshot() ready for UI binding: current_step, is_playing, master_peak L/R, lane_last_velocity[16], bpm

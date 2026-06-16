@@ -11,8 +11,10 @@ BaqueEditor::BaqueEditor(BaqueProcessor& p)
     , header_(p, look_and_feel_) {
     setLookAndFeel(&look_and_feel_);
 
+    screens_[Screen::PERFORM] = std::make_unique<PerformScreen>(p, look_and_feel_);
     for (int i = 0; i < k_num_screens; ++i) {
-        screens_[i] = std::make_unique<ScreenPlaceholder>(k_screen_names[i]);
+        if (!screens_[i])
+            screens_[i] = std::make_unique<ScreenPlaceholder>(k_screen_names[i]);
         addChildComponent(*screens_[i]);
     }
 

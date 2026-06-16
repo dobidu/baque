@@ -68,5 +68,7 @@ void HeaderComponent::timerCallback() {
 }
 
 void HeaderComponent::setActiveScreen(Screen s) {
+    for (auto& btn : nav_buttons_)
+        btn.setToggleState(false, juce::dontSendNotification);
     nav_buttons_[static_cast<int>(s)].setToggleState(true, juce::dontSendNotification);
 }
