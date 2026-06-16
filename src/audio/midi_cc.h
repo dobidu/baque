@@ -48,8 +48,8 @@ inline float plock_param_denorm(PLockParam p, float norm01) noexcept {
     return r.lo + c * (r.hi - r.lo);
 }
 
-// Mapeamento CC out por param — POD, single-writer (mesmo padrão de LaneRouting).
-// CONTRATO SINGLE-WRITER: sem writer concorrente em v1. Fase 10 (UI) deve migrar p/ atomics.
+// Mapeamento CC out por param — POD.
+// CONTRATO (Fase 10-01): mutação ao vivo via push_ui_command(set_cc_out_* / set_cc_slot).
 struct CcOutRouting {
     bool enabled = false;
     uint8_t channel = 1; // 1-16; 0 → 1 no emit

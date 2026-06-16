@@ -1,5 +1,8 @@
 #pragma once
 
+#include "audio/ui_command_queue.h"
+#include "audio/ui_state_snapshot.h"
+
 #include "audio/feel_engine.h"
 #include "audio/feel_pattern.h"
 #include "audio/fx_chain.h"
@@ -61,20 +64,36 @@ class BaqueProcessor : public juce::AudioProcessor {
     // APVTS — parâmetros automatizáveis expostos ao host
     juce::AudioProcessorValueTreeState apvts_;
 
-    // Roteamento por lane INT/EXT/BOTH + canal MIDI (Fase 9-01) — público p/ teste/UI futura
-    // (mesmo padrão de apvts_). Single-writer: UI futura → atomics/command queue.
+    // Fila SPSC de comandos UI→engine (Fase 10-01). Única via de mutação ao vivo
+    // de todos os structs single-writer abaixo. Chamada pela message thread via
+    // push_ui_command(); drenada no topo de processBlock (audio thread).
+    // Exceção: drain() roda na message thread dentro do bracket suspendProcessing
+    // de getStateInformation/setStateInformation.
+    UiCommandQueue ui_commands_;
+
+    // Enfileira um comando para execução no próximo processBlock.
+    // Seguro para chamar de qualquer contexto na message thread.
+    // Retorna false se a fila estiver cheia (256 slots); descarta sem bloquear.
+    bool push_ui_command(const UiCommand& cmd) noexcept { return ui_commands_.push(cmd); }
+
+    // Snapshot do estado do engine — lido pela message thread para render de UI (Fase 10-01).
+    [[nodiscard]] const UiStateSnapshot& ui_snapshot() const noexcept { return ui_snapshot_; }
+
+    // Roteamento por lane INT/EXT/BOTH + canal MIDI (Fase 9-01) — público p/ teste/UI.
+    // CONTRATO: mutação ao vivo via push_ui_command(set_lane_mode/set_lane_channel).
+    // Escrita direta válida apenas em setup/testes antes de o processamento começar.
     LaneRouting lane_routing_;
 
     // Clock master: true → BAQUE clocka hardware externo via MIDI out (Fase 9-02).
-    // Público (como lane_routing_); UI/automação futura. Single-writer.
+    // CONTRATO: mutação ao vivo via push_ui_command(set_clock_master).
     bool clock_master_ = false;
 
     // P-lock pattern — per-step FX automation (Fase 6-01).
-    // Público para testes e binding futuro de UI. Single-writer.
+    // CONTRATO: mutação ao vivo via push_ui_command(set_plock/clear_plock).
     PLockPattern plock_pattern_;
 
     // CC out: emite p-locks como CC MIDI no canal EXT (Fase 9-03).
-    // Público, single-writer (como lane_routing_). Fase 10 (UI) atomiciza se necessário.
+    // CONTRATO: mutação ao vivo via push_ui_command(set_cc_out_*/set_cc_slot).
     CcOutRouting cc_out_;
 
     // MIDI learn: inbound CC → PLockParam binding com persistência (Fase 9-03).
@@ -98,7 +117,8 @@ class BaqueProcessor : public juce::AudioProcessor {
     // Aplica um template de hardware (TR-8/TR-8S, Fase 9-04) numa chamada.
     // RESETA lane_routing_ + cc_out_ para o template; PRESERVA as ativações/trigs/p-locks do
     // padrão ativo (só as notas das lanes mapeadas são reescritas — audit 09-04 SR1).
-    // Single-writer (message thread, setup); Fase 10 (UI) atomiciza se necessário.
+    // Chamado diretamente em setup/testes (antes do processamento) OU pelo dispatch de
+    // apply_template via UiCommandQueue (audio thread — seguro pois os structs são owned).
     void apply_hardware_template(const HardwareTemplate& t) noexcept;
 
   private:
@@ -140,15 +160,18 @@ class BaqueProcessor : public juce::AudioProcessor {
     TapeStopProcessor tape_stop_;
 
     // Estado de performance do sequenciador (Fase 8-04): fills (trig conditions) + mute/solo.
-    // Single-writer (sem UI/APVTS em v1); Fase 10 deve migrar p/ atomics ao adicionar writers.
+    // CONTRATO: mutação ao vivo via push_ui_command(set_fill/set_mute/set_solo).
     PerfState perf_state_;
 
     // MIDI clock master (Fase 9-02): emite 0xF8 24ppqn + start/stop/continue no midi_buffer_ext_.
     MidiClock midi_clock_;
 
     void apply_cc_to_fx(int cc, int channel, int value, FxParams& fx) noexcept;
+    void dispatch_ui_command(const UiCommand& cmd) noexcept;
 
-    static constexpr int k_state_version = 3;
+    UiStateSnapshot ui_snapshot_;
+
+    static constexpr int k_state_version = 4;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BaqueProcessor)
 };

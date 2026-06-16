@@ -32,15 +32,12 @@ struct AdsrParams {
 
 // Um pad de sample: buffer próprio + parâmetros de reprodução.
 //
-// CONTRATO DE ESCRITA ÚNICA (single-writer) — INVARIANTE CRÍTICO:
-// - Parâmetros (gain, pan, pitch, reverse) e o buffer são escritos SOMENTE
-//   fora do audio thread (message/background thread).
-// - Escritas só podem ocorrer enquanto NENHUMA voz referencia este pad:
-//   o caminho de load DEVE invalidar as vozes antes (VoicePool::reset_all()
-//   ou bracket suspendProcessing) — ver BaqueProcessor::prepareToPlay.
-// - O audio thread apenas LÊ (ponteiros crus via data()).
-// Fases futuras com UI/automação devem promover este contrato para
-// atomics ou command queue ANTES de permitir edição ao vivo.
+// CONTRATO DE PARÂMETROS (Fase 10-01):
+// - Parâmetros de reprodução (gain/pan/pitch/reverse/choke/adsr/play_mode): mutação
+//   ao vivo via BaqueProcessor::push_ui_command(set_pad_*). Audio thread lê após drain.
+// - Buffer de sample: carregamento APENAS fora do audio thread com VoicePool::reset_all()
+//   antes (protocolo safe-load — Fase 4, auditoria 04-01). Buffers NÃO passam pela fila.
+// - O audio thread lê ponteiros crus via data() — sem alloc na hot path.
 class SamplePad {
   public:
     // Parâmetros de reprodução (escrita única — ver contrato acima)

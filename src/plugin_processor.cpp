@@ -6,6 +6,9 @@
 
 #include <BinaryData.h>
 
+#include <algorithm>
+#include <cmath>
+
 // Layout de parâmetros APVTS
 juce::AudioProcessorValueTreeState::ParameterLayout BaqueProcessor::create_parameter_layout() {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
@@ -114,11 +117,157 @@ bool BaqueProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const {
     return true;
 }
 
+// Despacha um comando da fila UI→engine para o struct de destino correto.
+// Chamado no audio thread (drain de processBlock) OU na message thread dentro de
+// um bracket suspendProcessing (getState/setState — role-transfer documentado).
+// Clamp de índices/valores: bugs de UI não corrompem o estado do engine.
+// switch default jassertfalse: enum é exaustivo; nenhum tipo deve ficar sem case.
+void BaqueProcessor::dispatch_ui_command(const UiCommand& cmd) noexcept {
+    switch (cmd.type) {
+    case UiCommandType::set_fill:
+        perf_state_.fill_active = (cmd.c != 0);
+        break;
+    case UiCommandType::set_mute: {
+        const int lane = juce::jlimit(0, StepPattern::k_num_lanes - 1, cmd.a);
+        perf_state_.mute[static_cast<std::size_t>(lane)] = (cmd.c != 0);
+        break;
+    }
+    case UiCommandType::set_solo: {
+        const int lane = juce::jlimit(0, StepPattern::k_num_lanes - 1, cmd.a);
+        perf_state_.solo[static_cast<std::size_t>(lane)] = (cmd.c != 0);
+        break;
+    }
+    case UiCommandType::set_lane_mode: {
+        const int lane = juce::jlimit(0, StepPattern::k_num_lanes - 1, cmd.a);
+        lane_routing_.mode[static_cast<std::size_t>(lane)] = static_cast<LaneMode>(juce::jlimit(0, 2, cmd.c));
+        break;
+    }
+    case UiCommandType::set_lane_channel: {
+        const int lane = juce::jlimit(0, StepPattern::k_num_lanes - 1, cmd.a);
+        lane_routing_.channel[static_cast<std::size_t>(lane)] = static_cast<uint8_t>(juce::jlimit(0, 16, cmd.c));
+        break;
+    }
+    case UiCommandType::set_clock_master:
+        clock_master_ = (cmd.c != 0);
+        break;
+    case UiCommandType::set_cc_out_enabled:
+        cc_out_.enabled = (cmd.c != 0);
+        break;
+    case UiCommandType::set_cc_out_channel:
+        cc_out_.channel = static_cast<uint8_t>(juce::jlimit(1, 16, cmd.c));
+        break;
+    case UiCommandType::set_cc_slot: {
+        const int param = juce::jlimit(0, k_plock_param_count - 1, cmd.a);
+        cc_out_.cc_number[static_cast<std::size_t>(param)] = static_cast<uint8_t>(juce::jlimit(0, 127, cmd.b));
+        cc_out_.cc_enabled[static_cast<std::size_t>(param)] = (cmd.c != 0);
+        break;
+    }
+    case UiCommandType::set_pad_gain: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).gain = cmd.f;
+        break;
+    }
+    case UiCommandType::set_pad_pan: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).pan = cmd.f;
+        break;
+    }
+    case UiCommandType::set_pad_pitch_semitones: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).pitch_semitones = cmd.c;
+        break;
+    }
+    case UiCommandType::set_pad_pitch_cents: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).pitch_cents = cmd.c;
+        break;
+    }
+    case UiCommandType::set_pad_reverse: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).reverse = (cmd.c != 0);
+        break;
+    }
+    case UiCommandType::set_pad_choke_group: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).choke_group = static_cast<uint8_t>(juce::jlimit(0, 8, cmd.c));
+        break;
+    }
+    case UiCommandType::set_pad_play_mode: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).play_mode = static_cast<PlayMode>(juce::jlimit(0, 2, cmd.c));
+        break;
+    }
+    case UiCommandType::set_pad_adsr_attack: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).adsr.attack_ms = cmd.f;
+        break;
+    }
+    case UiCommandType::set_pad_adsr_decay: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).adsr.decay_ms = cmd.f;
+        break;
+    }
+    case UiCommandType::set_pad_adsr_sustain: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).adsr.sustain = juce::jlimit(0.0f, 1.0f, cmd.f);
+        break;
+    }
+    case UiCommandType::set_pad_adsr_release: {
+        const int pad = juce::jlimit(0, PadBank::k_num_pads - 1, cmd.a);
+        pad_bank_.pad(pad).adsr.release_ms = cmd.f;
+        break;
+    }
+    case UiCommandType::set_step: {
+        const int lane = juce::jlimit(0, StepPattern::k_num_lanes - 1, cmd.a);
+        const int step = juce::jlimit(0, StepPattern::k_num_steps - 1, cmd.b);
+        // sequencer_.pattern() = acesso mutável audio-thread-only (AC-2).
+        sequencer_.pattern().set_active(lane, step, cmd.c != 0);
+        break;
+    }
+    case UiCommandType::set_step_velocity:
+        // StepPattern não tem campo velocity por step em v1 — deferred para 10-03.
+        break;
+    case UiCommandType::set_plock: {
+        const int step  = juce::jlimit(0, PLockPattern::k_steps - 1, cmd.b);
+        const int param = juce::jlimit(0, k_plock_param_count - 1, cmd.c);
+        plock_pattern_.steps[step].values[param] =
+            juce::jlimit(k_param_range[static_cast<std::size_t>(param)].lo,
+                         k_param_range[static_cast<std::size_t>(param)].hi,
+                         cmd.f);
+        plock_pattern_.steps[step].active[param] = true;
+        plock_pattern_.enabled = true;
+        break;
+    }
+    case UiCommandType::clear_plock: {
+        const int step  = juce::jlimit(0, PLockPattern::k_steps - 1, cmd.b);
+        const int param = juce::jlimit(0, k_plock_param_count - 1, cmd.c);
+        plock_pattern_.steps[step].active[param] = false;
+        break;
+    }
+    case UiCommandType::apply_template:
+        if (cmd.a == 0) {
+            apply_hardware_template(tr8_template());
+        } else if (cmd.a == 1) {
+            apply_hardware_template(tr8s_template());
+        } else {
+            jassertfalse; // id inválido — ignore (SR2: clamp = template errado silencioso)
+        }
+        break;
+    default:
+        jassertfalse; // UiCommandType não mapeado — atualizar dispatch ao adicionar tipos
+        break;
+    }
+}
+
 void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi_messages) {
     juce::ScopedNoDenormals no_denormals;
 
     const int num_frames = buffer.getNumSamples();
     buffer.clear();
+
+    // Drena comandos UI pendentes antes de qualquer leitura de estado (AC-2).
+    // Garante que set_mute/solo/fill/lane_mode/etc estejam aplicados antes de generate().
+    ui_commands_.drain([this](const UiCommand& cmd) { dispatch_ui_command(cmd); });
 
     // Atualiza alvo de ganho a partir do APVTS (thread-safe: getRawParameterValue é atômico)
     if (auto* param = apvts_.getRawParameterValue("master_gain"))
@@ -284,6 +433,33 @@ void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     // (scheduler_.process(midi_messages,...)). Substitui o buffer de saída pelos eventos gerados.
     midi_messages.clear();
     midi_messages.addEvents(midi_buffer_ext_, 0, num_frames, 0);
+
+    // Publica snapshot para a message thread (AC-4, Fase 10-01).
+    // Campos relaxed: coerência por-campo é suficiente; tearing entre campos aceito por design.
+    {
+        const double ppq_in = std::fmod(transport_.ppq_position, StepClock::k_ppq_per_pattern);
+        const auto snap_step = static_cast<int32_t>(transport_.is_playing
+            ? std::min(static_cast<int>(ppq_in / StepClock::k_ppq_per_step), 15)
+            : -1);
+        ui_snapshot_.current_step.store(snap_step, std::memory_order_relaxed);
+        ui_snapshot_.is_playing.store(transport_.is_playing, std::memory_order_relaxed);
+        ui_snapshot_.bpm.store(static_cast<float>(transport_.bpm), std::memory_order_relaxed);
+        ui_snapshot_.master_peak_l.store(buffer.getMagnitude(0, 0, num_frames), std::memory_order_relaxed);
+        const float peak_r = buffer.getNumChannels() > 1
+            ? buffer.getMagnitude(1, 0, num_frames)
+            : ui_snapshot_.master_peak_l.load(std::memory_order_relaxed);
+        ui_snapshot_.master_peak_r.store(peak_r, std::memory_order_relaxed);
+        // lane_last_velocity: derivado de midi_buffer_seq_ (SR1 — sem plumbing no Sequencer).
+        // Mute/fill-gate já aplicados: steps suprimidos não emitem note-on.
+        for (const auto meta : midi_buffer_seq_) {
+            const auto& msg = meta.getMessage();
+            if (!msg.isNoteOn()) continue;
+            const int lane = msg.getNoteNumber() - PadBank::k_base_note;
+            if (lane >= 0 && lane < 16)
+                ui_snapshot_.lane_last_velocity[static_cast<std::size_t>(lane)].store(
+                    static_cast<uint8_t>(msg.getVelocity()), std::memory_order_relaxed);
+        }
+    }
 }
 
 void BaqueProcessor::apply_plock_batch(const PLockBatch& batch, FxParams& fx) noexcept {
@@ -421,8 +597,35 @@ juce::AudioProcessorEditor* BaqueProcessor::createEditor() {
 }
 
 void BaqueProcessor::getStateInformation(juce::MemoryBlock& dest_data) {
+    // M1 (audit 10-01): suspend audio + pre-drain queue para (a) eliminar data race com
+    // o audio thread nos structs agora owned por ele, e (b) garantir que qualquer comando
+    // pushed antes desta chamada está aplicado no estado que vamos serializar.
+    // drain() roda na message thread dentro do bracket — role-transfer documentado em
+    // UiCommandQueue (sem consumer concorrente com áudio suspenso).
+    suspendProcessing(true);
+    ui_commands_.drain([this](const UiCommand& cmd) { dispatch_ui_command(cmd); });
+
     auto state = apvts_.copyState();
     state.setProperty("version", k_state_version, nullptr);
+
+    // state v4: lane_routing_, clock_master_, cc_out_ (Fase 10-01 — AC-5/UI8).
+    state.setProperty("clock_master", clock_master_ ? 1 : 0, nullptr);
+
+    juce::ValueTree routing("routing");
+    for (int i = 0; i < StepPattern::k_num_lanes; ++i) {
+        routing.setProperty("mode" + juce::String(i), static_cast<int>(lane_routing_.mode[static_cast<size_t>(i)]), nullptr);
+        routing.setProperty("ch" + juce::String(i), static_cast<int>(lane_routing_.channel[static_cast<size_t>(i)]), nullptr);
+    }
+    state.addChild(routing, -1, nullptr);
+
+    juce::ValueTree cc_out("cc_out_v4");
+    cc_out.setProperty("enabled", cc_out_.enabled ? 1 : 0, nullptr);
+    cc_out.setProperty("channel", static_cast<int>(cc_out_.channel), nullptr);
+    for (int i = 0; i < k_plock_param_count; ++i) {
+        cc_out.setProperty("en" + juce::String(i), cc_out_.cc_enabled[static_cast<size_t>(i)] ? 1 : 0, nullptr);
+        cc_out.setProperty("cc" + juce::String(i), static_cast<int>(cc_out_.cc_number[static_cast<size_t>(i)]), nullptr);
+    }
+    state.addChild(cc_out, -1, nullptr);
 
     // Persiste cc_learn_ (Fase 9-03, state v3): bindings inbound CC → PLockParam.
     // learn_arm NÃO é persistido (transiente; atômico — M1).
@@ -440,15 +643,50 @@ void BaqueProcessor::getStateInformation(juce::MemoryBlock& dest_data) {
 
     juce::MemoryOutputStream stream(dest_data, true);
     state.writeToStream(stream);
+
+    suspendProcessing(false);
 }
 
 void BaqueProcessor::setStateInformation(const void* data, int size_in_bytes) {
+    // M1 (audit 10-01): mesmo bracket que getStateInformation — estado escrito aqui deve
+    // ser coerente; drain garante que comandos pushed antes desta chamada não conflitem com
+    // a escrita direta dos structs que fazemos abaixo.
+    suspendProcessing(true);
+    ui_commands_.drain([this](const UiCommand& cmd) { dispatch_ui_command(cmd); });
+
     auto state = juce::ValueTree::readFromData(data, static_cast<size_t>(size_in_bytes));
-    if (!state.isValid())
+    if (!state.isValid()) {
+        suspendProcessing(false);
         return;
+    }
 
     if (state.hasType(apvts_.state.getType()))
         apvts_.replaceState(state);
+
+    // Restaura state v4: lane_routing_, clock_master_, cc_out_.
+    // Ausente em estado pre-v4 → defaults (compatibilidade retroativa).
+    clock_master_ = static_cast<int>(state.getProperty("clock_master", 0)) != 0;
+
+    const auto routing = state.getChildWithName("routing");
+    if (routing.isValid()) {
+        for (int i = 0; i < StepPattern::k_num_lanes; ++i) {
+            const int m = juce::jlimit(0, 2, static_cast<int>(routing.getProperty("mode" + juce::String(i), 0)));
+            lane_routing_.mode[static_cast<size_t>(i)] = static_cast<LaneMode>(m);
+            const int ch = juce::jlimit(0, 16, static_cast<int>(routing.getProperty("ch" + juce::String(i), 0)));
+            lane_routing_.channel[static_cast<size_t>(i)] = static_cast<uint8_t>(ch);
+        }
+    }
+
+    const auto cc_out_tree = state.getChildWithName("cc_out_v4");
+    if (cc_out_tree.isValid()) {
+        cc_out_.enabled = static_cast<int>(cc_out_tree.getProperty("enabled", 0)) != 0;
+        cc_out_.channel = static_cast<uint8_t>(juce::jlimit(1, 16, static_cast<int>(cc_out_tree.getProperty("channel", 1))));
+        for (int i = 0; i < k_plock_param_count; ++i) {
+            cc_out_.cc_enabled[static_cast<size_t>(i)] = static_cast<int>(cc_out_tree.getProperty("en" + juce::String(i), 0)) != 0;
+            cc_out_.cc_number[static_cast<size_t>(i)] = static_cast<uint8_t>(
+                juce::jlimit(0, 127, static_cast<int>(cc_out_tree.getProperty("cc" + juce::String(i), 0))));
+        }
+    }
 
     // Restaura cc_learn_ (Fase 9-03, state v3).
     // Ausente em estado pre-v3 → mapa vazio, sem erro (compatibilidade retroativa).
@@ -477,6 +715,8 @@ void BaqueProcessor::setStateInformation(const void* data, int size_in_bytes) {
             cc_learn_.count = ++idx;
         }
     }
+
+    suspendProcessing(false);
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {

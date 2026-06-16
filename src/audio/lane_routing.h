@@ -7,9 +7,8 @@
 // Cada lane do StepPattern toca sample interno (internal), dirige hardware via MIDI out (external),
 // ou ambos (both). channel[lane] = canal MIDI da saída EXT (1-16); 0 tratado como 1 no emit.
 //
-// CONTRATO SINGLE-WRITER (auditoria SR1, Fase 9): lido na audio thread em generate(); sem writer
-// concorrente em v1 (sem UI). Fase 10 (UI) que escrever da message thread DEVE migrar para
-// std::atomic / command queue — mesma decisão de PerfState/pad-params.
+// CONTRATO (Fase 10-01): mutação ao vivo via BaqueProcessor::push_ui_command()
+// (set_lane_mode / set_lane_channel). Escrita direta válida apenas em setup/testes.
 enum class LaneMode : uint8_t { internal = 0, external = 1, both = 2 };
 
 struct LaneRouting {

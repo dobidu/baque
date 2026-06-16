@@ -7,10 +7,9 @@
 // Lido na audio thread em Sequencer::generate(). fill_active gateia trig conditions fill/not_fill;
 // mute/solo gateiam por lane.
 //
-// CONTRATO SINGLE-WRITER (auditoria SR1): em v1 não há writer concorrente (sem UI/APVTS para
-// fill/mute/solo). A Fase 10 (UI) que escrever estes campos a partir da message thread DEVE migrar
-// para std::atomic ou command queue — mesma decisão de "Pad params single-writer" da Fase 4.
-// Sem isso, vira data race silencioso.
+// CONTRATO (Fase 10-01): mutação ao vivo via BaqueProcessor::push_ui_command()
+// (set_fill / set_mute / set_solo). Escrita direta válida apenas em setup/testes
+// antes de o processamento começar. O command queue é a única via thread-safe.
 struct PerfState {
     bool fill_active = false;
     std::array<bool, 16> mute{}; // por lane (StepPattern::k_num_lanes)
