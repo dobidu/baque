@@ -3,6 +3,8 @@
 #include "ui/baque_look_and_feel.h"
 #include "ui/header_component.h"
 #include "ui/perform_screen.h"
+#include "ui/fx_screen.h"
+#include "ui/mix_screen.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 

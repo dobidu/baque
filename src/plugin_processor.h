@@ -75,6 +75,11 @@ class BaqueProcessor : public juce::AudioProcessor {
     // Retorna false se a fila estiver cheia (256 slots); descarta sem bloquear.
     bool push_ui_command(const UiCommand& cmd) noexcept { return ui_commands_.push(cmd); }
 
+    // Named message-thread-only accessor for apvts_ (already public at line 64).
+    // Use this instead of apvts_ directly so intent is explicit: SliderAttachment,
+    // parameter listeners, and preset I/O run on the message thread only.
+    [[nodiscard]] juce::AudioProcessorValueTreeState& getAPVTS() noexcept { return apvts_; }
+
     // Snapshot do estado do engine — lido pela message thread para render de UI (Fase 10-01).
     [[nodiscard]] const UiStateSnapshot& ui_snapshot() const noexcept { return ui_snapshot_; }
 

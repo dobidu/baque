@@ -93,6 +93,8 @@ target_sources(BAQUE
         src/ui/sample_editor_component.cpp
         src/ui/feel_field_component.cpp
         src/ui/perform_screen.cpp
+        src/ui/fx_screen.cpp
+        src/ui/mix_screen.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)
