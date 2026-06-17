@@ -12,8 +12,10 @@ BaqueEditor::BaqueEditor(BaqueProcessor& p)
     setLookAndFeel(&look_and_feel_);
 
     screens_[Screen::PERFORM] = std::make_unique<PerformScreen>(p, look_and_feel_);
-    screens_[Screen::FX] = std::make_unique<FxScreen>(p, look_and_feel_);
-    screens_[Screen::MIX] = std::make_unique<MixScreen>(p, look_and_feel_);
+    screens_[Screen::FX]      = std::make_unique<FxScreen>(p, look_and_feel_);
+    screens_[Screen::MIX]     = std::make_unique<MixScreen>(p, look_and_feel_);
+    screens_[Screen::PERF_FX] = std::make_unique<PerfFxScreen>(p, look_and_feel_);
+    screens_[Screen::MIDI]    = std::make_unique<MidiScreen>(p, look_and_feel_);
     for (int i = 0; i < k_num_screens; ++i) {
         if (!screens_[i])
             screens_[i] = std::make_unique<ScreenPlaceholder>(k_screen_names[i]);

@@ -5,6 +5,8 @@
 #include "ui/perform_screen.h"
 #include "ui/fx_screen.h"
 #include "ui/mix_screen.h"
+#include "ui/perf_fx_screen.h"
+#include "ui/midi_screen.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
