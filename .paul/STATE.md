@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 10 (UI/UX) — 10-03 complete; 10-04 Feel Field next
+**Current focus:** Phase 10 (UI/UX) — 10-05 complete; 10-06 PERF FX + MIDI screens next
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 10 of 13 (UI/UX) — In Progress (4/7 plans complete)
-Plan: 10-04 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Status: 10-04 complete — Feel Field live; 231 tests pass; ready for 10-05
-Last activity: 2026-06-16 — 10-04 loop closed
+Phase: 10 of 13 (UI/UX) — In Progress (5/7 plans complete)
+Plan: 10-05 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
+Status: 10-05 loop closed — FX + MIX screens shipped; ready for 10-06
+Last activity: 2026-06-17 — 10-05 UNIFY complete
 
 Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
@@ -67,7 +67,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [10-04 complete — ready for 10-05]
+  ✓        ✓        ✓        ✓     [10-05 loop closed — next: 10-06]
 ```
 
 ## Accumulated Context
@@ -120,6 +120,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-10: Enterprise audit on 10-01. Applied 1 must-have (M1: state save/load race — moving struct ownership to audio thread makes getState/setState a data race; both must bracket suspendProcessing + message-thread pre-drain of the command queue, UI8 test), 2 strongly-recommended (SR1 lane pulse derived from midi_buffer_seq_ note-ons not Sequencer internals — auto-respects 08-04 gating, EXT-only no-pulse documented; SR2 push() debug-jassert message thread + apply_template invalid id jassert+ignore not clamp). Deferred 3 (queue-full UI policy → 10-02, EXT-only pulse → 10-03, APVTS mute/solo automation → 10-05). Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-16: Enterprise audit on 10-03. Applied 4 must-have (M1 current_pattern by-value + correct doc; M2 PadGrid/Sequencer stopTimer() in dtor; M3 setFocusedPad/Lane/current_pad bounds guards; M4 toggleStep/setPlayMode return bool + non-vacuous tests), 4 strongly-recommended (SR1 no optimistic repaint; SR2 callback ownership; SR3 knob drag-target capture; SR4 forward-declare in perform_screen.h). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-16: Enterprise audit on 10-04. Applied 1 must-have (M1 explicit <cmath>+<algorithm> includes — MSVC build risk on 3-platform CI), 2 strongly-recommended (SR1 remove dead is_playing_ member — current_step_==-1 guard sufficient; SR2 FEEL2 paint smoke test — exercises node-drawing path, test count 230→231). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
+| 2026-06-17: Enterprise audit on 10-05. Applied 1 must-have (M1: missing #include "plugin_processor.h" in both fx_screen.cpp and mix_screen.cpp — BaqueProcessor forward-declared in headers; .cpp files call getAPVTS()/push_ui_command()/ui_snapshot() which require full type definition; compile-blocking on all 3 platforms), 2 strongly-recommended (SR1 corrected apvts_ rationale — it was already public at plugin_processor.h:64; getter is named accessor not capability unlock; SR2 documented mute/solo UI state drift after preset load — mute_state_[]/solo_state_[] are message-thread-local, diverge from engine PerfState; added class comment + scope limit; APVTS mute/solo automation re-deferred to 10-07). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-15: Enterprise audit on 10-02. Applied 1 must-have (M1: font TTF files not committed to git — juce_add_binary_data configure fails on CI/fresh-clone with misleading error; added git-add step + git ls-files verification), 5 strongly-recommended (SR1 NAV switch test NAV1 + showScreen() public + isScreenVisible() accessor; SR2 grain overlay pre-baked juce::Image — no Random in paint(); SR3 setTheme() sets juce::Label::textColourId for ScreenPlaceholder findColour() — no cast; SR4 CI green gate on all 3 platforms before UNIFY; SR5 JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR for ScreenPlaceholder). Deferred 4. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
@@ -142,23 +143,18 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-16 (session 31)
-Stopped at: 10-04 UNIFY complete
-Next action: /paul:plan .paul/phases/10-ui-ux/10-05
-Resume file: .paul/phases/10-ui-ux/10-04-SUMMARY.md
+Last session: 2026-06-17 (session 33)
+Stopped at: 10-05 UNIFY complete
+Next action: /paul:plan (10-06 — PERF FX + MIDI screens)
+Resume file: .paul/phases/10-ui-ux/10-05-SUMMARY.md
 Resume context:
-- 10-04 shipped: FeelFieldComponent live — radial disc, 16 ticks, step nodes, playhead arm
-- current_feel_pattern() advisory read accessor added to BaqueProcessor
-- feel_field_placeholder_ replaced by unique_ptr<FeelFieldComponent> in PerformScreen
-- Timer-gated component pattern confirmed: visibilityChanged + ~dtor() { stopTimer(); }
-- Explicit <cmath>/<algorithm> pattern established for new .cpp files (MSVC CI safety)
-- Paint smoke test pattern established: juce::Image off-screen Graphics render
-- 231 tests pass (229 baseline + FEEL1 + FEEL2)
-- Step visual not testable in WSL without audio device (expected; PERF2 tests command push)
-- Transport play button not wired — playhead won't animate until 10-02 transport deferred work
+- 10-05 shipped: FxScreen (6 APVTS knobs) + MixScreen (16-strip, timer-gated 30fps)
+- getAPVTS() named accessor added; mute/solo via UiCommand; master_gain via SliderAttachment
+- 234/234 tests pass
+- 10-06 scope: PERF FX screen (tape_stop/gater/scatter params) + MIDI screen (routing, CC, learn UI)
 
 ### Git State
-Last commit: de1d5d3 — feat(10): Plan 10-04 APPLY — Feel Field radial visualizer (pushed to origin/main)
+Last commit: 29927ba — feat(10): Plan 10-05 APPLY — FX + MIX screens (pushed to origin/main)
 Branch: main (synced with origin)
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 
