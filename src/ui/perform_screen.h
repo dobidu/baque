@@ -10,6 +10,7 @@
 class PadGridComponent;
 class SequencerComponent;
 class SampleEditorComponent;
+class FeelFieldComponent;
 
 class PerformScreen : public juce::Component {
   public:
@@ -29,7 +30,7 @@ class PerformScreen : public juce::Component {
     std::unique_ptr<PadGridComponent> pad_grid_;
     std::unique_ptr<SequencerComponent> sequencer_;
     std::unique_ptr<SampleEditorComponent> sample_editor_;
-    juce::Component feel_field_placeholder_; // 10-04
+    std::unique_ptr<FeelFieldComponent> feel_field_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PerformScreen)
 };

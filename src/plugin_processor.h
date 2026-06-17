@@ -91,6 +91,12 @@ class BaqueProcessor : public juce::AudioProcessor {
         return pad_bank_.pad(idx);
     }
 
+    // Advisory read — message thread observes feel_pattern_ which audio thread may write
+    // (single-writer via processBlock/UiCommand). Returns by VALUE to avoid aliasing.
+    // Display-only: tolerate stale data between processBlock invocations.
+    // NOT the same contract as UiStateSnapshot atomics.
+    [[nodiscard]] FeelPattern current_feel_pattern() const noexcept { return feel_pattern_; }
+
     // Roteamento por lane INT/EXT/BOTH + canal MIDI (Fase 9-01) — público p/ teste/UI.
     // CONTRATO: mutação ao vivo via push_ui_command(set_lane_mode/set_lane_channel).
     // Escrita direta válida apenas em setup/testes antes de o processamento começar.

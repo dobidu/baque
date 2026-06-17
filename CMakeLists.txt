@@ -91,6 +91,7 @@ target_sources(BAQUE
         src/ui/pad_grid_component.cpp
         src/ui/sequencer_component.cpp
         src/ui/sample_editor_component.cpp
+        src/ui/feel_field_component.cpp
         src/ui/perform_screen.cpp
 )
 

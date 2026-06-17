@@ -18,8 +18,8 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 Milestone: v1.0 Release
 Phase: 10 of 13 (UI/UX) — In Progress (3/7 plans complete)
 Plan: 10-03 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Status: 10-03 complete — PERFORM screen shipped; 229 tests pass
-Last activity: 2026-06-16 — 10-03 loop closed
+Status: 10-04 APPLY complete — 231 tests pass; awaiting human verify + UNIFY
+Last activity: 2026-06-16 — 10-04 APPLY complete
 
 Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
@@ -67,7 +67,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [10-03 complete — ready for 10-04]
+  ✓        ✓        ✓               [10-04 APPLY complete — awaiting UNIFY]
 ```
 
 ## Accumulated Context
@@ -119,6 +119,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-10: 09-04 Tier-3 — AC-6 hardware sign-off resolved VERIFIED-BY-SPEC instead of deferred. Built tr8_midi_spec.h from Roland's published MIDI Implementation Chart (TR-8 v1.11) + test_tr8_spec_conformance.cpp (TS1-TS5) machine-checking the hand-written template against it. Note map spec-verified (every note matches chart primary). Value-safe continuous CCs baked ON from chart (scatter_depth=69, reverb=91, delay_mix=16, delay_time=17); scatter_type=68 known but OFF (discrete value-curve needs physical unit). Fixed P9D5 cc 16→69 (16=DELAY LEVEL per chart). 209/209 tests | Phase 9 | Published implementation chart IS the firmware spec for note/CC numbers → byte-level mapping confirmed without hardware; reverses 09-04 audit "CC off until hardware" for continuous CCs |
 | 2026-06-10: Enterprise audit on 10-01. Applied 1 must-have (M1: state save/load race — moving struct ownership to audio thread makes getState/setState a data race; both must bracket suspendProcessing + message-thread pre-drain of the command queue, UI8 test), 2 strongly-recommended (SR1 lane pulse derived from midi_buffer_seq_ note-ons not Sequencer internals — auto-respects 08-04 gating, EXT-only no-pulse documented; SR2 push() debug-jassert message thread + apply_template invalid id jassert+ignore not clamp). Deferred 3 (queue-full UI policy → 10-02, EXT-only pulse → 10-03, APVTS mute/solo automation → 10-05). Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-16: Enterprise audit on 10-03. Applied 4 must-have (M1 current_pattern by-value + correct doc; M2 PadGrid/Sequencer stopTimer() in dtor; M3 setFocusedPad/Lane/current_pad bounds guards; M4 toggleStep/setPlayMode return bool + non-vacuous tests), 4 strongly-recommended (SR1 no optimistic repaint; SR2 callback ownership; SR3 knob drag-target capture; SR4 forward-declare in perform_screen.h). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
+| 2026-06-16: Enterprise audit on 10-04. Applied 1 must-have (M1 explicit <cmath>+<algorithm> includes — MSVC build risk on 3-platform CI), 2 strongly-recommended (SR1 remove dead is_playing_ member — current_step_==-1 guard sufficient; SR2 FEEL2 paint smoke test — exercises node-drawing path, test count 230→231). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-15: Enterprise audit on 10-02. Applied 1 must-have (M1: font TTF files not committed to git — juce_add_binary_data configure fails on CI/fresh-clone with misleading error; added git-add step + git ls-files verification), 5 strongly-recommended (SR1 NAV switch test NAV1 + showScreen() public + isScreenVisible() accessor; SR2 grain overlay pre-baked juce::Image — no Random in paint(); SR3 setTheme() sets juce::Label::textColourId for ScreenPlaceholder findColour() — no cast; SR4 CI green gate on all 3 platforms before UNIFY; SR5 JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR for ScreenPlaceholder). Deferred 4. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |

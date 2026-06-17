@@ -1,5 +1,6 @@
 #include "perform_screen.h"
 
+#include "feel_field_component.h"
 #include "pad_grid_component.h"
 #include "sample_editor_component.h"
 #include "sequencer_component.h"
@@ -11,14 +12,15 @@ PerformScreen::PerformScreen(BaqueProcessor& proc, BaqueLookAndFeel& laf)
     , laf_(laf)
     , pad_grid_(std::make_unique<PadGridComponent>(proc, laf))
     , sequencer_(std::make_unique<SequencerComponent>(proc, laf))
-    , sample_editor_(std::make_unique<SampleEditorComponent>(proc, laf)) {
+    , sample_editor_(std::make_unique<SampleEditorComponent>(proc, laf))
+    , feel_field_(std::make_unique<FeelFieldComponent>(proc, laf)) {
     // SR2: sole authority for focused pad across all children
     pad_grid_->on_pad_clicked = [this](int idx) { setFocusedPad(idx); };
 
     addAndMakeVisible(*pad_grid_);
     addAndMakeVisible(*sequencer_);
     addAndMakeVisible(*sample_editor_);
-    addAndMakeVisible(feel_field_placeholder_);
+    addAndMakeVisible(*feel_field_);
 }
 
 PerformScreen::~PerformScreen() = default;
@@ -32,7 +34,7 @@ void PerformScreen::resized() {
     constexpr int editor_w = 260;
     pad_grid_->setBounds(r.removeFromLeft(pad_w));
     sample_editor_->setBounds(r.removeFromRight(editor_w));
-    feel_field_placeholder_.setBounds(r);
+    feel_field_->setBounds(r);
 }
 
 void PerformScreen::setFocusedPad(int pad_idx) noexcept {
