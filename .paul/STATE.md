@@ -16,10 +16,10 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 10 of 13 (UI/UX) — In Progress (3/7 plans complete)
-Plan: 10-03 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Status: 10-04 APPLY complete — 231 tests pass; awaiting human verify + UNIFY
-Last activity: 2026-06-16 — 10-04 APPLY complete
+Phase: 10 of 13 (UI/UX) — In Progress (4/7 plans complete)
+Plan: 10-04 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
+Status: 10-04 complete — Feel Field live; 231 tests pass; ready for 10-05
+Last activity: 2026-06-16 — 10-04 loop closed
 
 Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
@@ -67,7 +67,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓               [10-04 APPLY complete — awaiting UNIFY]
+  ✓        ✓        ✓        ✓     [10-04 complete — ready for 10-05]
 ```
 
 ## Accumulated Context
@@ -142,22 +142,23 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-16 (session 30)
-Stopped at: 10-03 UNIFY complete
-Next action: /paul:plan .paul/phases/10-ui-ux/10-04
-Resume file: .paul/phases/10-ui-ux/10-03-SUMMARY.md
+Last session: 2026-06-16 (session 31)
+Stopped at: 10-04 UNIFY complete
+Next action: /paul:plan .paul/phases/10-ui-ux/10-05
+Resume file: .paul/phases/10-ui-ux/10-04-SUMMARY.md
 Resume context:
-- 10-03 shipped: PerformScreen live — PadGrid 4×4, Sequencer 16×16 TODAS/FOCO, SampleEditor PITCH/DECAY/PAN
-- StepPattern has per-step velocity (1–127); set_step_velocity dispatches direct write
-- current_pattern() returns by value (display-only, not same contract as UiStateSnapshot atomics)
-- current_pad() advisory read for SampleEditor knob init
-- Feel Field centre column = grey placeholder; 10-04 fills it
-- SR3 knob drag-capture pattern established for future knob-pad combos
-- Timer-gated component pattern: visibilityChanged + explicit ~Ctor() { stopTimer(); }
-- 229 tests pass (226 baseline + PERF1/PERF2/PERF3)
+- 10-04 shipped: FeelFieldComponent live — radial disc, 16 ticks, step nodes, playhead arm
+- current_feel_pattern() advisory read accessor added to BaqueProcessor
+- feel_field_placeholder_ replaced by unique_ptr<FeelFieldComponent> in PerformScreen
+- Timer-gated component pattern confirmed: visibilityChanged + ~dtor() { stopTimer(); }
+- Explicit <cmath>/<algorithm> pattern established for new .cpp files (MSVC CI safety)
+- Paint smoke test pattern established: juce::Image off-screen Graphics render
+- 231 tests pass (229 baseline + FEEL1 + FEEL2)
+- Step visual not testable in WSL without audio device (expected; PERF2 tests command push)
+- Transport play button not wired — playhead won't animate until 10-02 transport deferred work
 
 ### Git State
-Last commit: 653b2a3 — feat(10): Plan 10-03 APPLY — PERFORM screen (pushed to origin/main)
+Last commit: de1d5d3 — feat(10): Plan 10-04 APPLY — Feel Field radial visualizer (pushed to origin/main)
 Branch: main (synced with origin)
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 
