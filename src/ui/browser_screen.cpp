@@ -3,11 +3,6 @@
 
 BrowserScreen::BrowserScreen(BaqueProcessor& proc, BaqueLookAndFeel& laf)
     : proc_(proc), laf_(laf) {
-    thread_.startThread(juce::Thread::Priority::low);
-
-    const auto home = juce::File::getSpecialLocation(juce::File::userHomeDirectory);
-    contents_.setDirectory(home, true, true);
-
     file_list_.setModel(this);
     addAndMakeVisible(file_list_);
 
@@ -21,16 +16,16 @@ BrowserScreen::BrowserScreen(BaqueProcessor& proc, BaqueLookAndFeel& laf)
                         juce::FileBrowserComponent::canSelectDirectories,
             [safeThis, fc](const juce::FileChooser& ch) {
                 if (safeThis == nullptr) return;
-                if (!ch.getResult().exists()) return;
-                safeThis->contents_.setDirectory(ch.getResult(), true, true);
-                safeThis->file_list_.updateContent();
-                safeThis->startTimerHz(2); // SR3: restart poll for new scan
+                const auto result = ch.getResult();
+                if (!result.isDirectory()) return;
+                safeThis->changeDirectory(result);
             });
     };
     addAndMakeVisible(root_btn_);
 
     file_label_.setText("No file selected", juce::dontSendNotification);
-    file_label_.setJustificationType(juce::Justification::centredTop);
+    file_label_.setJustificationType(juce::Justification::topLeft);
+    file_label_.setMinimumHorizontalScale(0.5f);
     addAndMakeVisible(file_label_);
 
     pad_label_.setText("Target pad:", juce::dontSendNotification);
@@ -46,15 +41,28 @@ BrowserScreen::BrowserScreen(BaqueProcessor& proc, BaqueLookAndFeel& laf)
 
     status_label_.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(status_label_);
+
+    changeDirectory(juce::File::getSpecialLocation(juce::File::userHomeDirectory));
 }
 
-BrowserScreen::~BrowserScreen() {
-    stopTimer();
-    thread_.stopThread(2000); // before contents_ dtor — contents_ holds a reference to thread_
+void BrowserScreen::changeDirectory(const juce::File& dir) {
+    files_.clear();
+    dir.findChildFiles(files_, juce::File::findFiles, false,
+                       "*.wav;*.aif;*.aiff;*.WAV;*.AIF;*.AIFF");
+    files_.sort();
+    selected_file_ = juce::File{};
+    file_label_.setText("No file selected", juce::dontSendNotification);
+    status_label_.setText(juce::String(files_.size()) + " files", juce::dontSendNotification);
+    file_list_.updateContent();
+    file_list_.scrollToEnsureRowIsOnscreen(0);
+    repaint();
 }
 
 void BrowserScreen::paint(juce::Graphics& g) {
     g.fillAll(laf_.background());
+    // Separator between left file list and right panel
+    g.setColour(laf_.surface());
+    g.drawVerticalLine(getWidth() * 6 / 10, 0.0f, static_cast<float>(getHeight()));
 }
 
 void BrowserScreen::resized() {
@@ -66,43 +74,31 @@ void BrowserScreen::resized() {
     root_btn_.setBounds(0, h - btn_h, left_w, btn_h);
     file_list_.setBounds(0, 0, left_w, h - btn_h);
 
-    const int rx = left_w;
-    const int rw = w - left_w;
-    file_label_.setBounds(rx + 8, 8, rw - 16, h / 4);
-    pad_label_.setBounds(rx + 8, h / 4 + 8, rw - 16, 24);
-    pad_combo_.setBounds(rx + 8, h / 4 + 36, rw - 16, 30);
-    load_btn_.setBounds(rx + 8, h / 2, rw - 16, 40);
-    status_label_.setBounds(rx + 8, h / 2 + 50, rw - 16, 24);
-}
-
-void BrowserScreen::visibilityChanged() {
-    if (isVisible())
-        startTimerHz(2);
-    else
-        stopTimer();
-}
-
-void BrowserScreen::timerCallback() {
-    file_list_.updateContent();
-    repaint();
-    if (!contents_.isStillLoading()) stopTimer(); // SR3: stop 2fps poll after scan completes
+    const int rx = left_w + 8;
+    const int rw = w - left_w - 16;
+    file_label_.setBounds(rx, 8, rw, h / 4);
+    pad_label_.setBounds(rx, h / 4 + 8, rw, 24);
+    pad_combo_.setBounds(rx, h / 4 + 36, rw, 30);
+    load_btn_.setBounds(rx, h / 2, rw, 40);
+    status_label_.setBounds(rx, h / 2 + 50, rw, 24);
 }
 
 int BrowserScreen::getNumRows() {
-    return contents_.getNumFiles();
+    return files_.size();
 }
 
 void BrowserScreen::paintListBoxItem(int row, juce::Graphics& g, int w, int h, bool selected) {
-    g.fillAll(selected ? laf_.accent().withAlpha(0.25f) : laf_.surface().withAlpha(0.08f));
+    if (selected)
+        g.fillAll(laf_.accent().withAlpha(0.4f));
     g.setColour(laf_.text());
     g.setFont(13.0f);
-    const auto f = contents_.getFile(row);
-    g.drawText(f.getFileName(), 8, 0, w - 12, h, juce::Justification::centredLeft);
+    if (row >= 0 && row < files_.size())
+        g.drawText(files_[row].getFileName(), 8, 0, w - 12, h, juce::Justification::centredLeft);
 }
 
 void BrowserScreen::selectedRowsChanged(int lastRow) {
-    if (lastRow >= 0 && lastRow < contents_.getNumFiles()) {
-        selected_file_ = contents_.getFile(lastRow);
+    if (lastRow >= 0 && lastRow < files_.size()) {
+        selected_file_ = files_[lastRow];
         file_label_.setText(selected_file_.getFileName(), juce::dontSendNotification);
         status_label_.setText({}, juce::dontSendNotification);
     }
