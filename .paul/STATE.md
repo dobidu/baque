@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 10 (UI/UX) — 10-05 complete; 10-06 PERF FX + MIDI screens next
+**Current focus:** Phase 10 (UI/UX) — 10-07 BROWSER + undo/redo + Phase 10 DoD (next)
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 10 of 13 (UI/UX) — In Progress (5/7 plans complete)
-Plan: 10-05 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Status: 10-05 loop closed — FX + MIX screens shipped; ready for 10-06
-Last activity: 2026-06-17 — 10-05 UNIFY complete
+Phase: 10 of 13 (UI/UX) — In Progress (6/7 plans complete)
+Plan: 10-06 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
+Status: 10-06 loop closed; ready for 10-07 planning
+Last activity: 2026-06-17 — 10-06 UNIFY complete
 
 Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
@@ -67,7 +67,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [10-05 loop closed — next: 10-06]
+  ✓        ✓        ✓        ✓     [Loop complete - ready for next PLAN]
 ```
 
 ## Accumulated Context
@@ -121,6 +121,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-16: Enterprise audit on 10-03. Applied 4 must-have (M1 current_pattern by-value + correct doc; M2 PadGrid/Sequencer stopTimer() in dtor; M3 setFocusedPad/Lane/current_pad bounds guards; M4 toggleStep/setPlayMode return bool + non-vacuous tests), 4 strongly-recommended (SR1 no optimistic repaint; SR2 callback ownership; SR3 knob drag-target capture; SR4 forward-declare in perform_screen.h). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-16: Enterprise audit on 10-04. Applied 1 must-have (M1 explicit <cmath>+<algorithm> includes — MSVC build risk on 3-platform CI), 2 strongly-recommended (SR1 remove dead is_playing_ member — current_step_==-1 guard sufficient; SR2 FEEL2 paint smoke test — exercises node-drawing path, test count 230→231). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-17: Enterprise audit on 10-05. Applied 1 must-have (M1: missing #include "plugin_processor.h" in both fx_screen.cpp and mix_screen.cpp — BaqueProcessor forward-declared in headers; .cpp files call getAPVTS()/push_ui_command()/ui_snapshot() which require full type definition; compile-blocking on all 3 platforms), 2 strongly-recommended (SR1 corrected apvts_ rationale — it was already public at plugin_processor.h:64; getter is named accessor not capability unlock; SR2 documented mute/solo UI state drift after preset load — mute_state_[]/solo_state_[] are message-thread-local, diverge from engine PerfState; added class comment + scope limit; APVTS mute/solo automation re-deferred to 10-07). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
+| 2026-06-17: Enterprise audit on 10-06. Applied 1 must-have (M1: explicit `private juce::MouseListener` in PerfFxScreen is wrong — juce::Component already inherits MouseListener; would cause MSVC ambiguous-base-class error; CI-blocking on 3-platform matrix; fix: rely on Component's existing virtual methods, no additional inheritance), 3 strongly-recommended (SR1 timerCallback must NOT overwrite MODE toggle states — advisory read races with in-flight UiCommand causing 100ms flicker; only update note_labels_ advisory; SR2 XyPad mouseDown missing — click-without-drag no-op on performance pad; added mouseDown override identical to mouseDrag; SR3 clock_master_state_ hardcoded false — wrong after preset load; init from proc_.clock_master_ in ctor). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-15: Enterprise audit on 10-02. Applied 1 must-have (M1: font TTF files not committed to git — juce_add_binary_data configure fails on CI/fresh-clone with misleading error; added git-add step + git ls-files verification), 5 strongly-recommended (SR1 NAV switch test NAV1 + showScreen() public + isScreenVisible() accessor; SR2 grain overlay pre-baked juce::Image — no Random in paint(); SR3 setTheme() sets juce::Label::textColourId for ScreenPlaceholder findColour() — no cast; SR4 CI green gate on all 3 platforms before UNIFY; SR5 JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR for ScreenPlaceholder). Deferred 4. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
@@ -143,19 +144,19 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-17 (session 33)
-Stopped at: 10-05 UNIFY complete
-Next action: /paul:plan (10-06 — PERF FX + MIDI screens)
-Resume file: .paul/phases/10-ui-ux/10-05-SUMMARY.md
+Last session: 2026-06-17 (session 35)
+Stopped at: 10-06 UNIFY complete
+Next action: /paul:plan 10-07
+Resume file: .paul/phases/10-ui-ux/10-06-SUMMARY.md
 Resume context:
-- 10-05 shipped: FxScreen (6 APVTS knobs) + MixScreen (16-strip, timer-gated 30fps)
-- getAPVTS() named accessor added; mute/solo via UiCommand; master_gain via SliderAttachment
-- 234/234 tests pass
-- 10-06 scope: PERF FX screen (tape_stop/gater/scatter params) + MIDI screen (routing, CC, learn UI)
+- 10-06 shipped: PerfFxScreen (scatter knobs, TAPE STOP/GATE momentary, XY filter pad, 4-group M/S) + MidiScreen (clock master, TR-8/TR-8S templates, 16-lane routing table MODE/CH/LEARN, 10fps timer); 239 tests
+- Audit findings: M1 (no extra MouseListener base), SR1 (timer no mode writes), SR2 (XyPad mouseDown), SR3 (clock_master from proc state)
+- Known deferreds: group_mute/solo local state, LEARN visual-only, STUTTER/RISER/CRUSH/FILL/Scene Morph
+- 10-07 scope: BROWSER + undo/redo + Phase 10 DoD (drag-to-beat workflow); final Phase 10 plan
 
 ### Git State
-Last commit: 29927ba — feat(10): Plan 10-05 APPLY — FX + MIX screens (pushed to origin/main)
-Branch: main (synced with origin)
+Last commit: 8660482 — feat(10): Plan 10-06 APPLY — PERF FX + MIDI screens (not yet pushed)
+Branch: main
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 
 ---
