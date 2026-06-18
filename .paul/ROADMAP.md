@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 9 of 13 complete
+Phases: 10 of 13 complete
 
 ## Phases
 
@@ -33,7 +33,7 @@ Phases: 9 of 13 complete
 | 7 | Lo-fi + Granular (Fase 6) | 4 | ✅ Complete | 2026-06-08 |
 | 8 | Scatter / Perf FX (Fase 7) | 4 | ✅ Complete | 2026-06-08 |
 | 9 | MIDI / Hardware (Fase 8) | 4 | ✅ Complete | 2026-06-10 |
-| 10 | UI/UX (Fase 9) | 7 | 🟡 Planning | - |
+| 10 | UI/UX (Fase 9) | 7 | ✅ Complete | 2026-06-18 |
 | 11 | Presets & Library (Fase 10) | TBD | Not started | - |
 | 12 | Hardening (Fase 11) | TBD | Not started | - |
 | 13 | Release (Fase 12) | TBD | Not started | - |
@@ -153,13 +153,13 @@ Phases: 9 of 13 complete
 **DoD:** Complete drag-to-beat workflow; UI spec applied
 
 **Plans (7-plan decomposition, confirmed 2026-06-10):**
-- [ ] 10-01: UI→engine command queue + atomicization (perf_state/lane_routing/clock_master/cc_out/pad-params/pattern/p-lock/template) + UiStateSnapshot
-- [ ] 10-02: LookAndFeel + design system (4 temas, knobs/arcs, faders, meters, fontes, grão) + header/transport + NAV shell
-- [ ] 10-03: PERFORM screen — pads 4×4, sequencer grid (TODAS/FOCO), sample editor
-- [ ] 10-04: Feel Field radial visualizer (parallel candidate after 10-02)
-- [ ] 10-05: FX + MIX screens
-- [ ] 10-06: PERF FX + MIDI screens
-- [ ] 10-07: BROWSER + undo/redo + Phase 10 DoD (drag-to-beat)
+- [x] 10-01: UI→engine command queue + atomicization (perf_state/lane_routing/clock_master/cc_out/pad-params/pattern/p-lock/template) + UiStateSnapshot ✅ 2026-06-15
+- [x] 10-02: LookAndFeel + design system (4 temas, knobs/arcs, faders, meters, fontes, grão) + header/transport + NAV shell ✅ 2026-06-15
+- [x] 10-03: PERFORM screen — pads 4×4, sequencer grid (TODAS/FOCO), sample editor ✅ 2026-06-16
+- [x] 10-04: Feel Field radial visualizer (parallel candidate after 10-02) ✅ 2026-06-16
+- [x] 10-05: FX + MIX screens ✅ 2026-06-17
+- [x] 10-06: PERF FX + MIDI screens ✅ 2026-06-17
+- [x] 10-07: BROWSER + undo/redo + Phase 10 DoD (drag-to-beat) ✅ 2026-06-18
 
 ### Phase 11: Presets & Library (Fase 10)
 **Goal:** Preset system, browser, factory content
@@ -181,4 +181,4 @@ Phases: 9 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-10 — Phase 9 complete*
+*Last updated: 2026-06-18 — Phase 10 complete*

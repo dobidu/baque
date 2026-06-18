@@ -20,8 +20,8 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 |-----------|-------|
 | Type | Application (audio plugin) |
 | Version | 0.0.0 |
-| Status | Phase 9 complete — Phase 10 (UI/UX) next |
-| Last Updated | 2026-06-10 |
+| Status | Phase 10 complete — Phase 11 (Presets & Library) next |
+| Last Updated | 2026-06-18 |
 
 ## Requirements
 
@@ -67,6 +67,13 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **MIDI I/O + hybrid mode** — per-lane routing (INT/EXT/BOTH + channel), Sequencer EXT note out + stop-flush (All-Notes-Off), MidiClock 24ppqn master (start/stop/continue, monotonic guard), CC out (p-lock→CC), MIDI in + MIDI learn (atomic arm/capture); processBlock merge — Phase 9
 - [x] **TR-8/TR-8S templates** — one-call note map + channel + CC-slot apply (non-destructive to step programming); note/CC numbers spec-verified against Roland's published MIDI Implementation Chart (TR-8 v1.11); value-safe continuous CCs (scatter_depth/reverb/delay) baked in — Phase 9
 - [x] **Phase 9 DoD** — hybrid INT/EXT pattern drives correct merged MIDI via processBlock (EXT notes on TR-8 note/channel + note-off, exact 24ppqn clock, internal lane fires audio without MIDI leak, stop-flush, additive CC); real-TR-8 byte mapping verified-by-spec; 209/209 tests — Phase 9
+- [x] **UI/UX — LookAndFeel + design system + NAV shell** — 4 themes (Barro/Cinza/Maracatu/Papel), Space Grotesk + JetBrains Mono, custom knobs/arcs/faders/meters, header/transport bar, 6-tab NAV — Phase 10
+- [x] **All 6 screens operational** — PERFORM (pads 4×4, sequencer grid, sample editor), FX, MIX, PERF FX, MIDI, BROWSER — no ScreenPlaceholders — Phase 10
+- [x] **Feel Field visualizer** — radial 16-step polar display of FeelPattern timing offsets; paint-only, no audio-thread access — Phase 10
+- [x] **UI→engine command queue** — UiCommandQueue lock-free FIFO; all single-writer structs atomicized (PerfState mute/solo, lane routing, clock master, CC out, pad params, pattern, p-lock, template); UiStateSnapshot for display — Phase 10
+- [x] **Browser screen v1** — filesystem sample browser (*.wav/*.aif), synchronous findChildFiles(), SET FOLDER (SafePointer FileChooser), load-to-pad; load_sample_from_file() with safe-load protocol + stereo downmix — Phase 10
+- [x] **APVTS undo/redo** — UndoManager wired to APVTS ctor; Ctrl+Z/Ctrl+Shift+Z in BaqueEditor; undo_manager_ declared before apvts_ (C++ init order) — Phase 10
+- [x] **Phase 10 DoD** — all 6 screens non-placeholder, drag-to-beat workflow verified; 244/244 tests — Phase 10
 
 ### Active (In Progress)
 None yet.
@@ -148,6 +155,9 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | MIDI-learn is an audio-thread writer (atomic arm/disarm handshake) | learn_arm std::atomic<int> release/acquire; bindings audio-owned during capture; CcLearnMap non-copyable; Phase 10 UI snapshots | 2026-06-09 | Active |
 | TR-8/TR-8S template = single-writer setup; non-destructive apply | set_note only (never set_active/set_trig/clear); routing+cc reset intentional; Phase 10 UI atomicizes | 2026-06-09 | Active |
 | AC-6 hardware sign-off resolved verified-by-spec | Roland's published MIDI Implementation Chart (TR-8 v1.11) IS the firmware spec for note/CC numbers; machine-checking the template against it confirms the byte mapping without a physical unit. scatter_type value-curve still needs hardware | 2026-06-10 | Active |
+| BrowserScreen v1 synchronous findChildFiles() over async DirectoryContentsList | Async DCL changeListenerCallback unreliable in practice — files never appeared after SET FOLDER in testing; sync scan fires immediately on folder selection, no threading complexity; async loading deferred to Phase 11 | 2026-06-18 | Active |
+| SafePointer<Component> in all async FileChooser lambdas | Raw [this] capture in async lambda = UAF if component destroyed while OS dialog open; SafePointer automatically becomes nullptr on destruction | 2026-06-18 | Active |
+| UndoManager declared before APVTS in header (declaration order = init order) | C++ initializes members in declaration order, not access-specifier order; APVTS ctor takes &undo_manager_ pointer — undo_manager_ must be fully constructed first | 2026-06-18 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -187,4 +197,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-10 after Phase 9 (MIDI / Hardware)*
+*Last updated: 2026-06-18 after Phase 10 (UI/UX)*

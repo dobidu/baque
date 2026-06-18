@@ -11,24 +11,24 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 10 (UI/UX) — 10-07 BROWSER + undo/redo + Phase 10 DoD
+**Current focus:** Phase 11 (Presets & Library) — not started
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 10 of 13 (UI/UX) — In Progress (6/7 plans complete)
-Plan: 10-07 — PLAN ✓ AUDIT ○ APPLY ○ UNIFY ○
-Status: 10-07 plan created, awaiting audit
-Last activity: 2026-06-17 — 10-07 PLAN created
+Phase: 11 of 13 (Presets & Library) — Not started
+Plan: Not started
+Status: Phase 10 (UI/UX) complete — 7/7 plans done, 244/244 tests, all 6 screens non-placeholder. Ready to plan Phase 11.
+Last activity: 2026-06-18 — Phase 10 complete, transitioned to Phase 11
 
-Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
-- 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
-- 10-02: LookAndFeel + design system (4 themes, knobs/arcs, faders, meters) + header/transport + NAV shell
-- 10-03: PERFORM screen (pads 4×4, sequencer grid TODAS/FOCO, sample editor)
-- 10-04: Feel Field radial visualizer (parallel candidate after 10-02 — read-only)
-- 10-05: FX + MIX screens
-- 10-06: PERF FX + MIDI screens
-- 10-07: BROWSER + undo/redo + Phase 10 DoD (drag-to-beat workflow)
+Phase 10 complete ✅ (7-plan, complex track, 2026-06-10 → 2026-06-18):
+- 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ✅
+- 10-02: LookAndFeel + design system (4 themes, knobs/arcs, faders, meters) + header/transport + NAV shell ✅
+- 10-03: PERFORM screen (pads 4×4, sequencer grid TODAS/FOCO, sample editor) ✅
+- 10-04: Feel Field radial visualizer (parallel candidate after 10-02 — read-only) ✅
+- 10-05: FX + MIX screens ✅
+- 10-06: PERF FX + MIDI screens ✅
+- 10-07: BROWSER + undo/redo + Phase 10 DoD (drag-to-beat workflow) ✅
 
 Phase 9 decomposition (4-plan, MIDI/Hardware) ✅:
 - 09-01: Per-lane routing (INT/EXT/BOTH + channel) + Sequencer EXT MIDI out + processBlock merge + stop-flush ✅ 2026-06-08
@@ -43,12 +43,13 @@ Phase 8 decomposition (4-plan, mirrors Phase 6/7):
 - 08-04: Fills via trig conditions + mute/solo groups + Phase 8 DoD (scene morph deferred) ✅ 2026-06-08
 
 Progress:
-- Milestone: [███████░░░] 70% (9/13 phases complete + 10 in progress)
+- Milestone: [████████░░] 77% (10/13 phases complete)
 - Phase 5: [██████████] 100% ✅
 - Phase 6: [██████████] 100% ✅ (4/4 plans done)
 - Phase 7: [██████████] 100% ✅ (4/4 plans done)
 - Phase 8: [██████████] 100% ✅ (4/4 plans done)
 - Phase 9: [██████████] 100% ✅ (4/4 plans done)
+- Phase 10: [██████████] 100% ✅ (7/7 plans done)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -67,7 +68,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○        ○     [Plan created, awaiting audit]
+  ✓        ✓        ✓        ✓     [Loop complete — Phase 10 closed, ready to plan Phase 11]
 ```
 
 ## Accumulated Context
@@ -121,6 +122,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-16: Enterprise audit on 10-03. Applied 4 must-have (M1 current_pattern by-value + correct doc; M2 PadGrid/Sequencer stopTimer() in dtor; M3 setFocusedPad/Lane/current_pad bounds guards; M4 toggleStep/setPlayMode return bool + non-vacuous tests), 4 strongly-recommended (SR1 no optimistic repaint; SR2 callback ownership; SR3 knob drag-target capture; SR4 forward-declare in perform_screen.h). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-16: Enterprise audit on 10-04. Applied 1 must-have (M1 explicit <cmath>+<algorithm> includes — MSVC build risk on 3-platform CI), 2 strongly-recommended (SR1 remove dead is_playing_ member — current_step_==-1 guard sufficient; SR2 FEEL2 paint smoke test — exercises node-drawing path, test count 230→231). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-17: Enterprise audit on 10-05. Applied 1 must-have (M1: missing #include "plugin_processor.h" in both fx_screen.cpp and mix_screen.cpp — BaqueProcessor forward-declared in headers; .cpp files call getAPVTS()/push_ui_command()/ui_snapshot() which require full type definition; compile-blocking on all 3 platforms), 2 strongly-recommended (SR1 corrected apvts_ rationale — it was already public at plugin_processor.h:64; getter is named accessor not capability unlock; SR2 documented mute/solo UI state drift after preset load — mute_state_[]/solo_state_[] are message-thread-local, diverge from engine PerfState; added class comment + scope limit; APVTS mute/solo automation re-deferred to 10-07). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
+| 2026-06-18: Enterprise audit on 10-07. Applied 1 must-have (M1: raw [this] capture in FileChooser async lambda → UAF if BrowserScreen destroyed while OS dialog open; fix: SafePointer<BrowserScreen> that becomes nullptr on destruction), 3 strongly-recommended (SR1 stereo WAV downmix — read both channels, average (L+R)*0.5f into mono buf; SR2 P10D4 vacuous test — added getScreen(Screen) accessor to BaqueEditor + dynamic_cast<BrowserScreen*> check; SR3 timerCallback polls forever — stopTimer() when !contents_.isStillLoading(), restart on folder change). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-17: Enterprise audit on 10-06. Applied 1 must-have (M1: explicit `private juce::MouseListener` in PerfFxScreen is wrong — juce::Component already inherits MouseListener; would cause MSVC ambiguous-base-class error; CI-blocking on 3-platform matrix; fix: rely on Component's existing virtual methods, no additional inheritance), 3 strongly-recommended (SR1 timerCallback must NOT overwrite MODE toggle states — advisory read races with in-flight UiCommand causing 100ms flicker; only update note_labels_ advisory; SR2 XyPad mouseDown missing — click-without-drag no-op on performance pad; added mouseDown override identical to mouseDrag; SR3 clock_master_state_ hardcoded false — wrong after preset load; init from proc_.clock_master_ in ctor). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-15: Enterprise audit on 10-02. Applied 1 must-have (M1: font TTF files not committed to git — juce_add_binary_data configure fails on CI/fresh-clone with misleading error; added git-add step + git ls-files verification), 5 strongly-recommended (SR1 NAV switch test NAV1 + showScreen() public + isScreenVisible() accessor; SR2 grain overlay pre-baked juce::Image — no Random in paint(); SR3 setTheme() sets juce::Label::textColourId for ScreenPlaceholder findColour() — no cast; SR4 CI green gate on all 3 platforms before UNIFY; SR5 JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR for ScreenPlaceholder). Deferred 4. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
@@ -136,27 +138,34 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | ~~Upgrade CI actions/checkout + cache from v4→v5~~ | Phase 1 | S | ✅ Done 2026-06-15 (PR #1) |
 | Scene morph (perf FX, ESCOPO §4.7) deferred from 08-04 — performance gesture coupled to scenes/UI | Phase 8 | M | Phase 10 (UI/UX) or 11 (presets/scenes) |
 | TR-8 scatter_type CC68 value-curve — number known, but BAQUE 0-10 types over TR-8 0-127 select map needs a physical unit to confirm; slot ships OFF | Phase 9 | S | When a real TR-8 is on hand (observational, no CI gate) |
-| TR-8S assignable per-instrument routing + TR-8S-only CC banks (beyond shared GM default) | Phase 9 | M | Phase 10/11 |
+| TR-8S assignable per-instrument routing + TR-8S-only CC banks (beyond shared GM default) | Phase 9 | M | Phase 11 |
 | Hardware template import/export file format (load/save custom mappings) | Phase 9 | M | Phase 11 (presets, ESCOPO §10) |
+| Async directory scan with background thread + loading indicator | Phase 10 | S | Phase 11 (browser refresh) |
+| Waveform thumbnail preview in BROWSER right panel | Phase 10 | M | Phase 11 |
+| Tag/category/aesthetic filter system | Phase 10 | M | Phase 11 (needs DB/library) |
+| Drag-and-drop from BROWSER to pad | Phase 10 | M | Phase 11 |
+| Auto-audition audio playback in BROWSER | Phase 10 | M | Phase 11 (needs AudioTransportSource) |
+| APVTS mute/solo automation (mute_state_[]/solo_state_[] UI↔engine sync) | Phase 10 | M | Phase 11 |
+| Scene morph (perf FX, ESCOPO §4.7) | Phase 8 | M | Phase 11 (presets/scenes) |
 
 ### Blockers/Concerns
 None.
 
 ## Session Continuity
 
-Last session: 2026-06-17 (session 36)
-Stopped at: 10-07 PLAN created
-Next action: /paul:audit .paul/phases/10-ui-ux/10-07-PLAN.md
-Resume file: .paul/phases/10-ui-ux/10-07-PLAN.md
+Last session: 2026-06-18 (session 37)
+Stopped at: Phase 10 complete — UNIFY + TRANSITION done
+Next action: /paul:plan for Phase 11 (Presets & Library)
+Resume file: .paul/ROADMAP.md
 Resume context:
-- 10-06 shipped: PerfFxScreen + MidiScreen; 239 tests; all 5 screens real
-- 10-07 plan: BrowserScreen (juce::FileListComponent + DirectoryContentsList + TimeSliceThread, load_sample_from_file on proc) + UndoManager on APVTS (Ctrl+Z/Y) + Phase 10 DoD tests (244/244)
-- Key patterns: safe-load protocol (reset_all before buffer mutation), format_manager_.registerBasicFormats() in proc ctor, juce::TemporaryFile in P10D2 test, undo_manager_ declared before apvts_ in header
-- Deferreds in BROWSER v1: waveform thumbnail, tags/aesthetic filters, drag-to-pad, auto-audition playback, preset browser
+- Phase 10 shipped: all 6 screens (PERFORM/FX/MIX/PERF FX/MIDI/BROWSER), LookAndFeel, Feel Field, UiCommandQueue, APVTS undo/redo; 244/244 tests
+- BrowserScreen: synchronous findChildFiles(), load_sample_from_file() on BaqueProcessor, SafePointer FileChooser guard
+- Phase 11 scope: preset system (save/load), browser (tags/aesthetics/presets), factory content, waveform thumbnail, async browser upgrade
+- Key patterns carried forward: undo_manager_ before apvts_ in header; SafePointer in async lambdas; findChildFiles() synchronous for v1
 
 ### Git State
-Last commit: e16bc64 — docs(10): 10-06 UNIFY — PERF FX + MIDI screens loop closed (pushed to origin/main)
-Branch: main (synced with origin)
+Last commit: (phase transition commit — see below)
+Branch: main
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 
 ---
