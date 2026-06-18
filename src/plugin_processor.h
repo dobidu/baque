@@ -21,6 +21,7 @@
 #include "audio/ui_state_snapshot.h"
 #include "audio/voice_pool.h"
 
+#include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
 // Processador principal do plugin BAQUE.
@@ -60,6 +61,13 @@ class BaqueProcessor : public juce::AudioProcessor {
     void getStateInformation(juce::MemoryBlock& dest_data) override;
     void setStateInformation(const void* data, int size_in_bytes) override;
 
+    // UndoManager must be declared BEFORE apvts_ — APVTS ctor takes a pointer to it.
+    // Declaration order = initialization order in C++.
+    juce::UndoManager undo_manager_;
+
+    // AudioFormatManager used by load_sample_from_file (WAV/AIFF/etc registration).
+    juce::AudioFormatManager format_manager_;
+
     // APVTS — parâmetros automatizáveis expostos ao host
     juce::AudioProcessorValueTreeState apvts_;
 
@@ -79,6 +87,14 @@ class BaqueProcessor : public juce::AudioProcessor {
     // Use this instead of apvts_ directly so intent is explicit: SliderAttachment,
     // parameter listeners, and preset I/O run on the message thread only.
     [[nodiscard]] juce::AudioProcessorValueTreeState& getAPVTS() noexcept { return apvts_; }
+
+    // UndoManager accessor — editor uses this for Ctrl+Z / Ctrl+Shift+Z keyPressed.
+    [[nodiscard]] juce::UndoManager& getUndoManager() noexcept { return undo_manager_; }
+
+    // Loads an audio file to the specified pad (0-based).
+    // Safe-load protocol (audit 04-01): calls voice_pool_.reset_all() before any buffer mutation.
+    // MUST be called from the message thread only — never from the audio thread.
+    void load_sample_from_file(int pad_index, const juce::File& file);
 
     // Snapshot do estado do engine — lido pela message thread para render de UI (Fase 10-01).
     [[nodiscard]] const UiStateSnapshot& ui_snapshot() const noexcept { return ui_snapshot_; }

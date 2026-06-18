@@ -16,6 +16,7 @@ BaqueEditor::BaqueEditor(BaqueProcessor& p)
     screens_[Screen::MIX]     = std::make_unique<MixScreen>(p, look_and_feel_);
     screens_[Screen::PERF_FX] = std::make_unique<PerfFxScreen>(p, look_and_feel_);
     screens_[Screen::MIDI]    = std::make_unique<MidiScreen>(p, look_and_feel_);
+    screens_[Screen::BROWSER] = std::make_unique<BrowserScreen>(p, look_and_feel_);
     for (int i = 0; i < k_num_screens; ++i) {
         if (!screens_[i])
             screens_[i] = std::make_unique<ScreenPlaceholder>(k_screen_names[i]);
@@ -26,6 +27,8 @@ BaqueEditor::BaqueEditor(BaqueProcessor& p)
     addAndMakeVisible(header_);
 
     showScreen(Screen::PERFORM);
+
+    setWantsKeyboardFocus(true);
 
     // setSize last — triggers resized() which references screens_ and header_;
     // all members must be initialised before this call.
@@ -62,4 +65,14 @@ bool BaqueEditor::isScreenVisible(int screen_index) const noexcept {
     if (screen_index < 0 || screen_index >= k_num_screens)
         return false;
     return screens_[screen_index]->isVisible();
+}
+
+bool BaqueEditor::keyPressed(const juce::KeyPress& key) {
+    auto& proc = static_cast<BaqueProcessor&>(processor);
+    auto& um = proc.getUndoManager();
+    const int cmd       = juce::ModifierKeys::commandModifier;
+    const int cmd_shift = juce::ModifierKeys::commandModifier | juce::ModifierKeys::shiftModifier;
+    if (key == juce::KeyPress('z', cmd, 0))       { um.undo(); return true; }
+    if (key == juce::KeyPress('z', cmd_shift, 0)) { um.redo(); return true; }
+    return false;
 }

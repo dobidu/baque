@@ -49,7 +49,9 @@ BaqueProcessor::BaqueProcessor()
     : AudioProcessor(BusesProperties()
                          .withInput("Input", juce::AudioChannelSet::stereo(), true)
                          .withOutput("Output", juce::AudioChannelSet::stereo(), true))
-    , apvts_(*this, nullptr, "BAQUE_PARAMS", create_parameter_layout()) {}
+    , apvts_(*this, &undo_manager_, "BAQUE_PARAMS", create_parameter_layout()) {
+    format_manager_.registerBasicFormats();
+}
 
 void BaqueProcessor::prepareToPlay(double sample_rate, int samples_per_block) {
     // PROTOCOLO DE LOAD SEGURO (auditoria 04-01): reset_all() ANTES de qualquer
@@ -726,4 +728,29 @@ void BaqueProcessor::setStateInformation(const void* data, int size_in_bytes) {
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
     return new BaqueProcessor();
+}
+
+void BaqueProcessor::load_sample_from_file(int pad_index, const juce::File& file) {
+    jassert(!juce::MessageManager::getInstanceWithoutCreating() ||
+            juce::MessageManager::existsAndIsCurrentThread());
+    if (pad_index < 0 || pad_index >= PadBank::k_num_pads) return;
+    if (!file.existsAsFile()) return;
+    std::unique_ptr<juce::AudioFormatReader> reader(format_manager_.createReaderFor(file));
+    if (reader == nullptr) return;
+    const int num_samples = static_cast<int>(reader->lengthInSamples);
+    if (num_samples <= 0) return;
+    // Safe-load protocol (audit 04-01): no voice may reference the buffer during mutation.
+    voice_pool_.reset_all();
+    auto& buf = pad_bank_.pad(pad_index).sample_buffer();
+    // SR1: downmix stereo to mono — read both channels, average. Mono WAVs skip the branch.
+    if (reader->numChannels >= 2) {
+        juce::AudioBuffer<float> stereo(2, num_samples);
+        reader->read(&stereo, 0, num_samples, 0, true, true);
+        buf.setSize(1, num_samples);
+        for (int i = 0; i < num_samples; ++i)
+            buf.setSample(0, i, (stereo.getSample(0, i) + stereo.getSample(1, i)) * 0.5f);
+    } else {
+        buf.setSize(1, num_samples);
+        reader->read(&buf, 0, num_samples, 0, true, false);
+    }
 }

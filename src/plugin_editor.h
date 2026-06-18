@@ -7,6 +7,7 @@
 #include "ui/mix_screen.h"
 #include "ui/perf_fx_screen.h"
 #include "ui/midi_screen.h"
+#include "ui/browser_screen.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
@@ -51,6 +52,14 @@ class BaqueEditor : public juce::AudioProcessorEditor {
     void showScreen(Screen s);
     [[nodiscard]] bool isScreenVisible(int screen_index) const noexcept;
     [[nodiscard]] Screen activeScreen() const noexcept { return active_screen_; }
+
+    // SR2: type-safe screen accessor for tests — returns the actual component pointer so
+    // callers can dynamic_cast to verify the slot holds the expected screen type (not ScreenPlaceholder).
+    [[nodiscard]] juce::Component* getScreen(Screen s) const noexcept {
+        return screens_[static_cast<int>(s)].get();
+    }
+
+    bool keyPressed(const juce::KeyPress& key) override;
 
   private:
     BaqueLookAndFeel look_and_feel_; // must be first — outlives all children

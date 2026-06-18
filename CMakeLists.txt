@@ -97,6 +97,7 @@ target_sources(BAQUE
         src/ui/mix_screen.cpp
         src/ui/perf_fx_screen.cpp
         src/ui/midi_screen.cpp
+        src/ui/browser_screen.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)
