@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 10 (UI/UX) — 10-07 BROWSER + undo/redo + Phase 10 DoD (next)
+**Current focus:** Phase 10 (UI/UX) — 10-07 BROWSER + undo/redo + Phase 10 DoD
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 10 of 13 (UI/UX) — In Progress (6/7 plans complete)
-Plan: 10-06 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Status: 10-06 loop closed; ready for 10-07 planning
-Last activity: 2026-06-17 — 10-06 UNIFY complete
+Plan: 10-07 — PLAN ✓ AUDIT ○ APPLY ○ UNIFY ○
+Status: 10-07 plan created, awaiting audit
+Last activity: 2026-06-17 — 10-07 PLAN created
 
 Phase 10 decomposition (7-plan, complex track, confirmed 2026-06-10):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ← current
@@ -67,7 +67,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [Loop complete - ready for next PLAN]
+  ✓        ○        ○        ○     [Plan created, awaiting audit]
 ```
 
 ## Accumulated Context
@@ -144,19 +144,19 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-17 (session 35)
-Stopped at: 10-06 UNIFY complete
-Next action: /paul:plan 10-07
-Resume file: .paul/phases/10-ui-ux/10-06-SUMMARY.md
+Last session: 2026-06-17 (session 36)
+Stopped at: 10-07 PLAN created
+Next action: /paul:audit .paul/phases/10-ui-ux/10-07-PLAN.md
+Resume file: .paul/phases/10-ui-ux/10-07-PLAN.md
 Resume context:
-- 10-06 shipped: PerfFxScreen (scatter knobs, TAPE STOP/GATE momentary, XY filter pad, 4-group M/S) + MidiScreen (clock master, TR-8/TR-8S templates, 16-lane routing table MODE/CH/LEARN, 10fps timer); 239 tests
-- Audit findings: M1 (no extra MouseListener base), SR1 (timer no mode writes), SR2 (XyPad mouseDown), SR3 (clock_master from proc state)
-- Known deferreds: group_mute/solo local state, LEARN visual-only, STUTTER/RISER/CRUSH/FILL/Scene Morph
-- 10-07 scope: BROWSER + undo/redo + Phase 10 DoD (drag-to-beat workflow); final Phase 10 plan
+- 10-06 shipped: PerfFxScreen + MidiScreen; 239 tests; all 5 screens real
+- 10-07 plan: BrowserScreen (juce::FileListComponent + DirectoryContentsList + TimeSliceThread, load_sample_from_file on proc) + UndoManager on APVTS (Ctrl+Z/Y) + Phase 10 DoD tests (244/244)
+- Key patterns: safe-load protocol (reset_all before buffer mutation), format_manager_.registerBasicFormats() in proc ctor, juce::TemporaryFile in P10D2 test, undo_manager_ declared before apvts_ in header
+- Deferreds in BROWSER v1: waveform thumbnail, tags/aesthetic filters, drag-to-pad, auto-audition playback, preset browser
 
 ### Git State
-Last commit: 8660482 — feat(10): Plan 10-06 APPLY — PERF FX + MIDI screens (not yet pushed)
-Branch: main
+Last commit: e16bc64 — docs(10): 10-06 UNIFY — PERF FX + MIDI screens loop closed (pushed to origin/main)
+Branch: main (synced with origin)
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 
 ---
