@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 12 (Hardening) — Plan 12-01 UNIFY complete; next: 12-02 (pluginval strict)
+**Current focus:** Phase 12 (Hardening) — Plan 12-02 created (pluginval strict + P12D2), awaiting AUDIT
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 12 of 13 (Hardening) — In Progress (1/3 plans done)
-Plan: 12-01 loop closed ✅ — ready for 12-02 (pluginval strict)
-Status: 12-01 PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Last activity: 2026-06-19 — Plan 12-01 UNIFY complete (rt_safety.h + ScopedAudioThreadGuard + 0-violation RT audit + P12D1 stability, 252/252 tests)
+Plan: 12-02 created, awaiting AUDIT
+Status: PLAN ✓ AUDIT ○ — ready for AUDIT
+Last activity: 2026-06-19 — Plan 12-02 created (pluginval strictness 5→10 + P12D2 APVTS param-range test)
 
 Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
 - 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
@@ -72,10 +72,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [Plan 12-01 loop closed — ready for 12-02]
+  ✓        ○        ○        ○     [Plan 12-02 created, awaiting AUDIT]
 ```
 
-Next action: /paul:plan Phase 12 Plan 02 (pluginval strict green + parameter range validation)
+Next action: /paul:audit .paul/phases/12-hardening/12-02-PLAN.md
 
 ## Accumulated Context
 
@@ -163,14 +163,14 @@ None.
 ## Session Continuity
 
 Last session: 2026-06-19 (session 43)
-Stopped at: Plan 12-01 UNIFY complete — loop closed
-Next action: /paul:plan Phase 12 Plan 02 (pluginval strict)
-Resume file: .paul/phases/12-hardening/12-01-SUMMARY.md
+Stopped at: Plan 12-02 created — pluginval strictness 10 + P12D2 APVTS param-range test
+Next action: /paul:audit .paul/phases/12-hardening/12-02-PLAN.md
+Resume file: .paul/phases/12-hardening/12-02-PLAN.md
 Resume context:
-- Phase 12 is 3 plans: 12-01 (RT audit/zero-alloc) ✅, 12-02 (pluginval strict), 12-03 (64-voice polyphony + DoD)
-- 12-01 delivered: src/rt_safety.h (ScopedAudioThreadGuard + tl_is_audio_thread), 0-violation RT audit, P12D1, 252/252 tests
-- tl_is_audio_thread flag ready for future operator new hook (deferred — JUCE_CHECK_MEMORY_LEAKS ODR conflict)
-- WSL2 cmake pattern: after new source in CMakeLists.txt → delete baque_tests.dir + reconfigure
+- Phase 12 is 3 plans: 12-01 ✅, 12-02 (pluginval strict + P12D2), 12-03 (64-voice polyphony + DoD)
+- 12-02 scope: P12D2 param-range unit test (11 APVTS params) + pluginval v1.0.4 strictness 5→10 + CI upgrade
+- Pre-audit: all 11 params look clean (verified create_parameter_layout lines 12-47)
+- CI file: .github/workflows/ci.yml — 3 occurrences of --strictness-level 5 to change
 
 ### Git State
 Last commit: 17c0f03 — feat(12): Plan 12-01 APPLY — ScopedAudioThreadGuard + RT audit + P12D1
