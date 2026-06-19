@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 12 (Hardening) — Plan 12-02 audited (M1 P12D2b + SR1 isSynth + SR2 exit-code fix applied), ready for APPLY
+**Current focus:** Phase 12 (Hardening) — Plan 12-02 complete ✅; 2/3 plans done; next: Plan 12-03 (64-voice polyphony + Phase 12 DoD)
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 12 of 13 (Hardening) — In Progress (1/3 plans done)
-Plan: 12-02 audited — M1 (P12D2b DSP boundary smoke), SR1 (isSynth assert), SR2 (exit-code pipe fix) applied; ready for APPLY
-Status: PLAN ✓ AUDIT ✓ APPLY ○ — ready for APPLY
-Last activity: 2026-06-19 — Plan 12-02 audited; 252→254 tests; 3 findings applied, 2 deferred
+Phase: 12 of 13 (Hardening) — In Progress (2/3 plans done)
+Plan: 12-02 complete ✅ — P12D2+P12D2b APVTS/DSP tests + pluginval strictness 10 green + CI upgraded
+Status: PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
+Last activity: 2026-06-19 — Plan 12-02 unified; 254/254 tests; pluginval strictness 10 green; CI all 3 platforms at 10
 
 Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
 - 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
@@ -54,6 +54,7 @@ Progress:
 - Phase 8: [██████████] 100% ✅ (4/4 plans done)
 - Phase 9: [██████████] 100% ✅ (4/4 plans done)
 - Phase 10: [██████████] 100% ✅ (7/7 plans done)
+- Phase 12: [██████████░] 67% 🔄 (2/3 plans done)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -72,10 +73,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○        ○     [Plan 12-02 audited — M1+SR1+SR2 applied]
+  ✓        ✓        ✓        ✓     [Plan 12-02 complete — loop closed]
 ```
 
-Next action: /paul:apply .paul/phases/12-hardening/12-02-PLAN.md
+Next action: /paul:plan Phase 12 Plan 03 (64-voice polyphony + Phase 12 DoD)
 
 ## Accumulated Context
 
@@ -164,17 +165,17 @@ None.
 ## Session Continuity
 
 Last session: 2026-06-19 (session 44)
-Stopped at: Plan 12-02 audited — 3 findings applied (M1 P12D2b, SR1 isSynth, SR2 exit-code), 2 deferred
-Next action: /paul:apply .paul/phases/12-hardening/12-02-PLAN.md
-Resume file: .paul/phases/12-hardening/12-02-PLAN.md
+Stopped at: Plan 12-02 unified — 254/254 tests; pluginval strictness 10 green; 12-02-SUMMARY.md created
+Next action: /paul:plan Phase 12 Plan 03 (64-voice polyphony + Phase 12 DoD)
+Resume file: .paul/phases/12-hardening/12-02-SUMMARY.md
 Resume context:
-- Phase 12 is 3 plans: 12-01 ✅, 12-02 (pluginval strict + P12D2+P12D2b), 12-03 (64-voice polyphony + DoD)
-- 12-02 APPLY: Task 1 = append P12D2+P12D2b+isSynth to test_phase12_dod.cpp (252→254); Task 2 = pluginval v1.0.4 strictness 10 locally + fix failures + ci.yml 5→10 (3 occurrences)
-- All 11 APVTS params pre-audited clean (create_parameter_layout lines 12-47)
-- CI file: .github/workflows/ci.yml — exactly 3 occurrences of --strictness-level 5 to change
+- Phase 12 is 3 plans: 12-01 ✅ (RT safety), 12-02 ✅ (pluginval + APVTS tests), 12-03 (64-voice polyphony + DoD)
+- 12-03 scope: P12D3 64-voice stability (all 16 pads × 4 = 64 voices), P12D4 no-alloc assertion, Phase 12 DoD gate
+- Baseline: 254/254 tests; pluginval strictness 10 green; tl_is_audio_thread flag ready for alloc hook
+- Key patterns: APVTS getDefaultValue via AudioProcessorParameter* base; pluginval headless = DISPLAY=""
 
 ### Git State
-Last commit: 17c0f03 — feat(12): Plan 12-01 APPLY — ScopedAudioThreadGuard + RT audit + P12D1
+Last commit: 821f874 — feat(12): Plan 12-02 APPLY — P12D2+P12D2b APVTS tests + pluginval strictness 5→10
 Branch: main
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 
