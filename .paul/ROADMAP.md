@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 10 of 13 complete
+Phases: 11 of 13 complete
 
 ## Phases
 
@@ -34,7 +34,7 @@ Phases: 10 of 13 complete
 | 8 | Scatter / Perf FX (Fase 7) | 4 | ✅ Complete | 2026-06-08 |
 | 9 | MIDI / Hardware (Fase 8) | 4 | ✅ Complete | 2026-06-10 |
 | 10 | UI/UX (Fase 9) | 7 | ✅ Complete | 2026-06-18 |
-| 11 | Presets & Library (Fase 10) | 2 | 🟡 Planning | - |
+| 11 | Presets & Library (Fase 10) | 2 | ✅ Complete | 2026-06-19 |
 | 12 | Hardening (Fase 11) | TBD | Not started | - |
 | 13 | Release (Fase 12) | TBD | Not started | - |
 
@@ -168,8 +168,8 @@ Phases: 10 of 13 complete
 **DoD:** Save/load faithful; factory library per aesthetic
 
 **Plans (2-plan decomposition):**
-- [ ] 11-01: Full engine state v5 (StepPattern + PLockPattern + FeelPattern + SamplePad params/paths) + PresetManager (save/load/list *.bqpreset) + round-trip tests
-- [ ] 11-02: Preset browser UI (BrowserScreen Samples|Presets tabs) + factory presets × 6 aesthetics + browser enhancements + Phase 11 DoD
+- [x] 11-01: Full engine state v5 (StepPattern + PLockPattern + FeelPattern + SamplePad params/paths) + PresetManager (save/load/list *.bqpreset) + round-trip tests ✅ 2026-06-19
+- [x] 11-02: Preset browser UI (BrowserScreen Samples|Presets tabs) + FactoryPresetLibrary (6 aesthetics) + Phase 11 DoD ✅ 2026-06-19
 
 ### Phase 12: Hardening (Fase 11)
 **Goal:** RT-safety audit, optimization, cross-platform, beta
@@ -185,4 +185,4 @@ Phases: 10 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-18 — Phase 10 complete*
+*Last updated: 2026-06-19 — Phase 11 complete*

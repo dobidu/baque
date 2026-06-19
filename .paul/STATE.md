@@ -11,16 +11,18 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 11 (Presets & Library) — in progress (1/2 plans complete)
+**Current focus:** Phase 12 (Hardening) — not started
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 11 of 13 (Presets & Library) — in progress (1/2 plans complete)
-Plan: 11-01 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Plan: 11-02 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ○
-Status: 11-02 APPLY complete, awaiting UNIFY
-Last activity: 2026-06-19 — 11-02 APPLY: 251/251 tests pass; FactoryPresetLibrary + BrowserScreen PRESETS tab + P11D6/P11D7
+Phase: 12 of 13 (Hardening) — not started
+Status: Ready to plan Phase 12
+Last activity: 2026-06-19 — Phase 11 complete; 251/251 tests; transitioned to Phase 12
+
+Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
+- 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
+- 11-02: FactoryPresetLibrary (6 aesthetics) + BrowserScreen PRESETS tab + P11D6/P11D7 ✅
 
 Phase 10 complete ✅ (7-plan, complex track, 2026-06-10 → 2026-06-18):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ✅
@@ -44,7 +46,7 @@ Phase 8 decomposition (4-plan, mirrors Phase 6/7):
 - 08-04: Fills via trig conditions + mute/solo groups + Phase 8 DoD (scene morph deferred) ✅ 2026-06-08
 
 Progress:
-- Milestone: [████████░░] 77% (10/13 phases complete)
+- Milestone: [█████████░] 85% (11/13 phases complete)
 - Phase 5: [██████████] 100% ✅
 - Phase 6: [██████████] 100% ✅ (4/4 plans done)
 - Phase 7: [██████████] 100% ✅ (4/4 plans done)
@@ -69,10 +71,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ○     [APPLY complete, ready for UNIFY]
+  ✓        ✓        ✓        ✓     [Loop complete — Phase 11 done, Phase 12 ready]
 ```
 
-Next action: /paul:unify .paul/phases/11-presets-library/11-02-PLAN.md
+Next action: /paul:plan Phase 12 (Hardening)
 
 ## Accumulated Context
 
@@ -159,17 +161,16 @@ None.
 ## Session Continuity
 
 Last session: 2026-06-19 (session 41)
-Stopped at: 11-02 APPLY complete
-Next action: /paul:unify .paul/phases/11-presets-library/11-02-PLAN.md
-Resume file: .paul/phases/11-presets-library/11-02-PLAN.md
+Stopped at: Phase 11 complete — 11-02 UNIFY + transition done
+Next action: /paul:plan Phase 12 (Hardening)
+Resume file: .paul/ROADMAP.md
 Resume context:
-- 11-02 scope: FactoryPresetLibrary (6 aesthetics, calls FeelPresets::*), BrowserScreen PRESETS tab (list+load+save), P11D6+P11D7 DoD tests → 251 total
-- Complex track, 3 tasks, autonomous: true, enterprise audit enabled
-- Phase 11 closes after 11-02 UNIFY: phase transition to Phase 12 (Hardening)
-- Key design: PresetListModel inner struct; preset_manager_ member; inline TextEditor preset_name_editor_ (no AlertWindow — M1 fix); inline proc pattern for tests (M2 fix)
+- Phase 12 scope: pluginval strict green; 64 voices no dropout; zero audio-thread allocation; RT-safety audit; cross-platform beta; JUCE 9 migration assessment
+- Phase 11 shipped: preset system (BQP1), FactoryPresetLibrary (6 aesthetics), BrowserScreen PRESETS tab, 251/251 tests
+- AlertWindow::showInputBox banned in plugin UI (hosting hazard); inline TextEditor established as pattern
 
 ### Git State
-Last commit: 78d5a8b — docs(11): 11-01 UNIFY — state v5 + PresetManager loop closed
+Last commit: (Phase 11 transition commit — see below)
 Branch: main
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 

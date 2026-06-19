@@ -15,20 +15,18 @@ status = "in_progress"
 phases = 13
 
 [phase]
-number = 11
-name = "Presets & Library"
-status = "in_progress"
-plans_completed = 1
+number = 12
+name = "Hardening"
+status = "not_started"
+plans_completed = 0
 
 [loop]
-position = "APPLY"
-plan = "11-02"
-plan_path = "phases/11-presets-library/11-02-PLAN.md"
+position = "IDLE"
 
 [satellite]
 groom = true
 
 [stats]
-total_plans = 37
-total_phases = 19
-last_activity = "2026-06-19T04:00:00Z"
+total_plans = 38
+total_phases = 20
+last_activity = "2026-06-19T05:00:00Z"

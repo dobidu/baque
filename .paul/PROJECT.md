@@ -20,8 +20,8 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 |-----------|-------|
 | Type | Application (audio plugin) |
 | Version | 0.0.0 |
-| Status | Phase 10 complete — Phase 11 (Presets & Library) next |
-| Last Updated | 2026-06-18 |
+| Status | Phase 11 complete — Phase 12 (Hardening) next |
+| Last Updated | 2026-06-19 |
 
 ## Requirements
 
@@ -74,6 +74,10 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **Browser screen v1** — filesystem sample browser (*.wav/*.aif), synchronous findChildFiles(), SET FOLDER (SafePointer FileChooser), load-to-pad; load_sample_from_file() with safe-load protocol + stereo downmix — Phase 10
 - [x] **APVTS undo/redo** — UndoManager wired to APVTS ctor; Ctrl+Z/Ctrl+Shift+Z in BaqueEditor; undo_manager_ declared before apvts_ (C++ init order) — Phase 10
 - [x] **Phase 10 DoD** — all 6 screens non-placeholder, drag-to-beat workflow verified; 244/244 tests — Phase 10
+- [x] **Preset system** — PresetManager (save/load/list *.bqpreset BQP1 format); full engine state v5 serialization (StepPattern + PLockPattern + FeelPattern + SamplePad paths/params); v4 backward-compat; round-trip tests P11D1-P11D5 — Phase 11
+- [x] **FactoryPresetLibrary** — 6 groove aesthetics (Straight/Boom-Bap/Dilla Drunk/Burial Broken/FlyLo Wonk/Bonobo Loose); delegates to FeelPresets::*; sets kick/snare StepPattern + master_gain=0.8f per aesthetic — Phase 11
+- [x] **Browser PRESETS tab** — SAMPLES|PRESETS tab mode; factory [F] + user [U] preset list; inline TextEditor save (no AlertWindow modal hazard); load routes to FactoryPresetLibrary or PresetManager with stale-array guard — Phase 11
+- [x] **Phase 11 DoD** — save/load faithful (P11D1-P11D5), factory library per aesthetic (P11D6-P11D7); 251/251 tests — Phase 11
 
 ### Active (In Progress)
 None yet.
@@ -158,6 +162,9 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | BrowserScreen v1 synchronous findChildFiles() over async DirectoryContentsList | Async DCL changeListenerCallback unreliable in practice — files never appeared after SET FOLDER in testing; sync scan fires immediately on folder selection, no threading complexity; async loading deferred to Phase 11 | 2026-06-18 | Active |
 | SafePointer<Component> in all async FileChooser lambdas | Raw [this] capture in async lambda = UAF if component destroyed while OS dialog open; SafePointer automatically becomes nullptr on destruction | 2026-06-18 | Active |
 | UndoManager declared before APVTS in header (declaration order = init order) | C++ initializes members in declaration order, not access-specifier order; APVTS ctor takes &undo_manager_ pointer — undo_manager_ must be fully constructed first | 2026-06-18 | Active |
+| AlertWindow::showInputBox banned in plugin editors | Spins nested event loop in host's message thread; some DAWs deadlock; untestable in CI, manifests on specific host+OS; inline TextEditor used instead for all save-name UI | 2026-06-19 | Active |
+| PresetListModel as inner struct of BrowserScreen | BrowserScreen already inherits ListBoxModel for file_list_; second inheritance base creates ambiguous override; inner struct = separate object, no ambiguity; pattern for all dual-model ListBoxes | 2026-06-19 | Active |
+| FactoryPresetLibrary delegates to FeelPresets::* — no value duplication | Values are canonical in feel_presets.cpp; load_into() must call FeelPresets::* not duplicate them; ensures factory presets stay in sync with feel engine | 2026-06-19 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -197,4 +204,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-18 after Phase 10 (UI/UX)*
+*Last updated: 2026-06-19 after Phase 11 (Presets & Library)*
