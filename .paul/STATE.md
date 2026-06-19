@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 12 (Hardening) — Plan 12-02 created (pluginval strict + P12D2), awaiting AUDIT
+**Current focus:** Phase 12 (Hardening) — Plan 12-02 audited (M1 P12D2b + SR1 isSynth + SR2 exit-code fix applied), ready for APPLY
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 12 of 13 (Hardening) — In Progress (1/3 plans done)
-Plan: 12-02 created, awaiting AUDIT
-Status: PLAN ✓ AUDIT ○ — ready for AUDIT
-Last activity: 2026-06-19 — Plan 12-02 created (pluginval strictness 5→10 + P12D2 APVTS param-range test)
+Plan: 12-02 audited — M1 (P12D2b DSP boundary smoke), SR1 (isSynth assert), SR2 (exit-code pipe fix) applied; ready for APPLY
+Status: PLAN ✓ AUDIT ✓ APPLY ○ — ready for APPLY
+Last activity: 2026-06-19 — Plan 12-02 audited; 252→254 tests; 3 findings applied, 2 deferred
 
 Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
 - 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
@@ -72,10 +72,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○        ○     [Plan 12-02 created, awaiting AUDIT]
+  ✓        ✓        ○        ○     [Plan 12-02 audited — M1+SR1+SR2 applied]
 ```
 
-Next action: /paul:audit .paul/phases/12-hardening/12-02-PLAN.md
+Next action: /paul:apply .paul/phases/12-hardening/12-02-PLAN.md
 
 ## Accumulated Context
 
@@ -134,6 +134,7 @@ Next action: /paul:audit .paul/phases/12-hardening/12-02-PLAN.md
 | 2026-06-18: Enterprise audit on 11-01 (3 must-have + 2 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 11 | M1: save_to_file() added to PresetManager + P11D3 redesigned with TemporaryFile (no user-dir pollution, no vacuous CI skip); M2: set_feel_pattern() added to BaqueProcessor + P11D2 redesigned with non-default values (enabled, timing_ms=25.5f, seed=42); M3: P11D5 added — strips v5 subtrees, verifies v4 blob loads without crash; SR1: PLock values clamped ±1e6 on restore. Test count 248→249 |
 | 2026-06-19: Enterprise audit on 11-02 (2 must-have + 2 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 11 | M1: AlertWindow::showInputBox→inline TextEditor preset_name_editor_ (hosting hazard fix — no modal event loop in plugin editor); M2: TestProcessorFixture→inline proc pattern matching P11D1-P11D5 (compile fix); SR1: user_presets_ bounds guard before index access; SR2: P11D6 added Straight (index 0) inner scope + name(0)/name(5) boundary checks; removed name(6) jassert hazard. Test count 249→251 |
 | 2026-06-19: Enterprise audit on 12-01 (1 must-have + 3 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: P12D1 vacuous all_finite check (block 999 = zeros) replaced with REQUIRE(midi_first.getNumEvents()==16) before block 0 (processBlock clears midi_messages in-place); SR1: dispatch_ui_command() explicitly added to audit checklist (RT-thread context documented); SR2: grep patterns expanded (emplace_back/insert/resize/std::map/lock/CriticalSection); SR3: scheduler.cpp + note_tracker.cpp added to explicit audit file list |
+| 2026-06-19: Enterprise audit on 12-02 (1 must-have + 2 strongly-recommended applied, 2 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: P12D2b added — DSP boundary smoke (all params normalized 1.0 then 0.0, 50 blocks, assert finite); catches filter_cutoff=20Hz/scatter_type=10/delay_time=0.001s NaN before pluginval binary run; test count 253→254; SR1: REQUIRE(proc.isSynth()) added to P12D2 — drum machine must advertise as synth not effect (pluginval picks test suite from this); SR2: pluginval run switched from tee-pipe to file-redirect so $? captures pluginval exit code not tail's |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -162,15 +163,15 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-19 (session 43)
-Stopped at: Plan 12-02 created — pluginval strictness 10 + P12D2 APVTS param-range test
-Next action: /paul:audit .paul/phases/12-hardening/12-02-PLAN.md
+Last session: 2026-06-19 (session 44)
+Stopped at: Plan 12-02 audited — 3 findings applied (M1 P12D2b, SR1 isSynth, SR2 exit-code), 2 deferred
+Next action: /paul:apply .paul/phases/12-hardening/12-02-PLAN.md
 Resume file: .paul/phases/12-hardening/12-02-PLAN.md
 Resume context:
-- Phase 12 is 3 plans: 12-01 ✅, 12-02 (pluginval strict + P12D2), 12-03 (64-voice polyphony + DoD)
-- 12-02 scope: P12D2 param-range unit test (11 APVTS params) + pluginval v1.0.4 strictness 5→10 + CI upgrade
-- Pre-audit: all 11 params look clean (verified create_parameter_layout lines 12-47)
-- CI file: .github/workflows/ci.yml — 3 occurrences of --strictness-level 5 to change
+- Phase 12 is 3 plans: 12-01 ✅, 12-02 (pluginval strict + P12D2+P12D2b), 12-03 (64-voice polyphony + DoD)
+- 12-02 APPLY: Task 1 = append P12D2+P12D2b+isSynth to test_phase12_dod.cpp (252→254); Task 2 = pluginval v1.0.4 strictness 10 locally + fix failures + ci.yml 5→10 (3 occurrences)
+- All 11 APVTS params pre-audited clean (create_parameter_layout lines 12-47)
+- CI file: .github/workflows/ci.yml — exactly 3 occurrences of --strictness-level 5 to change
 
 ### Git State
 Last commit: 17c0f03 — feat(12): Plan 12-01 APPLY — ScopedAudioThreadGuard + RT audit + P12D1
