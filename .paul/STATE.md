@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 12 (Hardening) — Plan 12-02 complete ✅; 2/3 plans done; next: Plan 12-03 (64-voice polyphony + Phase 12 DoD)
+**Current focus:** Phase 12 (Hardening) — Plan 12-03 created (64-voice polyphony + zero-alloc + Phase 12 DoD gate), awaiting AUDIT
 
 ## Current Position
 
 Milestone: v1.0 Release
 Phase: 12 of 13 (Hardening) — In Progress (2/3 plans done)
-Plan: 12-02 complete ✅ — P12D2+P12D2b APVTS/DSP tests + pluginval strictness 10 green + CI upgraded
-Status: PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
-Last activity: 2026-06-19 — Plan 12-02 unified; 254/254 tests; pluginval strictness 10 green; CI all 3 platforms at 10
+Plan: 12-03 created — P12D3 64-voice stress + P12D4 zero-alloc (malloc dlsym wrap) + Phase 12 DoD gate
+Status: PLAN ✓ AUDIT ○ — ready for AUDIT
+Last activity: 2026-06-19 — Plan 12-03 created; 254→256 tests target; Phase 12 DoD gate: 5 [dod] tests
 
 Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
 - 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
@@ -73,10 +73,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [Plan 12-02 complete — loop closed]
+  ✓        ○        ○        ○     [Plan 12-03 created, awaiting AUDIT]
 ```
 
-Next action: /paul:plan Phase 12 Plan 03 (64-voice polyphony + Phase 12 DoD)
+Next action: /paul:audit .paul/phases/12-hardening/12-03-PLAN.md
 
 ## Accumulated Context
 
@@ -165,14 +165,15 @@ None.
 ## Session Continuity
 
 Last session: 2026-06-19 (session 44)
-Stopped at: Plan 12-02 unified — 254/254 tests; pluginval strictness 10 green; 12-02-SUMMARY.md created
-Next action: /paul:plan Phase 12 Plan 03 (64-voice polyphony + Phase 12 DoD)
-Resume file: .paul/phases/12-hardening/12-02-SUMMARY.md
+Stopped at: Plan 12-03 created — 64-voice stress + zero-alloc malloc wrap + Phase 12 DoD gate
+Next action: /paul:audit .paul/phases/12-hardening/12-03-PLAN.md
+Resume file: .paul/phases/12-hardening/12-03-PLAN.md
 Resume context:
-- Phase 12 is 3 plans: 12-01 ✅ (RT safety), 12-02 ✅ (pluginval + APVTS tests), 12-03 (64-voice polyphony + DoD)
-- 12-03 scope: P12D3 64-voice stability (all 16 pads × 4 = 64 voices), P12D4 no-alloc assertion, Phase 12 DoD gate
-- Baseline: 254/254 tests; pluginval strictness 10 green; tl_is_audio_thread flag ready for alloc hook
-- Key patterns: APVTS getDefaultValue via AudioProcessorParameter* base; pluginval headless = DISPLAY=""
+- Phase 12 is 3 plans: 12-01 ✅ (RT safety), 12-02 ✅ (pluginval + APVTS tests), 12-03 (P12D3+P12D4+DoD)
+- 12-03 APPLY: Task 1 = P12D3 (64 note-ons for note 36, 500 blocks, finite check); Task 2 = rt_alloc_counter.cpp (dlsym malloc wrap) + P12D4; Task 3 = [dod] gate
+- VoicePool::k_pool_size = 64 (voice_pool.h:14) — already verified
+- Malloc wrap: dlsym(RTLD_NEXT, "malloc") + static bootstrap buffer 256 bytes; fallback = mallinfo2() delta if ODR conflict
+- Phase 12 DoD: pluginval ✅ (12-02), P12D3+P12D4 (this plan); 254→256 tests
 
 ### Git State
 Last commit: 821f874 — feat(12): Plan 12-02 APPLY — P12D2+P12D2b APVTS tests + pluginval strictness 5→10
