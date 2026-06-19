@@ -816,3 +816,21 @@ action = "plan"
 phase = 13
 plan = "13-01"
 at = "2026-06-19T13:00:00Z"
+
+[[entry]]
+action = "audit"
+phase = 13
+plan = "13-01"
+at = "2026-06-19T18:00:00Z"
+
+[[entry]]
+action = "apply"
+phase = 13
+plan = "13-01"
+at = "2026-06-19T18:30:00Z"
+
+[[entry]]
+action = "unify"
+phase = 13
+plan = "13-01"
+at = "2026-06-19T19:00:00Z"

@@ -17,9 +17,9 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 13 of 13 (Release) — In Progress (0/2 plans done)
-Plan: 13-01 — README v1.0 + NOTICE cleanup + version 1.0.0 + install() rules
-Status: PLAN ✓ AUDIT ✓ APPLY ○ — ready for APPLY
-Last activity: 2026-06-19 — Plan 13-01 AUDIT complete (1 M + 2 SR applied)
+Plan: 13-01 — README v1.0 + NOTICE cleanup + version 1.0.0 + install() rules ✅
+Status: PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓ — loop closed
+Last activity: 2026-06-19 — Plan 13-01 UNIFY complete (1/2 plans done)
 
 Phase 12 complete ✅ (3-plan, 2026-06-19):
 - 12-01: ScopedAudioThreadGuard + RT-safety audit + P12D1 (1000-block stability) ✅
@@ -61,7 +61,7 @@ Progress:
 - Phase 10: [██████████] 100% ✅ (7/7 plans done)
 - Phase 11: [██████████] 100% ✅ (2/2 plans done)
 - Phase 12: [██████████] 100% ✅ (3/3 plans done)
-- Phase 13: [░░░░░░░░░░] 0% 🔲 (not started)
+- Phase 13: [█████░░░░░] 50% 🔲 (1/2 plans done)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -80,10 +80,12 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○        ○     [Plan 13-01 audited — ready for APPLY]
+  ✓        ✓        ✓        ✓     [Plan 13-01 closed]
+
+Next plan: 13-02 — CPack + release.yml + codesign checkpoint + GitHub Release + v1.0.0 tag
 ```
 
-Next action: /paul:apply .paul/phases/13-release/13-01-PLAN.md
+Next action: /paul:plan (Phase 13, Plan 13-02)
 
 ## Accumulated Context
 
@@ -173,9 +175,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-19 (session 46)
-Stopped at: Plan 13-01 AUDIT complete (M1: LGPL §6 DISTRIBUTION_GATE; SR1: macOS Standalone install(DIRECTORY); SR2: README grep verify)
-Next action: /paul:apply .paul/phases/13-release/13-01-PLAN.md
+Last session: 2026-06-19 (session 47)
+Stopped at: Plan 13-01 UNIFY complete — README v1.0, NOTICE LGPL compliant, VERSION 1.0.0, cmake --install working
+Next action: /paul:plan — Plan 13-02 (CPack + release.yml + codesign + GitHub Release + v1.0.0 tag)
 Resume file: .paul/phases/13-release/13-01-PLAN.md
 Resume context:
 - Phase 13 is 2 plans: 13-01 (README + NOTICE + version 1.0.0 + install()), 13-02 (CPack + release.yml + codesign + GitHub Release + v1.0.0 tag)

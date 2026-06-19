@@ -189,7 +189,7 @@ Phases: 12 of 13 complete
 **DoD:** Signed macOS/Windows installers; manual; v1.0
 
 **Plans (2-plan decomposition):**
-- [ ] 13-01: README v1.0 + NOTICE cleanup + version 0.0.1→1.0.0 + CMake install() rules
+- [x] 13-01: README v1.0 + NOTICE LGPL-2.1 §6 compliant + version 1.0.0 + CMake install() rules ✅ 2026-06-19
 - [ ] 13-02: CPack packaging + GitHub Actions release.yml + macOS codesign + GitHub Release + v1.0.0 tag + Phase 13 DoD
 
 ---
