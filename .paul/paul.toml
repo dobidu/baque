@@ -15,20 +15,18 @@ status = "in_progress"
 phases = 13
 
 [phase]
-number = 12
-name = "Hardening"
-status = "in_progress"
-plans_completed = 2
+number = 13
+name = "Release"
+status = "not_started"
+plans_completed = 0
 
 [loop]
-position = "PLAN"
-plan = "12-03"
-plan_path = "phases/12-hardening/12-03-PLAN.md"
+position = "IDLE"
 
 [satellite]
 groom = true
 
 [stats]
-total_plans = 41
-total_phases = 20
-last_activity = "2026-06-19T11:15:00Z"
+total_plans = 42
+total_phases = 21
+last_activity = "2026-06-19T12:30:00Z"

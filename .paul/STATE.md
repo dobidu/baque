@@ -11,15 +11,20 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 12 (Hardening) — Plan 12-03 created (64-voice polyphony + zero-alloc + Phase 12 DoD gate), awaiting AUDIT
+**Current focus:** Phase 13 (Release) — docs, installer, signing/notarization, packaging
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 12 of 13 (Hardening) — In Progress (2/3 plans done)
-Plan: 12-03 audited — M1 (free() override), SR1 (4×note36 P12D4 setup), SR2 (finite check block0 not 499); ready for APPLY
-Status: PLAN ✓ AUDIT ✓ APPLY ○ — ready for APPLY
-Last activity: 2026-06-19 — Plan 12-03 audited; 3 findings applied, 1 deferred
+Phase: 13 of 13 (Release) — Not started
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-06-19 — Phase 12 (Hardening) complete; all DoD met; 256/256 tests
+
+Phase 12 complete ✅ (3-plan, 2026-06-19):
+- 12-01: ScopedAudioThreadGuard + RT-safety audit + P12D1 (1000-block stability) ✅
+- 12-02: pluginval strictness 10 green + APVTS param contract P12D2/P12D2b ✅
+- 12-03: 64-voice stress P12D3 + zero-RT-alloc P12D4 + Phase 12 DoD gate ✅
 
 Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
 - 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
@@ -47,14 +52,16 @@ Phase 8 decomposition (4-plan, mirrors Phase 6/7):
 - 08-04: Fills via trig conditions + mute/solo groups + Phase 8 DoD (scene morph deferred) ✅ 2026-06-08
 
 Progress:
-- Milestone: [█████████░] 85% (11/13 phases complete)
+- Milestone: [████████████░] 92% (12/13 phases complete)
 - Phase 5: [██████████] 100% ✅
 - Phase 6: [██████████] 100% ✅ (4/4 plans done)
 - Phase 7: [██████████] 100% ✅ (4/4 plans done)
 - Phase 8: [██████████] 100% ✅ (4/4 plans done)
 - Phase 9: [██████████] 100% ✅ (4/4 plans done)
 - Phase 10: [██████████] 100% ✅ (7/7 plans done)
-- Phase 12: [██████████░] 67% 🔄 (2/3 plans done)
+- Phase 11: [██████████] 100% ✅ (2/2 plans done)
+- Phase 12: [██████████] 100% ✅ (3/3 plans done)
+- Phase 13: [░░░░░░░░░░] 0% 🔲 (not started)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -73,10 +80,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○        ○     [Plan 12-03 audited — M1+SR1+SR2 applied]
+  ✓        ✓        ✓        ✓     [Phase 12 complete — ready for Phase 13]
 ```
 
-Next action: /paul:apply .paul/phases/12-hardening/12-03-PLAN.md
+Next action: /paul:plan for Phase 13 (Release)
 
 ## Accumulated Context
 
@@ -165,19 +172,18 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-19 (session 44)
-Stopped at: Plan 12-03 created — 64-voice stress + zero-alloc malloc wrap + Phase 12 DoD gate
-Next action: /paul:audit .paul/phases/12-hardening/12-03-PLAN.md
-Resume file: .paul/phases/12-hardening/12-03-PLAN.md
+Last session: 2026-06-19 (session 45)
+Stopped at: Phase 12 (Hardening) complete — all 3 plans unified, DoD met, 256/256 tests
+Next action: /paul:plan for Phase 13 (Release — docs, installer, signing/notarization)
+Resume file: .paul/ROADMAP.md
 Resume context:
-- Phase 12 is 3 plans: 12-01 ✅ (RT safety), 12-02 ✅ (pluginval + APVTS tests), 12-03 (P12D3+P12D4+DoD)
-- 12-03 APPLY: Task 1 = P12D3 (64 note-ons for note 36, 500 blocks, finite check); Task 2 = rt_alloc_counter.cpp (dlsym malloc wrap) + P12D4; Task 3 = [dod] gate
-- VoicePool::k_pool_size = 64 (voice_pool.h:14) — already verified
-- Malloc wrap: dlsym(RTLD_NEXT, "malloc") + static bootstrap buffer 256 bytes; fallback = mallinfo2() delta if ODR conflict
-- Phase 12 DoD: pluginval ✅ (12-02), P12D3+P12D4 (this plan); 254→256 tests
+- Phase 12 DoD: pluginval strictness 10 ✅ + P12D1-P12D4 all green ✅ + 256/256 tests ✅
+- Phase 13 = Release (Fase 12): docs, installer scripts, macOS codesign + notarize, Windows NSIS, Linux .deb/.rpm, v1.0 git tag
+- RT-safety harness (tl_is_audio_thread + rt_alloc_counter) stays in tests for regression detection
+- pluginval CI at strictness 10 on all 3 platforms; confirmed Linux local; macOS/Windows CI
 
 ### Git State
-Last commit: 821f874 — feat(12): Plan 12-02 APPLY — P12D2+P12D2b APVTS tests + pluginval strictness 5→10
+Last commit: (phase commit pending — see git log)
 Branch: main
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 

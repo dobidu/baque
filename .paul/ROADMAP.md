@@ -14,7 +14,7 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 
 **v1.0 Release** (v1.0.0)
 Status: In progress
-Phases: 11 of 13 complete
+Phases: 12 of 13 complete
 
 ## Phases
 
@@ -35,7 +35,7 @@ Phases: 11 of 13 complete
 | 9 | MIDI / Hardware (Fase 8) | 4 | ✅ Complete | 2026-06-10 |
 | 10 | UI/UX (Fase 9) | 7 | ✅ Complete | 2026-06-18 |
 | 11 | Presets & Library (Fase 10) | 2 | ✅ Complete | 2026-06-19 |
-| 12 | Hardening (Fase 11) | TBD | Planning | - |
+| 12 | Hardening (Fase 11) | 3 | ✅ Complete | 2026-06-19 |
 | 13 | Release (Fase 12) | TBD | Not started | - |
 
 **Parallel track — R&D-TS (SoundTouch fork):** runs from Phase 4 onward; fork v1 (varispeed + offline stretch + RT-safety wrapper) is a Phase 4 prerequisite; advanced refinements (transient/formant preservation, character mode, spectral hybrid) mature during Phases 5–7 and integrate in Phase 7.
@@ -178,9 +178,9 @@ Phases: 11 of 13 complete
 **DoD:** pluginval strict green; 64 voices no dropout; zero audio-thread allocation
 
 **Plans (3-plan decomposition):**
-- [ ] 12-01: RT-safety audit + zero-alloc hardening (ScopedAudioThreadGuard + MidiBuffer pre-size + P12D1)
-- [ ] 12-02: pluginval strict green + parameter range validation + P12D2
-- [ ] 12-03: 64-voice polyphony stress test + Phase 12 DoD (P12D3)
+- [x] 12-01: RT-safety audit + zero-alloc hardening (ScopedAudioThreadGuard + MidiBuffer pre-size + P12D1) ✅ 2026-06-19
+- [x] 12-02: pluginval strict green + parameter range validation + P12D2 + P12D2b ✅ 2026-06-19
+- [x] 12-03: 64-voice polyphony stress test (P12D3) + zero RT-alloc (P12D4) + Phase 12 DoD ✅ 2026-06-19
 
 ### Phase 13: Release (Fase 12)
 **Goal:** Docs, installer, signing/notarization, packaging
@@ -190,4 +190,4 @@ Phases: 11 of 13 complete
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-19 — Phase 12 planning started (Plan 12-01 created)*
+*Last updated: 2026-06-19 — Phase 12 complete; Phase 13 (Release) next*

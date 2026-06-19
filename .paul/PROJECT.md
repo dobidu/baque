@@ -20,7 +20,7 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 |-----------|-------|
 | Type | Application (audio plugin) |
 | Version | 0.0.0 |
-| Status | Phase 11 complete — Phase 12 (Hardening) next |
+| Status | Phase 12 complete — Phase 13 (Release) next |
 | Last Updated | 2026-06-19 |
 
 ## Requirements
@@ -78,6 +78,11 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **FactoryPresetLibrary** — 6 groove aesthetics (Straight/Boom-Bap/Dilla Drunk/Burial Broken/FlyLo Wonk/Bonobo Loose); delegates to FeelPresets::*; sets kick/snare StepPattern + master_gain=0.8f per aesthetic — Phase 11
 - [x] **Browser PRESETS tab** — SAMPLES|PRESETS tab mode; factory [F] + user [U] preset list; inline TextEditor save (no AlertWindow modal hazard); load routes to FactoryPresetLibrary or PresetManager with stale-array guard — Phase 11
 - [x] **Phase 11 DoD** — save/load faithful (P11D1-P11D5), factory library per aesthetic (P11D6-P11D7); 251/251 tests — Phase 11
+- [x] **RT-safety hardening** — ScopedAudioThreadGuard (RAII, tl_is_audio_thread), MidiBuffer pre-size (no RT alloc at block start), static call-graph audit (no new/malloc in audio path), P12D1 1000-block stability — Phase 12
+- [x] **pluginval strictness 10** — all 25 pluginval test suites green on Linux (--validate-in-process, DISPLAY=""); CI strictness raised 5→10 on all 3 platforms; P12D2 APVTS param contract (11 params, valid ranges/defaults) + P12D2b DSP boundary finite — Phase 12
+- [x] **64-voice polyphony confirmed** — P12D3: VoicePool k_pool_size=64 saturated in one block (64×noteOn pad 0), finite output immediately after block 0, 500 stability blocks — Phase 12
+- [x] **Zero audio-thread allocation confirmed** — P12D4: malloc/calloc/realloc/free interposition via dlsym(RTLD_NEXT); rt_alloc_count==0 across 100 measured blocks at full DSP load (works under LTO) — Phase 12
+- [x] **Phase 12 DoD** — pluginval strictness 10 ✅ + 64 voices no dropout (P12D3) ✅ + zero RT allocation (P12D4) ✅ + 256/256 tests — Phase 12
 
 ### Active (In Progress)
 None yet.
@@ -172,9 +177,9 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 | Metric | Target | Current | Status |
 |--------|--------|---------|--------|
-| pluginval strict | Green on macOS + Windows + Linux | Strictness 5 ✓ CI | In progress (strictness 5 in CI; strict = full suite, Phase 12) |
-| Polyphony | ≥64 voices, no dropout | - | Not started |
-| Audio thread allocations | Zero (instrumented asserts) | - | Not started |
+| pluginval strict | Green on macOS + Windows + Linux | Strictness 10 ✓ Linux CI + local; macOS/Windows at strictness 10 in CI | ✅ Phase 12 (Linux confirmed; macOS/Windows CI also at strictness 10) |
+| Polyphony | ≥64 voices, no dropout | 64 voices P12D3: finite output block 0, 500 stability blocks ✓ | ✅ Phase 12 |
+| Audio thread allocations | Zero (instrumented asserts) | rt_alloc_count==0, 100 blocks, dlsym interposition under LTO ✓ | ✅ Phase 12 |
 | Feel reproducibility | "Dilla Drunk" / "Burial Broken" perceptible + seed-reproducible | Dilla avg|timing|=23.75ms, seed=313 ✓; Burial range=160ms, seed=666 ✓ | ✅ Phase 5 |
 | Hardware sync | Drives real TR-8 in sync (clock jitter measured) | Merged MIDI stream + note/CC map spec-verified vs Roland chart (209 tests); physical jitter measurement + scatter_type value-curve await a unit | ✅ Phase 9 (software + spec) |
 | SoundTouch fork | Transient preservation beats baseline SoundTouch on harness metrics | - | Not started |
@@ -204,4 +209,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-19 after Phase 11 (Presets & Library)*
+*Last updated: 2026-06-19 after Phase 12 (Hardening)*
