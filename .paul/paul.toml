@@ -17,11 +17,11 @@ phases = 13
 [phase]
 number = 12
 name = "Hardening"
-status = "planning"
+status = "in_progress"
 plans_completed = 0
 
 [loop]
-position = "PLAN"
+position = "APPLY"
 plan = "12-01"
 plan_path = "phases/12-hardening/12-01-PLAN.md"
 

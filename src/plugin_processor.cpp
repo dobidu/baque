@@ -1,6 +1,7 @@
 #include "plugin_processor.h"
 
 #include "plugin_editor.h"
+#include "rt_safety.h"
 
 #include <juce_audio_formats/juce_audio_formats.h>
 
@@ -263,6 +264,7 @@ void BaqueProcessor::dispatch_ui_command(const UiCommand& cmd) noexcept {
 }
 
 void BaqueProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi_messages) {
+    RtSafety::ScopedAudioThreadGuard rt_guard;
     juce::ScopedNoDenormals no_denormals;
 
     const int num_frames = buffer.getNumSamples();
