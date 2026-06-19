@@ -16,10 +16,10 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 13 of 13 (Release) — Not started
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-06-19 — Phase 12 (Hardening) complete; all DoD met; 256/256 tests
+Phase: 13 of 13 (Release) — In Progress (0/2 plans done)
+Plan: 13-01 — README v1.0 + NOTICE cleanup + version 1.0.0 + install() rules
+Status: PLAN ✓ AUDIT ✓ APPLY ○ — ready for APPLY
+Last activity: 2026-06-19 — Plan 13-01 AUDIT complete (1 M + 2 SR applied)
 
 Phase 12 complete ✅ (3-plan, 2026-06-19):
 - 12-01: ScopedAudioThreadGuard + RT-safety audit + P12D1 (1000-block stability) ✅
@@ -80,10 +80,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [Phase 12 complete — ready for Phase 13]
+  ✓        ✓        ○        ○     [Plan 13-01 audited — ready for APPLY]
 ```
 
-Next action: /paul:plan for Phase 13 (Release)
+Next action: /paul:apply .paul/phases/13-release/13-01-PLAN.md
 
 ## Accumulated Context
 
@@ -144,6 +144,7 @@ Next action: /paul:plan for Phase 13 (Release)
 | 2026-06-19: Enterprise audit on 12-01 (1 must-have + 3 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: P12D1 vacuous all_finite check (block 999 = zeros) replaced with REQUIRE(midi_first.getNumEvents()==16) before block 0 (processBlock clears midi_messages in-place); SR1: dispatch_ui_command() explicitly added to audit checklist (RT-thread context documented); SR2: grep patterns expanded (emplace_back/insert/resize/std::map/lock/CriticalSection); SR3: scheduler.cpp + note_tracker.cpp added to explicit audit file list |
 | 2026-06-19: Enterprise audit on 12-02 (1 must-have + 2 strongly-recommended applied, 2 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: P12D2b added — DSP boundary smoke (all params normalized 1.0 then 0.0, 50 blocks, assert finite); catches filter_cutoff=20Hz/scatter_type=10/delay_time=0.001s NaN before pluginval binary run; test count 253→254; SR1: REQUIRE(proc.isSynth()) added to P12D2 — drum machine must advertise as synth not effect (pluginval picks test suite from this); SR2: pluginval run switched from tee-pipe to file-redirect so $? captures pluginval exit code not tail's |
 | 2026-06-19: Enterprise audit on 12-03 (1 must-have + 2 strongly-recommended applied, 1 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: free() override added to rt_alloc_counter.cpp — bootstrap bump allocator returns pointers in BSS; without free() override, system free() receives non-heap pointer → UB/crash before any test runs; SR1: P12D4 setup 4×note36 not notes36-43 — only pad 0 has sample, notes 37-43 yield trigger_at nullptr (0 DSP work); 4 real voices exercise FxChain/scatter/tape_stop; SR2: P12D3 finite check moved to block 0 — block 499 is vacuous (test_kick decays to silence in 0.5s) |
+| 2026-06-19: Enterprise audit on 13-01 (1 must-have + 2 strongly-recommended applied, 0 deferred). Verdict: conditionally acceptable → upgraded | Phase 13 | M1: LGPL §6 — NOTICE DISTRIBUTION_GATE placeholder inserted; user receiving binary must be able to find fork source; Plan 13-02 resolves with actual URL; SR1: macOS Standalone is BAQUE.app (directory bundle) — install(PROGRAMS) silently fails; split else() → elseif(APPLE) install(DIRECTORY .../BAQUE.app) + else() Linux; SR2: README verify wc -l vacuous — added grep checks for macOS/Windows/Linux VST3 install paths |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -172,18 +173,18 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-19 (session 45)
-Stopped at: Phase 12 (Hardening) complete — all 3 plans unified, DoD met, 256/256 tests
-Next action: /paul:plan for Phase 13 (Release — docs, installer, signing/notarization)
-Resume file: .paul/ROADMAP.md
+Last session: 2026-06-19 (session 46)
+Stopped at: Plan 13-01 AUDIT complete (M1: LGPL §6 DISTRIBUTION_GATE; SR1: macOS Standalone install(DIRECTORY); SR2: README grep verify)
+Next action: /paul:apply .paul/phases/13-release/13-01-PLAN.md
+Resume file: .paul/phases/13-release/13-01-PLAN.md
 Resume context:
-- Phase 12 DoD: pluginval strictness 10 ✅ + P12D1-P12D4 all green ✅ + 256/256 tests ✅
-- Phase 13 = Release (Fase 12): docs, installer scripts, macOS codesign + notarize, Windows NSIS, Linux .deb/.rpm, v1.0 git tag
-- RT-safety harness (tl_is_audio_thread + rt_alloc_counter) stays in tests for regression detection
-- pluginval CI at strictness 10 on all 3 platforms; confirmed Linux local; macOS/Windows CI
+- Phase 13 is 2 plans: 13-01 (README + NOTICE + version 1.0.0 + install()), 13-02 (CPack + release.yml + codesign + GitHub Release + v1.0.0 tag)
+- Existing: LICENSE ✅, NOTICE stale (SoundTouch placeholder), README 88 lines (needs expansion)
+- CMakeLists.txt: project(BAQUE VERSION 0.0.1) → 1.0.0; no CPack yet; no install() rules
+- 256/256 tests must remain green after version bump (version is just metadata, no DSP change)
 
 ### Git State
-Last commit: (phase commit pending — see git log)
+Last commit: 623465a — feat(12): Phase 12 Hardening complete
 Branch: main
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 

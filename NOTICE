@@ -25,12 +25,10 @@ Website: https://www.surina.net/soundtouch/
 License: GNU Lesser General Public License v2.1 (LGPL-2.1)
          https://www.gnu.org/licenses/lgpl-2.1.txt
 
-BAQUE uses an optimized fork of SoundTouch for time-stretch and
-pitch-shift operations. The fork is maintained in a separate
-repository under LGPL-2.1. LGPL-2.1 is compatible with GPL-3.0.
-
-Note: The fork has not been integrated yet (planned for Phase 4).
-This notice is a placeholder as required by LGPL-2.1 §6.
+BAQUE uses an optimized fork of SoundTouch for offline time-stretch
+operations. The fork is integrated as an offline time-stretch engine.
+LGPL-2.1 §6 source location: https://github.com/dobidu/baque-soundtouch
+Tag used: v1.0.0-baque
 
 --------------------------------------------------------------------
 Catch2 (tests only — not distributed with plugin)
@@ -40,5 +38,15 @@ License: Boost Software License 1.0
          https://www.boost.org/LICENSE_1_0.txt
 
 Used only in the test suite. Not linked into the distributed plugin.
+
+--------------------------------------------------------------------
+pluginval (tests and CI only — not distributed with plugin)
+--------------------------------------------------------------------
+Copyright (c) Tracktion Corporation
+Website: https://github.com/Tracktion/pluginval
+License: ISC License
+
+Used in CI pipeline to validate plugin conformance at strictness level 10.
+Not linked into or distributed with the BAQUE plugin.
 
 --------------------------------------------------------------------

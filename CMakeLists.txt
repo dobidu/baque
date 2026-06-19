@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(BAQUE VERSION 0.0.1 LANGUAGES C CXX)
+project(BAQUE VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -121,3 +121,29 @@ target_link_libraries(BAQUE
 # --- Testes ---
 enable_testing()
 add_subdirectory(tests)
+
+# --- Install rules (CPack packaging — Plan 13-02) ---
+# Run after Release build: cmake --install build --prefix <dir> --config Release
+install(DIRECTORY "${CMAKE_BINARY_DIR}/BAQUE_artefacts/Release/VST3/BAQUE.vst3"
+        DESTINATION "VST3"
+        COMPONENT VST3)
+
+if(WIN32)
+    install(PROGRAMS "${CMAKE_BINARY_DIR}/BAQUE_artefacts/Release/Standalone/BAQUE.exe"
+            DESTINATION "Standalone"
+            COMPONENT Standalone)
+elseif(APPLE)
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/BAQUE_artefacts/Release/Standalone/BAQUE.app"
+            DESTINATION "Standalone"
+            COMPONENT Standalone)
+else()
+    install(PROGRAMS "${CMAKE_BINARY_DIR}/BAQUE_artefacts/Release/Standalone/BAQUE"
+            DESTINATION "Standalone"
+            COMPONENT Standalone)
+endif()
+
+if(APPLE)
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/BAQUE_artefacts/Release/AU/BAQUE.component"
+            DESTINATION "AU"
+            COMPONENT AU)
+endif()
