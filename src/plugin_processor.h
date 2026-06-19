@@ -153,6 +153,10 @@ class BaqueProcessor : public juce::AudioProcessor {
     // Single-writer; UI live deve usar set_next_pattern (transição de bar).
     void set_pattern(const StepPattern& p) noexcept { sequencer_.set_pattern(p); }
 
+    // Define o FeelPattern ativo — para setup/testes e setStateInformation (audit 11-01).
+    // NÃO é RT-safe para uso ao vivo; edições ao vivo devem usar UiCommandQueue (Fase 11-02).
+    void set_feel_pattern(const FeelPattern& fp) noexcept;
+
     // Aplica um template de hardware (TR-8/TR-8S, Fase 9-04) numa chamada.
     // RESETA lane_routing_ + cc_out_ para o template; PRESERVA as ativações/trigs/p-locks do
     // padrão ativo (só as notas das lanes mapeadas são reescritas — audit 09-04 SR1).
@@ -210,7 +214,7 @@ class BaqueProcessor : public juce::AudioProcessor {
 
     UiStateSnapshot ui_snapshot_;
 
-    static constexpr int k_state_version = 4;
+    static constexpr int k_state_version = 5;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BaqueProcessor)
 };

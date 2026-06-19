@@ -21,7 +21,7 @@ status = "not_started"
 plans_completed = 0
 
 [loop]
-position = "PLAN"
+position = "APPLY"
 plan = "11-01"
 plan_path = "phases/11-presets-library/11-01-PLAN.md"
 
@@ -31,4 +31,4 @@ groom = true
 [stats]
 total_plans = 37
 total_phases = 19
-last_activity = "2026-06-18T03:00:00Z"
+last_activity = "2026-06-19T00:00:00Z"

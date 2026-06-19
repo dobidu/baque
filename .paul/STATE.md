@@ -17,9 +17,9 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 11 of 13 (Presets & Library) — Planning (0/2 plans complete)
-Plan: 11-01 — PLAN ✓ AUDIT ○ APPLY ○ UNIFY ○
-Status: 11-01 PLAN created — state v5 serialization + PresetManager + round-trip tests
-Last activity: 2026-06-18 — 11-01 PLAN created
+Plan: 11-01 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ○
+Status: 11-01 APPLY complete — 249/249 tests pass; all 5 P11D pass
+Last activity: 2026-06-19 — 11-01 APPLY complete
 
 Phase 10 complete ✅ (7-plan, complex track, 2026-06-10 → 2026-06-18):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ✅
@@ -68,7 +68,7 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○        ○     [Plan created, awaiting approval]
+  ✓        ✓        ✓        ○     [APPLY complete, awaiting UNIFY]
 ```
 
 ## Accumulated Context
@@ -125,6 +125,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
 | 2026-06-18: Enterprise audit on 10-07. Applied 1 must-have (M1: raw [this] capture in FileChooser async lambda → UAF if BrowserScreen destroyed while OS dialog open; fix: SafePointer<BrowserScreen> that becomes nullptr on destruction), 3 strongly-recommended (SR1 stereo WAV downmix — read both channels, average (L+R)*0.5f into mono buf; SR2 P10D4 vacuous test — added getScreen(Screen) accessor to BaqueEditor + dynamic_cast<BrowserScreen*> check; SR3 timerCallback polls forever — stopTimer() when !contents_.isStillLoading(), restart on folder change). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-17: Enterprise audit on 10-06. Applied 1 must-have (M1: explicit `private juce::MouseListener` in PerfFxScreen is wrong — juce::Component already inherits MouseListener; would cause MSVC ambiguous-base-class error; CI-blocking on 3-platform matrix; fix: rely on Component's existing virtual methods, no additional inheritance), 3 strongly-recommended (SR1 timerCallback must NOT overwrite MODE toggle states — advisory read races with in-flight UiCommand causing 100ms flicker; only update note_labels_ advisory; SR2 XyPad mouseDown missing — click-without-drag no-op on performance pad; added mouseDown override identical to mouseDrag; SR3 clock_master_state_ hardcoded false — wrong after preset load; init from proc_.clock_master_ in ctor). Deferred 3. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-15: Enterprise audit on 10-02. Applied 1 must-have (M1: font TTF files not committed to git — juce_add_binary_data configure fails on CI/fresh-clone with misleading error; added git-add step + git ls-files verification), 5 strongly-recommended (SR1 NAV switch test NAV1 + showScreen() public + isScreenVisible() accessor; SR2 grain overlay pre-baked juce::Image — no Random in paint(); SR3 setTheme() sets juce::Label::textColourId for ScreenPlaceholder findColour() — no cast; SR4 CI green gate on all 3 platforms before UNIFY; SR5 JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR for ScreenPlaceholder). Deferred 4. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
+| 2026-06-18: Enterprise audit on 11-01 (3 must-have + 2 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 11 | M1: save_to_file() added to PresetManager + P11D3 redesigned with TemporaryFile (no user-dir pollution, no vacuous CI skip); M2: set_feel_pattern() added to BaqueProcessor + P11D2 redesigned with non-default values (enabled, timing_ms=25.5f, seed=42); M3: P11D5 added — strips v5 subtrees, verifies v4 blob loads without crash; SR1: PLock values clamped ±1e6 on restore. Test count 248→249 |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -153,15 +154,15 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-18 (session 38)
-Stopped at: 11-01 PLAN created
-Next action: Review plan, then run /paul:audit .paul/phases/11-presets-library/11-01-PLAN.md
+Last session: 2026-06-18 (session 39)
+Stopped at: 11-01 APPLY complete
+Next action: /paul:unify .paul/phases/11-presets-library/11-01-PLAN.md
 Resume file: .paul/phases/11-presets-library/11-01-PLAN.md
 Resume context:
-- 11-01 adds source_file_ to SamplePad + extends getState/setState to v5 (StepPattern + PLockPattern + FeelPattern + SamplePad params/paths) + PresetManager class
-- Key architecture: PresetManager wraps getStateInformation/setStateInformation; .bqpreset = 4-byte magic + 4-byte meta_len + metadata XML + binary ValueTree state
-- 2-plan phase: 11-01 (serialization + PresetManager), 11-02 (browser UI + factory presets + DoD)
-- Deferred browser enhancements (async scan, waveform, tags, drag-drop, auto-audition) to 11-02 or later
+- Audit applied: set_feel_pattern() on BaqueProcessor, save_to_file() on PresetManager, P11D2 non-vacuous, P11D3 uses TemporaryFile, P11D5 backward-compat test added
+- Test count target: 249 (244 prior + 5 new: P11D1–P11D5)
+- PLock values clamped ±1e6 on setStateInformation restore
+- All other architecture unchanged from PLAN: SamplePad source_file_, state v5 subtrees (pattern_v5/feel_v5/plock_v5/pads_v5), PresetManager magic header "BQP1"
 
 ### Git State
 Last commit: a585062 — docs(10): Phase 10 UNIFY + TRANSITION — UI/UX complete

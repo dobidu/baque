@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_core/juce_core.h>
 
 #include <array>
 #include <cmath>
@@ -49,6 +50,12 @@ class SamplePad {
     uint8_t choke_group = 0; // 0 = sem choke; 1–8 = grupo (ex.: hi-hat fecha grupo 1)
     AdsrParams adsr{};
     PlayMode play_mode = PlayMode::one_shot;
+
+    // Caminho do arquivo fonte — salvo em getStateInformation para recarregar no load.
+    // Vazio se carregado de BinaryData ou nunca carregado via load_sample_from_file.
+    juce::File source_file_{};
+    [[nodiscard]] const juce::File& source_file() const noexcept { return source_file_; }
+    void set_source_file(const juce::File& f) noexcept { source_file_ = f; }
 
     // Taxa de reprodução varispeed: 2^((semitons + cents/100) / 12).
     // Pitch e duração mudam juntos (caráter SP/vinil). Calculada fora do

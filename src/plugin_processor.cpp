@@ -646,6 +646,64 @@ void BaqueProcessor::getStateInformation(juce::MemoryBlock& dest_data) {
     }
     state.addChild(cc_tree, -1, nullptr);
 
+    // state v5: StepPattern, FeelPattern, PLockPattern, SamplePad params+paths (Fase 11-01).
+    juce::ValueTree pat("pattern_v5");
+    const StepPattern cur = current_pattern();
+    for (int l = 0; l < StepPattern::k_num_lanes; ++l) {
+        for (int s = 0; s < StepPattern::k_num_steps; ++s) {
+            const juce::String k = "l" + juce::String(l) + "s" + juce::String(s);
+            pat.setProperty(k + "a", cur.is_active(l, s) ? 1 : 0, nullptr);
+            pat.setProperty(k + "n", static_cast<int>(cur.get_note(l, s)), nullptr);
+            pat.setProperty(k + "v", static_cast<int>(cur.get_velocity(l, s)), nullptr);
+            pat.setProperty(k + "t", static_cast<int>(cur.get_trig(l, s)), nullptr);
+        }
+    }
+    state.addChild(pat, -1, nullptr);
+
+    juce::ValueTree feel("feel_v5");
+    feel.setProperty("en", feel_pattern_.enabled ? 1 : 0, nullptr);
+    feel.setProperty("htms", feel_pattern_.humanize_timing_ms, nullptr);
+    feel.setProperty("hvpct", feel_pattern_.humanize_vel_pct, nullptr);
+    feel.setProperty("seed", static_cast<int>(feel_pattern_.seed), nullptr);
+    for (int i = 0; i < FeelPattern::k_steps; ++i) {
+        feel.setProperty("tms" + juce::String(i), feel_pattern_.steps[i].timing_ms, nullptr);
+        feel.setProperty("vs" + juce::String(i), feel_pattern_.steps[i].vel_scale, nullptr);
+    }
+    state.addChild(feel, -1, nullptr);
+
+    juce::ValueTree plk("plock_v5");
+    plk.setProperty("en", plock_pattern_.enabled ? 1 : 0, nullptr);
+    for (int s = 0; s < PLockPattern::k_steps; ++s) {
+        for (int p = 0; p < k_plock_param_count; ++p) {
+            if (!plock_pattern_.steps[s].active[p]) continue;
+            const juce::String k = "s" + juce::String(s) + "p" + juce::String(p);
+            plk.setProperty(k + "a", 1, nullptr);
+            plk.setProperty(k + "v", plock_pattern_.steps[s].values[p], nullptr);
+        }
+    }
+    state.addChild(plk, -1, nullptr);
+
+    juce::ValueTree pads("pads_v5");
+    for (int i = 0; i < PadBank::k_num_pads; ++i) {
+        const SamplePad& pad = pad_bank_.pad(i);
+        juce::ValueTree p("pad");
+        p.setProperty("i",     i,                                         nullptr);
+        p.setProperty("gain",  pad.gain,                                   nullptr);
+        p.setProperty("pan",   pad.pan,                                    nullptr);
+        p.setProperty("psemi", pad.pitch_semitones,                        nullptr);
+        p.setProperty("pcent", pad.pitch_cents,                            nullptr);
+        p.setProperty("rev",   pad.reverse ? 1 : 0,                       nullptr);
+        p.setProperty("choke", static_cast<int>(pad.choke_group),          nullptr);
+        p.setProperty("pm",    static_cast<int>(pad.play_mode),            nullptr);
+        p.setProperty("atk",   pad.adsr.attack_ms,                         nullptr);
+        p.setProperty("dec",   pad.adsr.decay_ms,                          nullptr);
+        p.setProperty("sus",   pad.adsr.sustain,                           nullptr);
+        p.setProperty("rel",   pad.adsr.release_ms,                        nullptr);
+        p.setProperty("file",  pad.source_file().getFullPathName(),         nullptr);
+        pads.addChild(p, -1, nullptr);
+    }
+    state.addChild(pads, -1, nullptr);
+
     juce::MemoryOutputStream stream(dest_data, true);
     state.writeToStream(stream);
 
@@ -723,6 +781,84 @@ void BaqueProcessor::setStateInformation(const void* data, int size_in_bytes) {
         }
     }
 
+    // Restaura state v5: StepPattern, FeelPattern, PLockPattern, SamplePad params+paths (Fase 11-01).
+    // Ausente em v4 blobs → getChildWithName retorna ValueTree inválida → branches ignorados (AC-4).
+    const auto pat = state.getChildWithName("pattern_v5");
+    if (pat.isValid()) {
+        StepPattern loaded;
+        for (int l = 0; l < StepPattern::k_num_lanes; ++l) {
+            for (int s = 0; s < StepPattern::k_num_steps; ++s) {
+                const juce::String k = "l" + juce::String(l) + "s" + juce::String(s);
+                loaded.set_active(l, s, static_cast<int>(pat.getProperty(k + "a", 0)) != 0);
+                loaded.set_note(l, s, static_cast<uint8_t>(
+                    juce::jlimit(0, 127, static_cast<int>(pat.getProperty(k + "n", 36)))));
+                loaded.set_velocity(l, s, static_cast<uint8_t>(
+                    juce::jlimit(1, 127, static_cast<int>(pat.getProperty(k + "v", 100)))));
+                loaded.set_trig(l, s, static_cast<StepPattern::TrigCondition>(
+                    juce::jlimit(0, 2, static_cast<int>(pat.getProperty(k + "t", 0)))));
+            }
+        }
+        sequencer_.set_pattern(loaded);
+    }
+
+    const auto feel = state.getChildWithName("feel_v5");
+    if (feel.isValid()) {
+        feel_pattern_.enabled              = static_cast<int>(feel.getProperty("en", 0)) != 0;
+        feel_pattern_.humanize_timing_ms   = static_cast<float>(feel.getProperty("htms", 0.0f));
+        feel_pattern_.humanize_vel_pct     = static_cast<float>(feel.getProperty("hvpct", 0.0f));
+        feel_pattern_.seed                 = static_cast<uint32_t>(
+            juce::jlimit(1, 0x7fffffff, static_cast<int>(feel.getProperty("seed", 1))));
+        for (int i = 0; i < FeelPattern::k_steps; ++i) {
+            feel_pattern_.steps[i].timing_ms = static_cast<float>(feel.getProperty("tms" + juce::String(i), 0.0f));
+            feel_pattern_.steps[i].vel_scale  = static_cast<float>(feel.getProperty("vs"  + juce::String(i), 1.0f));
+        }
+        feel_engine_.set_seed(feel_pattern_.seed);
+    }
+
+    const auto plk = state.getChildWithName("plock_v5");
+    if (plk.isValid()) {
+        plock_pattern_.enabled = static_cast<int>(plk.getProperty("en", 0)) != 0;
+        for (int s = 0; s < PLockPattern::k_steps; ++s) {
+            for (int p = 0; p < k_plock_param_count; ++p) {
+                const juce::String k = "s" + juce::String(s) + "p" + juce::String(p);
+                plock_pattern_.steps[s].active[p] =
+                    static_cast<int>(plk.getProperty(k + "a", 0)) != 0;
+                if (plock_pattern_.steps[s].active[p])
+                    plock_pattern_.steps[s].values[p] =
+                        juce::jlimit(-1.0e6f, 1.0e6f,
+                                     static_cast<float>(plk.getProperty(k + "v", 0.0f)));
+            }
+        }
+    }
+
+    const auto pads = state.getChildWithName("pads_v5");
+    if (pads.isValid()) {
+        for (int ci = 0; ci < pads.getNumChildren(); ++ci) {
+            const auto p = pads.getChild(ci);
+            if (!p.hasType("pad")) continue;
+            const int i = juce::jlimit(0, PadBank::k_num_pads - 1,
+                                       static_cast<int>(p.getProperty("i", 0)));
+            SamplePad& pad = pad_bank_.pad(i);
+            pad.gain            = juce::jlimit(0.0f, 4.0f,    static_cast<float>(p.getProperty("gain",  1.0f)));
+            pad.pan             = juce::jlimit(-1.0f, 1.0f,   static_cast<float>(p.getProperty("pan",   0.0f)));
+            pad.pitch_semitones = juce::jlimit(-24, 24,        static_cast<int>  (p.getProperty("psemi", 0)));
+            pad.pitch_cents     = juce::jlimit(-100, 100,      static_cast<int>  (p.getProperty("pcent", 0)));
+            pad.reverse         = static_cast<int>(p.getProperty("rev", 0)) != 0;
+            pad.choke_group     = static_cast<uint8_t>(juce::jlimit(0, 8, static_cast<int>(p.getProperty("choke", 0))));
+            pad.play_mode       = static_cast<PlayMode>(juce::jlimit(0, 2, static_cast<int>(p.getProperty("pm", 0))));
+            pad.adsr.attack_ms  = juce::jlimit(0.0f, 5000.0f, static_cast<float>(p.getProperty("atk", 0.0f)));
+            pad.adsr.decay_ms   = juce::jlimit(0.0f, 5000.0f, static_cast<float>(p.getProperty("dec", 0.0f)));
+            pad.adsr.sustain    = juce::jlimit(0.0f, 1.0f,    static_cast<float>(p.getProperty("sus", 1.0f)));
+            pad.adsr.release_ms = juce::jlimit(0.0f, 5000.0f, static_cast<float>(p.getProperty("rel", 0.0f)));
+            const juce::String path = p.getProperty("file", "").toString();
+            if (path.isNotEmpty()) {
+                const juce::File f(path);
+                if (f.existsAsFile())
+                    load_sample_from_file(i, f);
+            }
+        }
+    }
+
     suspendProcessing(false);
 }
 
@@ -753,4 +889,10 @@ void BaqueProcessor::load_sample_from_file(int pad_index, const juce::File& file
         buf.setSize(1, num_samples);
         reader->read(&buf, 0, num_samples, 0, true, false);
     }
+    pad_bank_.pad(pad_index).set_source_file(file);
+}
+
+void BaqueProcessor::set_feel_pattern(const FeelPattern& fp) noexcept {
+    feel_pattern_ = fp;
+    feel_engine_.set_seed(fp.seed);
 }
