@@ -11,14 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 12 (Hardening) — not started
+**Current focus:** Phase 12 (Hardening) — Plan 12-01 created, awaiting AUDIT
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 12 of 13 (Hardening) — not started
-Status: Ready to plan Phase 12
-Last activity: 2026-06-19 — Phase 11 complete; 251/251 tests; transitioned to Phase 12
+Phase: 12 of 13 (Hardening) — Planning
+Plan: 12-01 created, awaiting AUDIT
+Status: PLAN created, ready for AUDIT → APPLY
+Last activity: 2026-06-19 — Plan 12-01 created (.paul/phases/12-hardening/12-01-PLAN.md)
 
 Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
 - 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
@@ -71,10 +72,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [Loop complete — Phase 11 done, Phase 12 ready]
+  ✓        ○        ○        ○     [Plan 12-01 created, awaiting AUDIT]
 ```
 
-Next action: /paul:plan Phase 12 (Hardening)
+Next action: /paul:audit .paul/phases/12-hardening/12-01-PLAN.md
 
 ## Accumulated Context
 
@@ -160,14 +161,15 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-19 (session 41)
-Stopped at: Phase 11 complete — 11-02 UNIFY + transition done
-Next action: /paul:plan Phase 12 (Hardening)
-Resume file: .paul/ROADMAP.md
+Last session: 2026-06-19 (session 42)
+Stopped at: Plan 12-01 created — RT-safety hardening (audit + MidiBuffer pre-size + ScopedAudioThreadGuard + P12D1 test)
+Next action: /paul:audit .paul/phases/12-hardening/12-01-PLAN.md
+Resume file: .paul/phases/12-hardening/12-01-PLAN.md
 Resume context:
-- Phase 12 scope: pluginval strict green; 64 voices no dropout; zero audio-thread allocation; RT-safety audit; cross-platform beta; JUCE 9 migration assessment
-- Phase 11 shipped: preset system (BQP1), FactoryPresetLibrary (6 aesthetics), BrowserScreen PRESETS tab, 251/251 tests
-- AlertWindow::showInputBox banned in plugin UI (hosting hazard); inline TextEditor established as pattern
+- Phase 12 is 3 plans: 12-01 (RT audit/zero-alloc), 12-02 (pluginval strict), 12-03 (64-voice polyphony + DoD)
+- 12-01 scope: ScopedAudioThreadGuard (thread_local flag), MidiBuffer ensureSize(512) in prepareToPlay, grep audit of processBlock call graph, P12D1 stability test (1000 blocks × 16 voices → 252 tests)
+- Key finding from pre-plan code read: processBlock is generally clean; main RT alloc risk is juce::MidiBuffer::addEvent first-use growth (MemoryBlock grows) → fixed by ensureSize in prepareToPlay
+- operator new override approach for zero-alloc instrumentation deferred (conflicts with JUCE Debug's JUCE_CHECK_MEMORY_LEAKS=1 when linking pre-compiled BAQUE; noted in plan boundaries)
 
 ### Git State
 Last commit: a503ac2 — feat(11): Phase 11 UNIFY — preset system complete, 251/251 tests
