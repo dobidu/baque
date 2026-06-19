@@ -11,15 +11,15 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 11 (Presets & Library) — not started
+**Current focus:** Phase 11 (Presets & Library) — in progress (1/2 plans complete)
 
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 11 of 13 (Presets & Library) — Planning (0/2 plans complete)
-Plan: 11-01 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ○
-Status: 11-01 APPLY complete — 249/249 tests pass; all 5 P11D pass
-Last activity: 2026-06-19 — 11-01 APPLY complete
+Phase: 11 of 13 (Presets & Library) — in progress (1/2 plans complete)
+Plan: 11-01 — PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
+Status: 11-01 UNIFY complete — loop closed; state v5 + PresetManager done
+Last activity: 2026-06-19 — 11-01 UNIFY complete
 
 Phase 10 complete ✅ (7-plan, complex track, 2026-06-10 → 2026-06-18):
 - 10-01: UI→engine command queue + atomicization of all single-writer structs + UiStateSnapshot ✅
@@ -68,8 +68,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ○     [APPLY complete, awaiting UNIFY]
+  ✓        ✓        ✓        ✓     [loop closed — IDLE]
 ```
+
+Next action: /paul:plan Phase 11 Plan 02 (preset browser UI + factory presets + Phase 11 DoD)
 
 ## Accumulated Context
 
@@ -154,19 +156,17 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-18 (session 39)
-Stopped at: 11-01 APPLY complete
-Next action: /paul:unify .paul/phases/11-presets-library/11-01-PLAN.md
-Resume file: .paul/phases/11-presets-library/11-01-PLAN.md
+Last session: 2026-06-19 (session 40)
+Stopped at: 11-01 UNIFY complete
+Next action: /paul:plan Phase 11 Plan 02 (preset browser UI + factory presets + Phase 11 DoD)
 Resume context:
-- Audit applied: set_feel_pattern() on BaqueProcessor, save_to_file() on PresetManager, P11D2 non-vacuous, P11D3 uses TemporaryFile, P11D5 backward-compat test added
-- Test count target: 249 (244 prior + 5 new: P11D1–P11D5)
-- PLock values clamped ±1e6 on setStateInformation restore
-- All other architecture unchanged from PLAN: SamplePad source_file_, state v5 subtrees (pattern_v5/feel_v5/plock_v5/pads_v5), PresetManager magic header "BQP1"
+- 11-01 provides: getStateInformation v5 (pattern_v5/feel_v5/plock_v5/pads_v5), PresetManager (.bqpreset BQP1 format), SamplePad.source_file_, set_feel_pattern(), 249/249 tests
+- 11-02 scope: BrowserScreen Samples|Presets tabs wired, factory presets × 6 aesthetics, Phase 11 DoD (full preset roundtrip via UI)
+- Deferred from Phase 10 relevant to 11-02: async dir scan, waveform thumbnail, tag/category filter, drag-drop from browser to pad, auto-audition, APVTS mute/solo automation, scene morph
 
 ### Git State
-Last commit: a585062 — docs(10): Phase 10 UNIFY + TRANSITION — UI/UX complete
-Branch: main (3 commits ahead of origin/main: b6f1de8, a1de979, a585062)
+Last commit: e1e2fe1 — feat(11): Plan 11-01 APPLY — state v5 + PresetManager + round-trip tests
+Branch: main
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 
 ---
