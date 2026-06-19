@@ -99,6 +99,7 @@ target_sources(BAQUE
         src/ui/midi_screen.cpp
         src/ui/browser_screen.cpp
         src/preset_manager.cpp
+        src/factory_preset_library.cpp
 )
 
 target_link_libraries(BAQUE PRIVATE BaqueAssets)

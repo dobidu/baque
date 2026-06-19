@@ -1,5 +1,6 @@
 #include "../src/plugin_processor.h"
 #include "../src/preset_manager.h"
+#include "../src/factory_preset_library.h"
 #include "../src/audio/feel_pattern.h"
 #include "../src/audio/plock_pattern.h"
 #include <BinaryData.h>
@@ -126,4 +127,56 @@ TEST_CASE("P11D5 - v4 state blob (no v5 subtrees) loads without crash", "[p11_do
     REQUIRE_NOTHROW(proc2.setStateInformation(v4_data.getData(), static_cast<int>(v4_data.getSize())));
     CHECK_FALSE(proc2.current_feel_pattern().enabled); // defaults to disabled
     CHECK(proc2.current_pad(0).source_file() == juce::File{}); // no path — empty default
+}
+
+TEST_CASE("P11D6: FactoryPresetLibrary loads correctly", "[p11_dod]") {
+    using Catch::Matchers::WithinAbs;
+    // Dilla Drunk (index 2) — primary coverage
+    {
+        juce::ScopedJuceInitialiser_GUI init;
+        BaqueProcessor proc;
+        FactoryPresetLibrary::load_into(proc, 2);
+        const auto fp = proc.current_feel_pattern();
+        REQUIRE(fp.enabled);
+        CHECK(fp.seed == 313u);
+        CHECK_THAT(fp.steps[1].timing_ms, WithinAbs(20.0f, 0.01f));
+        CHECK_THAT(fp.steps[4].timing_ms, WithinAbs(25.0f, 0.01f));
+        const auto pat = proc.current_pattern();
+        CHECK(pat.is_active(0, 0));  // kick step 0
+        CHECK(pat.is_active(1, 4));  // snare step 4
+    }
+    // Straight (index 0) — verifies switch case 0, enabled flag, zero timing offsets
+    {
+        juce::ScopedJuceInitialiser_GUI init;
+        BaqueProcessor proc;
+        FactoryPresetLibrary::load_into(proc, 0);
+        const auto fp = proc.current_feel_pattern();
+        CHECK(fp.enabled);
+        CHECK(fp.seed == 1u);
+        CHECK_THAT(fp.steps[0].timing_ms, WithinAbs(0.0f, 0.01f));
+    }
+    // Valid boundary: k_count==6; name(0) and name(5) are non-empty
+    // Do NOT call name(6) — fires jassert in debug builds, crashes test process
+    CHECK(FactoryPresetLibrary::k_count == 6);
+    CHECK(!juce::String(FactoryPresetLibrary::name(0)).isEmpty());
+    CHECK(!juce::String(FactoryPresetLibrary::name(5)).isEmpty());
+}
+
+TEST_CASE("P11D7: factory preset round-trips via file", "[p11_dod]") {
+    using Catch::Matchers::WithinAbs;
+    juce::ScopedJuceInitialiser_GUI init;
+    BaqueProcessor proc1;
+    FactoryPresetLibrary::load_into(proc1, 2); // Dilla Drunk
+    juce::TemporaryFile tmp(".bqpreset");
+    PresetManager pm1{proc1};
+    pm1.save_to_file("Dilla Drunk", "factory", tmp.getFile());
+    REQUIRE(tmp.getFile().existsAsFile());
+
+    BaqueProcessor proc2;
+    PresetManager pm2{proc2};
+    pm2.load(tmp.getFile());
+    const auto fp = proc2.current_feel_pattern();
+    REQUIRE(fp.enabled);
+    CHECK(fp.seed == 313u);
+    CHECK_THAT(fp.steps[1].timing_ms, WithinAbs(20.0f, 0.01f));
 }
