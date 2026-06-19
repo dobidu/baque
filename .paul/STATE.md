@@ -17,9 +17,9 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 12 of 13 (Hardening) — In Progress (2/3 plans done)
-Plan: 12-03 created — P12D3 64-voice stress + P12D4 zero-alloc (malloc dlsym wrap) + Phase 12 DoD gate
-Status: PLAN ✓ AUDIT ○ — ready for AUDIT
-Last activity: 2026-06-19 — Plan 12-03 created; 254→256 tests target; Phase 12 DoD gate: 5 [dod] tests
+Plan: 12-03 audited — M1 (free() override), SR1 (4×note36 P12D4 setup), SR2 (finite check block0 not 499); ready for APPLY
+Status: PLAN ✓ AUDIT ✓ APPLY ○ — ready for APPLY
+Last activity: 2026-06-19 — Plan 12-03 audited; 3 findings applied, 1 deferred
 
 Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
 - 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
@@ -73,10 +73,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○        ○     [Plan 12-03 created, awaiting AUDIT]
+  ✓        ✓        ○        ○     [Plan 12-03 audited — M1+SR1+SR2 applied]
 ```
 
-Next action: /paul:audit .paul/phases/12-hardening/12-03-PLAN.md
+Next action: /paul:apply .paul/phases/12-hardening/12-03-PLAN.md
 
 ## Accumulated Context
 
@@ -136,6 +136,7 @@ Next action: /paul:audit .paul/phases/12-hardening/12-03-PLAN.md
 | 2026-06-19: Enterprise audit on 11-02 (2 must-have + 2 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 11 | M1: AlertWindow::showInputBox→inline TextEditor preset_name_editor_ (hosting hazard fix — no modal event loop in plugin editor); M2: TestProcessorFixture→inline proc pattern matching P11D1-P11D5 (compile fix); SR1: user_presets_ bounds guard before index access; SR2: P11D6 added Straight (index 0) inner scope + name(0)/name(5) boundary checks; removed name(6) jassert hazard. Test count 249→251 |
 | 2026-06-19: Enterprise audit on 12-01 (1 must-have + 3 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: P12D1 vacuous all_finite check (block 999 = zeros) replaced with REQUIRE(midi_first.getNumEvents()==16) before block 0 (processBlock clears midi_messages in-place); SR1: dispatch_ui_command() explicitly added to audit checklist (RT-thread context documented); SR2: grep patterns expanded (emplace_back/insert/resize/std::map/lock/CriticalSection); SR3: scheduler.cpp + note_tracker.cpp added to explicit audit file list |
 | 2026-06-19: Enterprise audit on 12-02 (1 must-have + 2 strongly-recommended applied, 2 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: P12D2b added — DSP boundary smoke (all params normalized 1.0 then 0.0, 50 blocks, assert finite); catches filter_cutoff=20Hz/scatter_type=10/delay_time=0.001s NaN before pluginval binary run; test count 253→254; SR1: REQUIRE(proc.isSynth()) added to P12D2 — drum machine must advertise as synth not effect (pluginval picks test suite from this); SR2: pluginval run switched from tee-pipe to file-redirect so $? captures pluginval exit code not tail's |
+| 2026-06-19: Enterprise audit on 12-03 (1 must-have + 2 strongly-recommended applied, 1 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: free() override added to rt_alloc_counter.cpp — bootstrap bump allocator returns pointers in BSS; without free() override, system free() receives non-heap pointer → UB/crash before any test runs; SR1: P12D4 setup 4×note36 not notes36-43 — only pad 0 has sample, notes 37-43 yield trigger_at nullptr (0 DSP work); 4 real voices exercise FxChain/scatter/tape_stop; SR2: P12D3 finite check moved to block 0 — block 499 is vacuous (test_kick decays to silence in 0.5s) |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
