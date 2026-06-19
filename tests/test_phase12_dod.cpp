@@ -2,6 +2,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "../src/plugin_processor.h"
 #include "../src/rt_safety.h"
+#include "rt_alloc_counter.h"
 #include <cmath>
 
 TEST_CASE("P12D1: processBlock stable - 1000 blocks 16 voices no crash", "[dod]") {
@@ -106,4 +107,63 @@ TEST_CASE("P12D2b: processBlock finite at param boundary values", "[dod]") {
         p->setValue(0.0f);
     for (int b = 0; b < 50; ++b) { buf.clear(); proc.processBlock(buf, no_midi); }
     REQUIRE(block_is_finite());
+}
+
+TEST_CASE("P12D3: VoicePool 64-voice stress - no crash, finite output", "[dod]") {
+    juce::ScopedJuceInitialiser_GUI init;
+    BaqueProcessor proc;
+    proc.prepareToPlay(44100.0, 512);
+    juce::AudioBuffer<float> buf(2, 512);
+
+    // Saturate VoicePool (k_pool_size = 64) by retriggering pad 0 (note 36) 64 times.
+    // Each note-on at a distinct sample offset creates a new voice (no self-choke by default).
+    // Pads 1-15 have no loaded sample in the default test fixture — only pad 0 triggers voices.
+    juce::MidiBuffer midi_64;
+    for (int i = 0; i < 64; ++i)
+        midi_64.addEvent(juce::MidiMessage::noteOn(1, 36, static_cast<juce::uint8>(100)), i);
+    REQUIRE(midi_64.getNumEvents() == 64); // honest setup check before block 0
+
+    buf.clear();
+    proc.processBlock(buf, midi_64); // all 64 voices allocated in one block
+    REQUIRE_FALSE(RtSafety::tl_is_audio_thread); // RAII guard intact after block
+
+    // Finite check IMMEDIATELY after block 0 — 64 voices actively mixing → non-zero output.
+    // Checking at block 499 would be vacuous (test_kick.wav decays to silence in ~0.5s).
+    for (int ch = 0; ch < buf.getNumChannels(); ++ch)
+        for (int s = 0; s < buf.getNumSamples(); ++s)
+            REQUIRE(std::isfinite(buf.getSample(ch, s)));
+
+    // Run 500 stability blocks — 64 voices decaying; crash = test failure
+    juce::MidiBuffer no_midi;
+    for (int block = 0; block < 500; ++block) {
+        buf.clear();
+        proc.processBlock(buf, no_midi);
+        REQUIRE_FALSE(RtSafety::tl_is_audio_thread);
+    }
+}
+
+TEST_CASE("P12D4: processBlock - zero heap allocation in audio thread", "[dod]") {
+    juce::ScopedJuceInitialiser_GUI init;
+    BaqueProcessor proc;
+    proc.prepareToPlay(44100.0, 512);
+    juce::AudioBuffer<float> buf(2, 512);
+
+    // Arm 4 real voices by retriggering pad 0 (note 36) at offsets 0-3.
+    // Using notes 37-43 would only produce 1 active voice (pads 1-7 have no sample →
+    // trigger_at returns nullptr, no DSP work done). 4 × note 36 exercises the full
+    // FxChain/scatter/tape_stop/gater accumulation path with real audio output.
+    juce::MidiBuffer midi_voices;
+    for (int i = 0; i < 4; ++i)
+        midi_voices.addEvent(juce::MidiMessage::noteOn(1, 36, static_cast<juce::uint8>(100)), i);
+    buf.clear();
+    proc.processBlock(buf, midi_voices); // setup block (not measured)
+
+    // Reset counter and measure 100 blocks — any RT allocation fails the test.
+    RtSafety::rt_alloc_count.store(0, std::memory_order_relaxed);
+    juce::MidiBuffer no_midi;
+    for (int b = 0; b < 100; ++b) {
+        buf.clear();
+        proc.processBlock(buf, no_midi);
+    }
+    REQUIRE(RtSafety::rt_alloc_count.load(std::memory_order_relaxed) == 0);
 }
