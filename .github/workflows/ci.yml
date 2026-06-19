@@ -122,7 +122,7 @@ jobs:
           VST3=$(find build -name "BAQUE.vst3" -type d | head -1)
           xvfb-run -a /tmp/pluginval-bin/pluginval \
             --validate "$VST3" \
-            --strictness-level 5 \
+            --strictness-level 10 \
             --validate-in-process
 
       - name: pluginval (macOS)
@@ -134,7 +134,7 @@ jobs:
           VST3=$(find build -name "BAQUE.vst3" -type d | head -1)
           /tmp/pluginval-bin/pluginval.app/Contents/MacOS/pluginval \
             --validate "$VST3" \
-            --strictness-level 5 \
+            --strictness-level 10 \
             --validate-in-process
 
       - name: pluginval (Windows)
@@ -148,7 +148,7 @@ jobs:
           $vst3 = (Get-ChildItem -Path build -Filter "BAQUE.vst3" -Recurse -Directory | Select-Object -First 1).FullName
           & "$env:TEMP\pluginval-bin\pluginval.exe" `
             --validate "$vst3" `
-            --strictness-level 5 `
+            --strictness-level 10 `
             --validate-in-process
 
   # --- Job de lint (clang-format) ---
