@@ -17,9 +17,9 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 12 of 13 (Hardening) — Planning
-Plan: 12-01 created, awaiting AUDIT
-Status: PLAN created, ready for AUDIT → APPLY
-Last activity: 2026-06-19 — Plan 12-01 created (.paul/phases/12-hardening/12-01-PLAN.md)
+Plan: 12-01 created + audited, ready for APPLY
+Status: PLAN ✓ AUDIT ✓ — ready for APPLY
+Last activity: 2026-06-19 — Plan 12-01 audited (1 must-have + 3 strongly-recommended applied, 3 deferred; verdict: conditionally acceptable → upgraded)
 
 Phase 11 complete ✅ (2-plan, 2026-06-18 → 2026-06-19):
 - 11-01: Full engine state v5 + PresetManager (save/load/list *.bqpreset) + P11D1-P11D5 ✅
@@ -75,7 +75,7 @@ PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
   ✓        ○        ○        ○     [Plan 12-01 created, awaiting AUDIT]
 ```
 
-Next action: /paul:audit .paul/phases/12-hardening/12-01-PLAN.md
+Next action: /paul:apply .paul/phases/12-hardening/12-01-PLAN.md
 
 ## Accumulated Context
 
@@ -133,6 +133,7 @@ Next action: /paul:audit .paul/phases/12-hardening/12-01-PLAN.md
 | 2026-06-15: Enterprise audit on 10-02. Applied 1 must-have (M1: font TTF files not committed to git — juce_add_binary_data configure fails on CI/fresh-clone with misleading error; added git-add step + git ls-files verification), 5 strongly-recommended (SR1 NAV switch test NAV1 + showScreen() public + isScreenVisible() accessor; SR2 grain overlay pre-baked juce::Image — no Random in paint(); SR3 setTheme() sets juce::Label::textColourId for ScreenPlaceholder findColour() — no cast; SR4 CI green gate on all 3 platforms before UNIFY; SR5 JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR for ScreenPlaceholder). Deferred 4. Verdict: conditionally acceptable → upgraded | Phase 10 | Plan strengthened for enterprise standards |
 | 2026-06-18: Enterprise audit on 11-01 (3 must-have + 2 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 11 | M1: save_to_file() added to PresetManager + P11D3 redesigned with TemporaryFile (no user-dir pollution, no vacuous CI skip); M2: set_feel_pattern() added to BaqueProcessor + P11D2 redesigned with non-default values (enabled, timing_ms=25.5f, seed=42); M3: P11D5 added — strips v5 subtrees, verifies v4 blob loads without crash; SR1: PLock values clamped ±1e6 on restore. Test count 248→249 |
 | 2026-06-19: Enterprise audit on 11-02 (2 must-have + 2 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 11 | M1: AlertWindow::showInputBox→inline TextEditor preset_name_editor_ (hosting hazard fix — no modal event loop in plugin editor); M2: TestProcessorFixture→inline proc pattern matching P11D1-P11D5 (compile fix); SR1: user_presets_ bounds guard before index access; SR2: P11D6 added Straight (index 0) inner scope + name(0)/name(5) boundary checks; removed name(6) jassert hazard. Test count 249→251 |
+| 2026-06-19: Enterprise audit on 12-01 (1 must-have + 3 strongly-recommended applied, 3 deferred). Verdict: conditionally acceptable → upgraded | Phase 12 | M1: P12D1 vacuous all_finite check (block 999 = zeros) replaced with REQUIRE(midi_first.getNumEvents()==16) before block 0 (processBlock clears midi_messages in-place); SR1: dispatch_ui_command() explicitly added to audit checklist (RT-thread context documented); SR2: grep patterns expanded (emplace_back/insert/resize/std::map/lock/CriticalSection); SR3: scheduler.cpp + note_tracker.cpp added to explicit audit file list |
 | SampleVoice::get_position() = frames rendered (voice age) | Phase 4 | Steal metric stable under reverse/varispeed; source position no longer monotonic |
 | Pad params single-writer (documented, not enforced) | Phase 4 | UI/automation phases MUST upgrade to atomics or command queue before live edits |
 
@@ -163,7 +164,7 @@ None.
 
 Last session: 2026-06-19 (session 42)
 Stopped at: Plan 12-01 created — RT-safety hardening (audit + MidiBuffer pre-size + ScopedAudioThreadGuard + P12D1 test)
-Next action: /paul:audit .paul/phases/12-hardening/12-01-PLAN.md
+Next action: /paul:apply .paul/phases/12-hardening/12-01-PLAN.md
 Resume file: .paul/phases/12-hardening/12-01-PLAN.md
 Resume context:
 - Phase 12 is 3 plans: 12-01 (RT audit/zero-alloc), 12-02 (pluginval strict), 12-03 (64-voice polyphony + DoD)
