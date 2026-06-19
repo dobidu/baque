@@ -21,9 +21,9 @@ status = "in_progress"
 plans_completed = 1
 
 [loop]
-position = "UNIFY"
-plan = "13-01"
-plan_path = "phases/13-release/13-01-PLAN.md"
+position = "PLAN"
+plan = "13-02"
+plan_path = "phases/13-release/13-02-PLAN.md"
 
 [satellite]
 groom = true

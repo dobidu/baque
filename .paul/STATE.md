@@ -17,9 +17,9 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 Milestone: v1.0 Release
 Phase: 13 of 13 (Release) — In Progress (0/2 plans done)
-Plan: 13-01 — README v1.0 + NOTICE cleanup + version 1.0.0 + install() rules ✅
-Status: PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓ — loop closed
-Last activity: 2026-06-19 — Plan 13-01 UNIFY complete (1/2 plans done)
+Plan: 13-02 — CPack + release.yml + codesign checkpoint + v1.0.0 tag + Phase 13 DoD
+Status: PLAN ✓ AUDIT ○ APPLY ○ — ready for AUDIT
+Last activity: 2026-06-19 — Plan 13-02 created
 
 Phase 12 complete ✅ (3-plan, 2026-06-19):
 - 12-01: ScopedAudioThreadGuard + RT-safety audit + P12D1 (1000-block stability) ✅
@@ -80,12 +80,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓        ✓     [Plan 13-01 closed]
-
-Next plan: 13-02 — CPack + release.yml + codesign checkpoint + GitHub Release + v1.0.0 tag
+  ✓        ○        ○        ○     [Plan 13-02 created — awaiting AUDIT]
 ```
 
-Next action: /paul:plan (Phase 13, Plan 13-02)
+Next action: /paul:audit .paul/phases/13-release/13-02-PLAN.md
 
 ## Accumulated Context
 
@@ -175,9 +173,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-19 (session 47)
-Stopped at: Plan 13-01 UNIFY complete — README v1.0, NOTICE LGPL compliant, VERSION 1.0.0, cmake --install working
-Next action: /paul:plan — Plan 13-02 (CPack + release.yml + codesign + GitHub Release + v1.0.0 tag)
+Last session: 2026-06-19 (session 48)
+Stopped at: Plan 13-02 created — awaiting AUDIT
+Next action: /paul:audit .paul/phases/13-release/13-02-PLAN.md
 Resume file: .paul/phases/13-release/13-01-PLAN.md
 Resume context:
 - Phase 13 is 2 plans: 13-01 (README + NOTICE + version 1.0.0 + install()), 13-02 (CPack + release.yml + codesign + GitHub Release + v1.0.0 tag)
