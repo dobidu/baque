@@ -1,0 +1,168 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # needed to create GitHub Release
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false   # never cancel a release run
+
+env:
+  PLUGINVAL_VERSION: v1.0.4
+
+jobs:
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Cache FetchContent
+        uses: actions/cache@v5
+        with:
+          path: build/_deps
+          key: fetchcontent-ubuntu-latest-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt') }}
+          restore-keys: fetchcontent-ubuntu-latest-
+
+      - name: Install Linux deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libx11-dev libxext-dev libxrandr-dev \
+            libxinerama-dev libxcursor-dev libfreetype-dev \
+            libfontconfig1-dev libcurl4-openssl-dev xvfb
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -j$(nproc)
+
+      - name: Test
+        run: xvfb-run -a ctest --test-dir build --build-config Release --output-on-failure
+
+      - name: Package (CPack)
+        run: cd build && cpack -G ZIP --config CPackConfig.cmake
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BAQUE-Linux
+          path: build/BAQUE-*.zip
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Cache FetchContent
+        uses: actions/cache@v5
+        with:
+          path: build/_deps
+          key: fetchcontent-macos-latest-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt') }}
+          restore-keys: fetchcontent-macos-latest-
+
+      - name: Configure (universal)
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Build
+        run: cmake --build build --config Release -j
+
+      - name: Test
+        run: ctest --test-dir build --build-config Release --output-on-failure
+
+      - name: Sign artifacts (macOS)
+        if: ${{ secrets.APPLE_SIGNING_IDENTITY != '' }}
+        env:
+          APPLE_CERT: ${{ secrets.APPLE_CERT }}
+          APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: |
+          echo "$APPLE_CERT" | base64 --decode > /tmp/cert.p12
+          security create-keychain -p "" build.keychain
+          security import /tmp/cert.p12 -k build.keychain \
+            -P "$APPLE_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-keychain-settings -t 3600 -u build.keychain
+          security list-keychains -d user -s build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          VST3=$(find build -name "BAQUE.vst3" -type d | head -1)
+          APP=$(find build -name "BAQUE.app" -type d | head -1)
+          codesign --deep --force --verify --verbose \
+            --sign "$APPLE_SIGNING_IDENTITY" "$VST3"
+          codesign --deep --force --verify --verbose \
+            --sign "$APPLE_SIGNING_IDENTITY" "$APP"
+          echo "Codesign complete"
+
+      - name: Package (CPack)
+        run: cd build && cpack -G ZIP --config CPackConfig.cmake
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BAQUE-macOS
+          path: build/BAQUE-*.zip
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Cache FetchContent
+        uses: actions/cache@v5
+        with:
+          path: build/_deps
+          key: fetchcontent-windows-latest-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt') }}
+          restore-keys: fetchcontent-windows-latest-
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -j
+
+      - name: Test
+        run: ctest --test-dir build --build-config Release --output-on-failure
+
+      - name: Package (CPack)
+        run: cd build && cpack -G ZIP --config CPackConfig.cmake
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BAQUE-Windows
+          path: build/BAQUE-*.zip
+
+  release:
+    name: Create GitHub Release
+    needs: [build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Create GitHub Release
+        run: |
+          files=$(find artifacts -name "*.zip" | tr '\n' ' ')
+          gh release create "${{ github.ref_name }}" $files \
+            --title "BAQUE ${{ github.ref_name }}" \
+            --notes "BAQUE ${{ github.ref_name }} — hybrid groovebox plugin (VST3/AU/Standalone).
+
+**Install:** Copy the plugin bundle to your DAW's VST3 folder. See README for platform-specific paths.
+
+**Platforms:** Linux (VST3 + Standalone) · macOS universal ARM64+x86_64 (VST3 + AU + Standalone) · Windows (VST3 + Standalone)"
+        env:
+          GH_TOKEN: ${{ github.token }}

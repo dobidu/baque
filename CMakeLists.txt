@@ -7,6 +7,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # --- JUCE 8.0.13 (pinned — não mude sem atualizar README e NOTICE) ---
 include(FetchContent)
+
+# Route external dep install() rules to ExternalDeps component so CPack excludes them
+set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "ExternalDeps")
+
 FetchContent_Declare(
     JUCE
     GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
@@ -23,6 +27,9 @@ FetchContent_Declare(
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(SoundTouch)
+
+# Reset — our own install() calls specify COMPONENT explicitly
+set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "Unspecified")
 
 # --- Plugin ---
 juce_add_plugin(BAQUE
@@ -147,3 +154,38 @@ if(APPLE)
             DESTINATION "AU"
             COMPONENT AU)
 endif()
+
+# --- CPack (release packaging — Plan 13-02) ---
+# Produces: BAQUE-{VERSION}-{OS}.zip via `cpack -G ZIP` in build dir
+set(CPACK_PACKAGE_NAME "BAQUE")
+set(CPACK_PACKAGE_VENDOR "LAVID/UFPB")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Hybrid groovebox audio plugin — VST3/AU/Standalone")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+if(WIN32)
+    set(CPACK_PACKAGE_FILE_NAME "BAQUE-${PROJECT_VERSION}-Windows")
+elseif(APPLE)
+    set(CPACK_PACKAGE_FILE_NAME "BAQUE-${PROJECT_VERSION}-macOS")
+else()
+    set(CPACK_PACKAGE_FILE_NAME "BAQUE-${PROJECT_VERSION}-Linux")
+endif()
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_SOURCE_GENERATOR "")
+set(CPACK_STRIP_FILES TRUE)
+
+# Component-aware packaging: only VST3/Standalone(/AU) go into the ZIP.
+# ExternalDeps component (JUCE headers, SoundTouch cmake files) is excluded.
+# CPACK_ARCHIVE_COMPONENT_INSTALL must be ON for CPACK_COMPONENTS_ALL to filter the archive.
+# CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE produces a single ZIP (not one per component).
+set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
+if(APPLE)
+    set(CPACK_COMPONENTS_ALL VST3 Standalone AU)
+else()
+    set(CPACK_COMPONENTS_ALL VST3 Standalone)
+endif()
+
+# Skip preinstall rebuild — artifacts must be built before running cpack
+# Prevents clock-skew spurious rebuilds on WSL2 and avoids rebuilding tests on packaging
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
+
+include(CPack)
