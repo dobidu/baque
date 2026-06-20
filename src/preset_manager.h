@@ -11,7 +11,7 @@ class PresetManager {
     struct PresetInfo {
         juce::String name;
         juce::String category; // "custom" ou tag de estética
-        juce::File   file;
+        juce::File file;
     };
 
     explicit PresetManager(BaqueProcessor& proc);
