@@ -157,12 +157,15 @@ jobs:
       - name: Create GitHub Release
         run: |
           files=$(find artifacts -name "*.zip" | tr '\n' ' ')
+          cat > /tmp/release-notes.md << 'NOTES'
+          BAQUE ${{ github.ref_name }} — hybrid groovebox plugin (VST3/AU/Standalone).
+
+          **Install:** Copy the plugin bundle to your DAW's VST3 folder. See README for platform-specific paths.
+
+          **Platforms:** Linux (VST3 + Standalone) · macOS universal ARM64+x86_64 (VST3 + AU + Standalone) · Windows (VST3 + Standalone)
+          NOTES
           gh release create "${{ github.ref_name }}" $files \
             --title "BAQUE ${{ github.ref_name }}" \
-            --notes "BAQUE ${{ github.ref_name }} — hybrid groovebox plugin (VST3/AU/Standalone).
-
-**Install:** Copy the plugin bundle to your DAW's VST3 folder. See README for platform-specific paths.
-
-**Platforms:** Linux (VST3 + Standalone) · macOS universal ARM64+x86_64 (VST3 + AU + Standalone) · Windows (VST3 + Standalone)"
+            --notes-file /tmp/release-notes.md
         env:
           GH_TOKEN: ${{ github.token }}
