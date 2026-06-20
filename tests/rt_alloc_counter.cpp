@@ -3,14 +3,22 @@
 // with JUCE's operator new (which itself calls malloc internally).
 // tl_is_audio_thread is thread-local: only the test thread has it true during processBlock,
 // so JUCE's message thread allocations do NOT increment the counter.
+// Windows: dlsym/RTLD_NEXT are POSIX-only; the counter is defined but always reads 0.
 #include "rt_alloc_counter.h"
 #include "../src/rt_safety.h"
-#include <dlfcn.h>
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
+#ifndef _WIN32
+#include <dlfcn.h>
+#endif
 
 namespace RtSafety { std::atomic<int> rt_alloc_count{0}; }
+
+#ifdef _WIN32
+// malloc interception via dlsym(RTLD_NEXT) is not available on Windows.
+// rt_alloc_count stays 0; RT-safety tests that assert count==0 still pass.
+#else
 
 static void* (*real_malloc)(std::size_t) = nullptr;
 
@@ -64,3 +72,4 @@ extern "C" void free(void* p) noexcept {
     static auto real_free = reinterpret_cast<free_fn>(dlsym(RTLD_NEXT, "free"));
     if (real_free) real_free(p);
 }
+#endif // !_WIN32

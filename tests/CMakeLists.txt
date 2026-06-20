@@ -18,7 +18,7 @@ target_link_libraries(baque_tests
         juce::juce_audio_processors
         juce::juce_audio_utils
         juce::juce_dsp
-        dl
+        $<$<NOT:$<PLATFORM_ID:Windows>>:dl>
 )
 
 # Acesso aos headers do plugin sem depender do alvo GUI
