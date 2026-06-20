@@ -58,6 +58,8 @@ jobs:
   build-macos:
     name: Build macOS
     runs-on: macos-latest
+    env:
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
     steps:
       - uses: actions/checkout@v5
 
@@ -81,11 +83,10 @@ jobs:
         run: ctest --test-dir build --build-config Release --output-on-failure
 
       - name: Sign artifacts (macOS)
-        if: ${{ secrets.APPLE_SIGNING_IDENTITY != '' }}
+        if: env.APPLE_SIGNING_IDENTITY != ''
         env:
           APPLE_CERT: ${{ secrets.APPLE_CERT }}
           APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
         run: |
           echo "$APPLE_CERT" | base64 --decode > /tmp/cert.p12
           security create-keychain -p "" build.keychain
