@@ -61,7 +61,7 @@ extern "C" void* realloc(void* ptr, std::size_t size) {
     return real_realloc ? real_realloc(ptr, size) : nullptr;
 }
 
-extern "C" void free(void* p) noexcept {
+extern "C" void free(void* p) {
     if (!p) return;
     // Bootstrap-allocated pointers (inside s_bootstrap_buf) must NOT be passed to the
     // system free — they come from a bump allocator with no individual free. Skip them.
