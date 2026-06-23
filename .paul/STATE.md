@@ -16,10 +16,10 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 ## Current Position
 
 Milestone: v1.0 Release
-Phase: 13 of 13 (Release) — In Progress (0/2 plans done)
+Phase: 13 of 13 (Release) — In Progress (1/2 plans done)
 Plan: 13-02 — CPack + release.yml + codesign checkpoint + v1.0.0 tag + Phase 13 DoD
-Status: PLAN ✓ AUDIT ✓ APPLY ○ — ready for APPLY
-Last activity: 2026-06-19 — Plan 13-02 AUDIT complete (2 M + 2 SR applied)
+Status: PLAN ✓ AUDIT ✓ APPLY ○ (GHA iterating — run 28000487842 queued) — UNIFY pending
+Last activity: 2026-06-23 — 13-01 loop closed; 13-02 APPLY in progress; all 3 platform builds pass; release job fix applied
 
 Phase 12 complete ✅ (3-plan, 2026-06-19):
 - 12-01: ScopedAudioThreadGuard + RT-safety audit + P12D1 (1000-block stability) ✅
@@ -61,7 +61,7 @@ Progress:
 - Phase 10: [██████████] 100% ✅ (7/7 plans done)
 - Phase 11: [██████████] 100% ✅ (2/2 plans done)
 - Phase 12: [██████████] 100% ✅ (3/3 plans done)
-- Phase 13: [█████░░░░░] 50% 🔲 (1/2 plans done)
+- Phase 13: [████████░░] 80% 🔲 (1/2 plans done; 13-02 APPLY in progress)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -80,10 +80,10 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○        ○     [Plan 13-02 audited — ready for APPLY]
+  ✓        ✓        ○ (GHA)   ○     [13-02 APPLY mid-loop — run 28000487842 queued]
 ```
 
-Next action: /paul:apply .paul/phases/13-release/13-02-PLAN.md
+Next action: `gh run view 28000487842` → verify release → /paul:unify
 
 ## Accumulated Context
 
@@ -173,15 +173,17 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-19 (session 49)
-Stopped at: Plan 13-02 AUDIT complete (M1: gh release create uses: bug; M2: CMAKE_SYSTEM_NAME Darwin; SR1: bash globstar; SR2: missing reconfigure)
-Next action: /paul:apply .paul/phases/13-release/13-02-PLAN.md
-Resume file: .paul/phases/13-release/13-01-PLAN.md
+Last session: 2026-06-23
+Stopped at: Plan 13-02 APPLY mid-loop — GHA release workflow iterating; run 28000487842 queued with --repo fix (all 3 builds pass, release job was only remaining failure)
+Next action: Check `gh run view 28000487842`; if succeeded verify release + run /paul:unify; if failed check release job log
+Resume file: .paul/HANDOFF-2026-06-23.md
 Resume context:
-- Phase 13 is 2 plans: 13-01 (README + NOTICE + version 1.0.0 + install()), 13-02 (CPack + release.yml + codesign + GitHub Release + v1.0.0 tag)
-- Existing: LICENSE ✅, NOTICE stale (SoundTouch placeholder), README 88 lines (needs expansion)
-- CMakeLists.txt: project(BAQUE VERSION 0.0.1) → 1.0.0; no CPack yet; no install() rules
-- 256/256 tests must remain green after version bump (version is just metadata, no DSP change)
+- Plan 13-01 loop CLOSED (README + NOTICE + VERSION 1.0.0 + install() rules)
+- Plan 13-02 APPLY in progress: CMakeLists CPack ✓, release.yml ✓, v1.0.0 tag pushed ✓
+- GHA run 27993333320: Linux ✓ Windows ✓ macOS ✓ — Release job failed (missing --repo on gh release create)
+- Run 28000487842: queued with --repo fix — expect success
+- macOS ~2h build time (JUCE arm64+x86_64 cold); Linux/Windows ~10 min (cached)
+- After release succeeds: /paul:unify closes 13-02 loop → Phase 13 DoD → Milestone v1.0 COMPLETE
 
 ### Git State
 Last commit: 623465a — feat(12): Phase 12 Hardening complete
