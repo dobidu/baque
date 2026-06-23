@@ -150,9 +150,16 @@ else()
 endif()
 
 if(APPLE)
-    install(DIRECTORY "${CMAKE_BINARY_DIR}/BAQUE_artefacts/Release/AU/BAQUE.component"
-            DESTINATION "AU"
-            COMPONENT AU)
+    # install(DIRECTORY) has no OPTIONAL flag — use CODE to guard with if(EXISTS).
+    # AU may not be present on CI runners without Apple Developer credentials.
+    install(CODE "
+        set(_au \"${CMAKE_BINARY_DIR}/BAQUE_artefacts/Release/AU/BAQUE.component\")
+        if(EXISTS \"\${_au}\")
+            file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/AU\" TYPE DIRECTORY FILES \"\${_au}\")
+        else()
+            message(STATUS \"AU component not found — skipping AU packaging\")
+        endif()
+    " COMPONENT AU)
 endif()
 
 # --- CPack (release packaging — Plan 13-02) ---
