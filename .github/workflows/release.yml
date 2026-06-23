@@ -166,6 +166,7 @@ jobs:
           **Platforms:** Linux (VST3 + Standalone) · macOS universal ARM64+x86_64 (VST3 + AU + Standalone) · Windows (VST3 + Standalone)
           NOTES
           gh release create "${{ github.ref_name }}" $files \
+            --repo "${{ github.repository }}" \
             --title "BAQUE ${{ github.ref_name }}" \
             --notes-file /tmp/release-notes.md
         env:
