@@ -8,7 +8,7 @@ Hybrid groovebox plugin — VST3 / AU / Standalone. Micro-timing, lo-fi colorati
 
 ## What is BAQUE
 
-BAQUE is a drum machine plugin that treats rhythmic imperfection as a feature. The Feel Engine introduces per-step timing offsets, Gaussian humanization, and named groove presets derived from the aesthetics of Dilla, Burial, Flying Lotus, and northeastern Brazilian percussion. Steps land where you intend them — not always on the grid.
+BAQUE is a drum machine plugin that treats rhythmic imperfection as a feature. The Feel Engine introduces per-step timing offsets, Gaussian humanization, and named groove presets — from locked-in boom-bap to broken scatter. Steps land where you intend them — not always on the grid.
 
 Internally it behaves like a classic sampler: 4×4 pad bank with chop-to-pads, varispeed/time-stretch/granular pitch modes, velocity layers, choke groups, and round-robin. Externally it drives hardware: MIDI clock out (24 ppqn), CC automation, and per-lane routing with a built-in TR-8/TR-8S template that maps note and CC numbers to Roland's published MIDI Implementation Chart.
 
@@ -20,7 +20,7 @@ Named after "baque do beat" — the rhythmic foundation of maracatu and coco de 
 
 **Feel Engine** (product core)
 - Per-step timing offset ±100ms+; Gaussian timing + velocity humanization
-- 6 named presets: Dilla Drunk, Burial Broken, FlyLo Wonk, Boom-Bap, Bonobo Loose, Straight
+- 6 named presets: DL Drunk, BRL Broken, Fly Wonk, Boom-Bap, BNB Loose, Straight
 - Seed-based determinism — same seed reproduces identical feel
 
 **Sample Engine**

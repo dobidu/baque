@@ -59,7 +59,7 @@ Da esquerda para a direita:
 | **BPM** | Andamento (40–200). | Arraste vertical para alterar; mostra 1 casa decimal. |
 | **TAP** | Tap tempo. | Toque ritmado ≥ 2× → calcula BPM da média. |
 | **PADRÃO** | Slots de pattern (A1, A2, A3, B1…). | Clique seleciona; base para o Song mode futuro. |
-| **FEEL** | Seletor de preset de groove. | Dropdown: Straight, Dilla Drunk, Burial Broken, FlyLo Wonk, Boom-Bap, Bonobo Loose. Reconfigura o Feel Engine inteiro. |
+| **FEEL** | Seletor de preset de groove. | Dropdown: Straight, DL Drunk, BRL Broken, Fly Wonk, Boom-Bap, BNB Loose. Reconfigura o Feel Engine inteiro. |
 | **AGE** | Knob global de envelhecimento (lo-fi: saturação + corte de agudos). | Arraste. 0–100. |
 | **MASTER** | Medidores estéreo. | Reagem ao nível de saída em tempo real. |
 
@@ -96,7 +96,7 @@ Um **disco radial tipo vinil** que materializa o groove:
 
 - **Anel = um compasso.** 16 ticks marcam a grade perfeita; tempos (1·2·3·4) acentuados e numerados.
 - **Nós = trigs.** Cada nota é um ponto luminoso. Seu **raio depende do papel** (graves no anel externo → chimbais no interno = 4 faixas concêntricas, o "dual-grid"). O **tamanho do nó = velocity**.
-- **Desvio da grade = micro-timing.** Swing e push por papel **empurram o nó para frente/trás** do tick. É possível *ver* o "drunk" do Dilla como uma ondulação. Quando uma faixa está focada, uma **linha fantasma tracejada** liga o nó à sua posição "perfeita", evidenciando o desvio.
+- **Desvio da grade = micro-timing.** Swing e push por papel **empurram o nó para frente/trás** do tick. É possível *ver* o desvio "drunk" como uma ondulação. Quando uma faixa está focada, uma **linha fantasma tracejada** liga o nó à sua posição "perfeita", evidenciando o desvio.
 - **Braço/playhead** varre o disco como agulha de toca-discos durante o play; ao passar por um nó, ele **dá um flare**.
 - **Humanize** vira um leve *shimmer* (tremor) nos nós.
 - **Miolo (readout):** nome do feel + SWING % + DRIFT.
@@ -132,7 +132,7 @@ Step grid clássico, com dois modos via toggle **TODAS / FOCO**:
 
 ### 3.5 Workflow — montar um beat
 
-1. **Play** (espaço) — o pattern default já toca (groove Dilla-ish).
+1. **Play** (espaço) — o pattern default já toca (groove off-grid).
 2. Clique num **pad** para ouvir/escolher o som; ele entra em foco.
 3. **Sequencer:** clique nas células para programar a faixa focada.
 4. **Sample:** ajuste pitch/filter/decay/drive/pan da faixa.
@@ -240,7 +240,7 @@ Layout em **3 painéis**: categorias · lista · preview.
 ```
 
 - **Busca** + toggle **AUTO-AUDITION** no header.
-- **Coluna esquerda:** categorias (Tudo, Kits, One-shots, Loops, Found Sound, Texturas, Vox/Chops) com contagem; filtros por **estética** (Dilla, Burial, Aphex, FlyLo, Madlib, Alchemist, Bonobo, Teebs).
+- **Coluna esquerda:** categorias (Tudo, Kits, One-shots, Loops, Found Sound, Texturas, Vox/Chops) com contagem; filtros por **estética** (DL, BRL, Wonk, Boom-Bap, BNB, Granular, Lo-fi).
 - **Lista:** cada linha mostra **favorito (★)**, mini-waveform, nome, key, length e **tags**.
 - **Preview (direita):** nome, waveform grande, metadados (tipo/key/len), tags, botão **PREVIEW** e dica de **arraste para um pad para carregar**.
 

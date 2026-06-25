@@ -131,7 +131,7 @@ TEST_CASE("P11D5 - v4 state blob (no v5 subtrees) loads without crash", "[p11_do
 
 TEST_CASE("P11D6: FactoryPresetLibrary loads correctly", "[p11_dod]") {
     using Catch::Matchers::WithinAbs;
-    // Dilla Drunk (index 2) — primary coverage
+    // DL Drunk (index 2) — primary coverage
     {
         juce::ScopedJuceInitialiser_GUI init;
         BaqueProcessor proc;
@@ -166,10 +166,10 @@ TEST_CASE("P11D7: factory preset round-trips via file", "[p11_dod]") {
     using Catch::Matchers::WithinAbs;
     juce::ScopedJuceInitialiser_GUI init;
     BaqueProcessor proc1;
-    FactoryPresetLibrary::load_into(proc1, 2); // Dilla Drunk
+    FactoryPresetLibrary::load_into(proc1, 2); // DL Drunk
     juce::TemporaryFile tmp(".bqpreset");
     PresetManager pm1{proc1};
-    pm1.save_to_file("Dilla Drunk", "factory", tmp.getFile());
+    pm1.save_to_file("DL Drunk", "factory", tmp.getFile());
     REQUIRE(tmp.getFile().existsAsFile());
 
     BaqueProcessor proc2;

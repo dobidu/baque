@@ -4,7 +4,7 @@
 #include "audio/step_pattern.h"
 
 static constexpr const char* k_names[FactoryPresetLibrary::k_count] = {
-    "Straight", "Boom-Bap", "Dilla Drunk", "Burial Broken", "FlyLo Wonk", "Bonobo Loose"
+    "Straight", "Boom-Bap", "DL Drunk", "BRL Broken", "Fly Wonk", "BNB Loose"
 };
 
 const char* FactoryPresetLibrary::name(int i) noexcept {
@@ -21,12 +21,12 @@ const char* FactoryPresetLibrary::category(int i) noexcept {
 
 void FactoryPresetLibrary::load_into(BaqueProcessor& proc, int i) noexcept {
     switch (i) {
-        case 0: proc.set_feel_pattern(FeelPresets::straight());       break;
-        case 1: proc.set_feel_pattern(FeelPresets::boom_bap());       break;
-        case 2: proc.set_feel_pattern(FeelPresets::dilla_drunk());    break;
-        case 3: proc.set_feel_pattern(FeelPresets::burial_broken());  break;
-        case 4: proc.set_feel_pattern(FeelPresets::flylo_wonk());     break;
-        case 5: proc.set_feel_pattern(FeelPresets::bonobo_loose());   break;
+        case 0: proc.set_feel_pattern(FeelPresets::straight());    break;
+        case 1: proc.set_feel_pattern(FeelPresets::boom_bap());    break;
+        case 2: proc.set_feel_pattern(FeelPresets::dl_drunk());    break;
+        case 3: proc.set_feel_pattern(FeelPresets::brl_broken());  break;
+        case 4: proc.set_feel_pattern(FeelPresets::fly_wonk());    break;
+        case 5: proc.set_feel_pattern(FeelPresets::bnb_loose());   break;
         default: jassert(false); return;
     }
 

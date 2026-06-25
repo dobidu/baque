@@ -103,9 +103,9 @@ TEST_CASE("FP2 - straight preset velocities all 100", "[feel][presets]") {
     REQUIRE(found);
 }
 
-// FP3: Dilla Drunk — perceptible timing (Phase 5 DoD part 1)
-TEST_CASE("FP3 - dilla_drunk perceptible timing deviation (Phase 5 DoD)", "[feel][presets][dod]") {
-    const auto feel = FeelPresets::dilla_drunk();
+// FP3: DL Drunk — perceptible timing (Phase 5 DoD part 1)
+TEST_CASE("FP3 - dl_drunk perceptible timing deviation (Phase 5 DoD)", "[feel][presets][dod]") {
+    const auto feel = FeelPresets::dl_drunk();
     REQUIRE(feel.enabled);
     REQUIRE(feel.humanize_timing_ms >= 20.0f);
 
@@ -117,12 +117,12 @@ TEST_CASE("FP3 - dilla_drunk perceptible timing deviation (Phase 5 DoD)", "[feel
     REQUIRE(avg_abs > 20.0f);
 }
 
-// FP4: Dilla Drunk — seed reproducibility (Phase 5 DoD part 2)
-TEST_CASE("FP4 - dilla_drunk seed-reproducible (Phase 5 DoD)", "[feel][presets][dod]") {
+// FP4: DL Drunk — seed reproducibility (Phase 5 DoD part 2)
+TEST_CASE("FP4 - dl_drunk seed-reproducible (Phase 5 DoD)", "[feel][presets][dod]") {
     FPFixture f;
     const double sr = 44100.0;
     const int block = 98304;
-    const auto feel = FeelPresets::dilla_drunk();
+    const auto feel = FeelPresets::dl_drunk();
 
     auto run = [&]() {
         FeelEngine engine;
@@ -155,9 +155,9 @@ TEST_CASE("FP4 - dilla_drunk seed-reproducible (Phase 5 DoD)", "[feel][presets][
     REQUIRE(any_differs);
 }
 
-// FP5: Burial Broken — perceptible scatter (Phase 5 DoD part 3)
-TEST_CASE("FP5 - burial_broken perceptible scatter (Phase 5 DoD)", "[feel][presets][dod]") {
-    const auto feel = FeelPresets::burial_broken();
+// FP5: BRL Broken — perceptible scatter (Phase 5 DoD part 3)
+TEST_CASE("FP5 - brl_broken perceptible scatter (Phase 5 DoD)", "[feel][presets][dod]") {
+    const auto feel = FeelPresets::brl_broken();
     REQUIRE(feel.enabled);
     REQUIRE(feel.humanize_timing_ms >= 40.0f);
 
@@ -170,12 +170,12 @@ TEST_CASE("FP5 - burial_broken perceptible scatter (Phase 5 DoD)", "[feel][prese
     REQUIRE((max_t - min_t) > 100.0f);
 }
 
-// FP6: Burial Broken — seed reproducibility (Phase 5 DoD part 4)
-TEST_CASE("FP6 - burial_broken seed-reproducible (Phase 5 DoD)", "[feel][presets][dod]") {
+// FP6: BRL Broken — seed reproducibility (Phase 5 DoD part 4)
+TEST_CASE("FP6 - brl_broken seed-reproducible (Phase 5 DoD)", "[feel][presets][dod]") {
     FPFixture f;
     const double sr = 44100.0;
     const int block = 98304;
-    const auto feel = FeelPresets::burial_broken();
+    const auto feel = FeelPresets::brl_broken();
 
     auto run = [&]() {
         FeelEngine engine;
@@ -212,10 +212,10 @@ TEST_CASE("FP7 - all 6 presets return valid enabled FeelPattern", "[feel][preset
     const std::array<FeelPattern, 6> presets = {
         FeelPresets::straight(),
         FeelPresets::boom_bap(),
-        FeelPresets::dilla_drunk(),
-        FeelPresets::burial_broken(),
-        FeelPresets::flylo_wonk(),
-        FeelPresets::bonobo_loose(),
+        FeelPresets::dl_drunk(),
+        FeelPresets::brl_broken(),
+        FeelPresets::fly_wonk(),
+        FeelPresets::bnb_loose(),
     };
     for (const auto& p : presets) {
         REQUIRE(p.enabled);
@@ -224,10 +224,10 @@ TEST_CASE("FP7 - all 6 presets return valid enabled FeelPattern", "[feel][preset
     }
 }
 
-// FP8: Bonobo Loose < Burial Broken (humanize ordering)
-TEST_CASE("FP8 - bonobo humanize less than burial humanize", "[feel][presets]") {
-    const auto bonobo = FeelPresets::bonobo_loose();
-    const auto burial = FeelPresets::burial_broken();
-    REQUIRE(bonobo.humanize_timing_ms < burial.humanize_timing_ms);
-    REQUIRE(bonobo.humanize_vel_pct < burial.humanize_vel_pct);
+// FP8: BNB Loose < BRL Broken (humanize ordering)
+TEST_CASE("FP8 - bnb humanize less than brl humanize", "[feel][presets]") {
+    const auto bnb = FeelPresets::bnb_loose();
+    const auto brl = FeelPresets::brl_broken();
+    REQUIRE(bnb.humanize_timing_ms < brl.humanize_timing_ms);
+    REQUIRE(bnb.humanize_vel_pct < brl.humanize_vel_pct);
 }

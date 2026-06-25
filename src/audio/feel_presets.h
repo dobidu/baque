@@ -7,8 +7,8 @@
 struct FeelPresets {
     [[nodiscard]] static FeelPattern straight() noexcept;
     [[nodiscard]] static FeelPattern boom_bap() noexcept;
-    [[nodiscard]] static FeelPattern dilla_drunk() noexcept;
-    [[nodiscard]] static FeelPattern burial_broken() noexcept;
-    [[nodiscard]] static FeelPattern flylo_wonk() noexcept;
-    [[nodiscard]] static FeelPattern bonobo_loose() noexcept;
+    [[nodiscard]] static FeelPattern dl_drunk() noexcept;
+    [[nodiscard]] static FeelPattern brl_broken() noexcept;
+    [[nodiscard]] static FeelPattern fly_wonk() noexcept;
+    [[nodiscard]] static FeelPattern bnb_loose() noexcept;
 };

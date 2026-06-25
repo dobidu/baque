@@ -30,7 +30,7 @@ Esta seção é a fonte de verdade do que diferencia BAQUE. Cada estética é tr
 
 ### 2.1 J Dilla
 - **Assinatura:** quantize desligado no MPC3000; kicks/snares "arrastados" enquanto hi-hats balançam — sensação de duas grades de tempo simultâneas (poliritmia de feel). Velocity humano, baixos filtrados, chops de soul/jazz.
-- **Requisitos:** offset de timing por step (±50 ms+); modo **"dual-grid"** (uma lane quantizada + outra deslocada); humanize gaussiano de timing e velocity; presets de feel ("Dilla Drunk"); filtro de grave musical.
+- **Requisitos:** offset de timing por step (±50 ms+); modo **"dual-grid"** (uma lane quantizada + outra deslocada); humanize gaussiano de timing e velocity; presets de feel ("DL Drunk"); filtro de grave musical.
 
 ### 2.2 Burial
 - **Assinatura:** *sem grade nenhuma* (posiciona eventos olhando a waveform); 2-step quebrado; crackle de vinil; percussão de "found sound" (cliques, isqueiro); vocais fantasma com pitch/formant deslocado e wavering de fita; reverb cavernoso; sub-bass; chuva/ambiência.
@@ -124,10 +124,10 @@ Esta seção é a fonte de verdade do que diferencia BAQUE. Cada estética é tr
 ### 4.3 Feel Engine / Micro-timing *(núcleo)*
 - **Offset de timing por step** em ms/ticks/samples (faixa ampla, ±50 ms+), por lane.
 - **Swing global** (MPC %, 50–75%) + **swing por lane**.
-- **Dual-grid / poly-feel:** lanes podem rodar em grades de feel distintas simultaneamente (kick quantizado + snare atrasado + hats adiantados → "Dilla drunk").
+- **Dual-grid / poly-feel:** lanes podem rodar em grades de feel distintas simultaneamente (kick quantizado + snare atrasado + hats adiantados → "drunk").
 - **Humanize:** jitter gaussiano/uniforme em timing **e** velocity, com `amount` e `drift` (random walk lento).
-- **No-grid mode:** snap desligável; eventos posicionados livremente em ms (Burial).
-- **Feel presets** (templates de groove): `Dilla Drunk`, `Burial Broken`, `FlyLo Wonk`, `Boom-Bap`, `Straight`, `Bonobo Loose` — aplicáveis e editáveis; importação/criação de templates próprios.
+- **No-grid mode:** snap desligável; eventos posicionados livremente em ms.
+- **Feel presets** (templates de groove): `DL Drunk`, `BRL Broken`, `Fly Wonk`, `Boom-Bap`, `Straight`, `BNB Loose` — aplicáveis e editáveis; importação/criação de templates próprios.
 - Determinismo opcional via **seed** (para reprodutibilidade ao bouncar).
 
 ### 4.4 Coloração Lo-fi
@@ -317,7 +317,7 @@ Cada fase tem um **Definition of Done (DoD)** verificável — adequado para pip
 | **1. Core audio** | Voice de sample, 1 pad, transporte | Pad dispara sample sem clicks; sample-accurate; RT-safe |
 | **2. Sequenciador base** | Step grid, padrões, swing | Padrão toca em loop; swing global; troca de padrão sem glitch |
 | **3. Sample Engine** | Slice/chop, pitch, choke, velocity layers, reverso | Chop-to-pads; varispeed + stretch offline (v1 do fork SoundTouch); choke funcionando |
-| **4. Feel Engine** ⭐ | Micro-timing, humanize, dual-grid, no-grid, feel presets | "Dilla Drunk" e "Burial Broken" perceptíveis e reprodutíveis por seed |
+| **4. Feel Engine** ⭐ | Micro-timing, humanize, dual-grid, no-grid, feel presets | "DL Drunk" e "BRL Broken" perceptíveis e reprodutíveis por seed |
 | **5. FX + P-locks** | Filtros, reverb, delay, sidechain, EQ + p-locks | P-lock automatiza qualquer parâmetro por step; sidechain pump funcional |
 | **6. Lo-fi + Granular** | Bitcrush, SR reduction, vinyl, tape; engine granular | Presets SP-1200/SP-303; granular freeze/clouds estável |
 | **7. Scatter / Perf FX** | Scatter, beat-repeat, gater, tape-stop, fills | Scatter ao vivo sem dropout; fills via trig conditions |
@@ -361,9 +361,9 @@ Cada fase tem um **Definition of Done (DoD)** verificável — adequado para pip
 
 ## 15. Conteúdo de Fábrica (Factory Library)
 
-- **Feel templates** por estética (Dilla, Burial, FlyLo, Boom-Bap, Bonobo).
-- **Kits** de bateria (incl. "found sound" para Burial; secos boom-bap para Alchemist; SP-crunch para Madlib).
-- **Texturas** granulares (mallets/harpa/ambiências para Teebs).
+- **Feel templates** por estética (DL, BRL, Fly, Boom-Bap, BNB).
+- **Kits** de bateria (incl. "found sound" — broken; secos boom-bap; SP-crunch lo-fi).
+- **Texturas** granulares (mallets/harpa/ambiências).
 - **Presets de scatter** e **mapeamentos MIDI** prontos (TR-8 / TR-8S).
 - Demo patterns de cada estética.
 
