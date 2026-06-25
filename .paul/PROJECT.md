@@ -19,9 +19,9 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 | Attribute | Value |
 |-----------|-------|
 | Type | Application (audio plugin) |
-| Version | 0.0.0 |
-| Status | Phase 12 complete — Phase 13 (Release) next |
-| Last Updated | 2026-06-19 |
+| Version | 1.0.0 |
+| Status | v1.0 SHIPPED — GitHub Release live |
+| Last Updated | 2026-06-24 |
 
 ## Requirements
 
@@ -83,9 +83,12 @@ Producers can build beats with the authentic feel of a specific lineage (Dilla, 
 - [x] **64-voice polyphony confirmed** — P12D3: VoicePool k_pool_size=64 saturated in one block (64×noteOn pad 0), finite output immediately after block 0, 500 stability blocks — Phase 12
 - [x] **Zero audio-thread allocation confirmed** — P12D4: malloc/calloc/realloc/free interposition via dlsym(RTLD_NEXT); rt_alloc_count==0 across 100 measured blocks at full DSP load (works under LTO) — Phase 12
 - [x] **Phase 12 DoD** — pluginval strictness 10 ✅ + 64 voices no dropout (P12D3) ✅ + zero RT allocation (P12D4) ✅ + 256/256 tests — Phase 12
+- [x] **Release packaging** — CPack ZIP (component-aware, JUCE-excluded); GitHub Actions 3-platform release.yml; GitHub Release v1.0.0 live — Phase 13
+- [x] **Phase 13 DoD** — BAQUE-1.0.0-Linux.zip (6.2MB) + BAQUE-1.0.0-macOS.zip (10.1MB, unsigned) + BAQUE-1.0.0-Windows.zip (6.2MB); all downloadable from releases/tag/v1.0.0 — Phase 13
+- [x] **Milestone v1.0 COMPLETE** — 13/13 phases shipped, 2026-06-24
 
 ### Active (In Progress)
-None yet.
+None — v1.0 shipped. Post-v1 work requires new milestone.
 
 ### Planned (Next)
 Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, from BAQUE-ESCOPO.md §12).
@@ -170,6 +173,9 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 | AlertWindow::showInputBox banned in plugin editors | Spins nested event loop in host's message thread; some DAWs deadlock; untestable in CI, manifests on specific host+OS; inline TextEditor used instead for all save-name UI | 2026-06-19 | Active |
 | PresetListModel as inner struct of BrowserScreen | BrowserScreen already inherits ListBoxModel for file_list_; second inheritance base creates ambiguous override; inner struct = separate object, no ambiguity; pattern for all dual-model ListBoxes | 2026-06-19 | Active |
 | FactoryPresetLibrary delegates to FeelPresets::* — no value duplication | Values are canonical in feel_presets.cpp; load_into() must call FeelPresets::* not duplicate them; ensures factory presets stay in sync with feel engine | 2026-06-19 | Active |
+| No Apple codesign for v1.0 | No Apple Developer certificate available at release time; macOS ZIP unsigned; Gatekeeper workaround documented in README (right-click → Open) | 2026-06-24 | Active |
+| CPACK_ARCHIVE_COMPONENT_INSTALL ON required for ZIP component filtering | CPACK_COMPONENT_UNSPECIFIED_HIDDEN alone does not filter the ZIP generator; CPACK_ARCHIVE_COMPONENT_INSTALL ON + CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE required | 2026-06-24 | Active |
+| Route FetchContent deps to ExternalDeps component before FetchContent_MakeAvailable() | CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "ExternalDeps" before FetchContent calls routes JUCE/SoundTouch install() rules to hidden component; reset to "Unspecified" after | 2026-06-24 | Active |
 
 **Open decisions (ESCOPO §14):** sample embed in presets (#5 — suggested: optional, off by default, "collect & save"), song mode depth v1 (#6), multi-out in v1 vs v1.1 (#7). ~~Linux (#9)~~ resolved: full v1 target.
 
@@ -209,4 +215,4 @@ Full phase breakdown in .paul/ROADMAP.md (13 phases + parallel R&D-TS track, fro
 
 ---
 *PROJECT.md — Updated when requirements or context change*
-*Last updated: 2026-06-19 after Phase 12 (Hardening)*
+*Last updated: 2026-06-24 after Phase 13 (Release) — Milestone v1.0 SHIPPED*

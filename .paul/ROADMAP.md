@@ -13,8 +13,8 @@ From empty repo to signed v1.0 installers: plugin skeleton → core audio → se
 ## Current Milestone
 
 **v1.0 Release** (v1.0.0)
-Status: In progress
-Phases: 12 of 13 complete
+Status: ✅ COMPLETE — shipped 2026-06-24
+Phases: 13 of 13 complete
 
 ## Phases
 
@@ -36,7 +36,7 @@ Phases: 12 of 13 complete
 | 10 | UI/UX (Fase 9) | 7 | ✅ Complete | 2026-06-18 |
 | 11 | Presets & Library (Fase 10) | 2 | ✅ Complete | 2026-06-19 |
 | 12 | Hardening (Fase 11) | 3 | ✅ Complete | 2026-06-19 |
-| 13 | Release (Fase 12) | 2 | Planning | - |
+| 13 | Release (Fase 12) | 2 | ✅ Complete | 2026-06-24 |
 
 **Parallel track — R&D-TS (SoundTouch fork):** runs from Phase 4 onward; fork v1 (varispeed + offline stretch + RT-safety wrapper) is a Phase 4 prerequisite; advanced refinements (transient/formant preservation, character mode, spectral hybrid) mature during Phases 5–7 and integrate in Phase 7.
 
@@ -190,8 +190,8 @@ Phases: 12 of 13 complete
 
 **Plans (2-plan decomposition):**
 - [x] 13-01: README v1.0 + NOTICE LGPL-2.1 §6 compliant + version 1.0.0 + CMake install() rules ✅ 2026-06-19
-- [ ] 13-02: CPack packaging + GitHub Actions release.yml + macOS codesign + GitHub Release + v1.0.0 tag + Phase 13 DoD
+- [x] 13-02: CPack ZIP + GitHub Actions release.yml (3-platform) + GitHub Release v1.0.0 + Phase 13 DoD ✅ 2026-06-24
 
 ---
 *Roadmap created: 2026-06-04*
-*Last updated: 2026-06-19 — Phase 12 complete; Phase 13 (Release) next*
+*Last updated: 2026-06-24 — Phase 13 complete; Milestone v1.0 SHIPPED*

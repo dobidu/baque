@@ -15,11 +15,15 @@ See: .paul/PROJECT.md (updated 2026-06-04)
 
 ## Current Position
 
-Milestone: v1.0 Release
-Phase: 13 of 13 (Release) — In Progress (1/2 plans done)
-Plan: 13-02 — CPack + release.yml + codesign checkpoint + v1.0.0 tag + Phase 13 DoD
-Status: PLAN ✓ AUDIT ✓ APPLY ○ (GHA iterating — run 28000487842 queued) — UNIFY pending
-Last activity: 2026-06-23 — 13-01 loop closed; 13-02 APPLY in progress; all 3 platform builds pass; release job fix applied
+Milestone: v1.0 Release — ✅ COMPLETE
+Phase: 13 of 13 (Release) — ✅ Complete (2/2 plans done, 2026-06-24)
+Plan: 13-02 — DONE (loop closed)
+Status: PLAN ✓ AUDIT ✓ APPLY ✓ UNIFY ✓
+Last activity: 2026-06-24 — Phase 13 complete; Milestone v1.0 SHIPPED; GitHub Release v1.0.0 live
+
+Phase 13 complete ✅ (2-plan, 2026-06-19 → 2026-06-24):
+- 13-01: README v1.0 + NOTICE LGPL §6 + version 1.0.0 + CMake install() rules ✅
+- 13-02: CPack ZIP + release.yml + v1.0.0 GitHub Release (Linux/macOS/Windows) ✅
 
 Phase 12 complete ✅ (3-plan, 2026-06-19):
 - 12-01: ScopedAudioThreadGuard + RT-safety audit + P12D1 (1000-block stability) ✅
@@ -52,7 +56,7 @@ Phase 8 decomposition (4-plan, mirrors Phase 6/7):
 - 08-04: Fills via trig conditions + mute/solo groups + Phase 8 DoD (scene morph deferred) ✅ 2026-06-08
 
 Progress:
-- Milestone: [████████████░] 92% (12/13 phases complete)
+- Milestone: [██████████████] 100% ✅ (13/13 phases complete)
 - Phase 5: [██████████] 100% ✅
 - Phase 6: [██████████] 100% ✅ (4/4 plans done)
 - Phase 7: [██████████] 100% ✅ (4/4 plans done)
@@ -61,7 +65,7 @@ Progress:
 - Phase 10: [██████████] 100% ✅ (7/7 plans done)
 - Phase 11: [██████████] 100% ✅ (2/2 plans done)
 - Phase 12: [██████████] 100% ✅ (3/3 plans done)
-- Phase 13: [████████░░] 80% 🔲 (1/2 plans done; 13-02 APPLY in progress)
+- Phase 13: [██████████] 100% ✅ (2/2 plans done)
 
 Phase 6 complete ✅:
 - 06-01: P-lock system infrastructure (PLockPattern, FxParams, 92/92 tests) ✅ 2026-06-07
@@ -77,13 +81,12 @@ Phase 7 complete ✅ (Lo-fi + Granular):
 
 ## Loop Position
 
-Current loop state:
 ```
 PLAN ──▶ AUDIT ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○ (GHA)   ○     [13-02 APPLY mid-loop — run 28000487842 queued]
+  ✓        ✓        ✓        ✓     [13-02 loop closed — Milestone v1.0 COMPLETE]
 ```
 
-Next action: `gh run view 28000487842` → verify release → /paul:unify
+Next action: Milestone v1.0 SHIPPED. No next phase.
 
 ## Accumulated Context
 
@@ -173,20 +176,18 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-23
-Stopped at: Plan 13-02 APPLY mid-loop — GHA release workflow iterating; run 28000487842 queued with --repo fix (all 3 builds pass, release job was only remaining failure)
-Next action: Check `gh run view 28000487842`; if succeeded verify release + run /paul:unify; if failed check release job log
-Resume file: .paul/HANDOFF-2026-06-23.md
+Last session: 2026-06-24
+Stopped at: Milestone v1.0 COMPLETE — Phase 13 loop closed, GitHub Release v1.0.0 live
+Next action: None — milestone shipped. Post-v1 work requires new milestone definition.
+Resume file: .paul/phases/13-release/13-02-SUMMARY.md
 Resume context:
-- Plan 13-01 loop CLOSED (README + NOTICE + VERSION 1.0.0 + install() rules)
-- Plan 13-02 APPLY in progress: CMakeLists CPack ✓, release.yml ✓, v1.0.0 tag pushed ✓
-- GHA run 27993333320: Linux ✓ Windows ✓ macOS ✓ — Release job failed (missing --repo on gh release create)
-- Run 28000487842: queued with --repo fix — expect success
-- macOS ~2h build time (JUCE arm64+x86_64 cold); Linux/Windows ~10 min (cached)
-- After release succeeds: /paul:unify closes 13-02 loop → Phase 13 DoD → Milestone v1.0 COMPLETE
+- GitHub Release v1.0.0: https://github.com/dobidu/baque/releases/tag/v1.0.0
+- 3 ZIPs: BAQUE-1.0.0-Linux.zip (6.2MB) · BAQUE-1.0.0-macOS.zip (10.1MB) · BAQUE-1.0.0-Windows.zip (6.2MB)
+- macOS unsigned — no Apple cert; Gatekeeper workaround: right-click → Open
+- Post-v1 deferred items in Deferred Issues table (CLAP, song mode, multi-out, browser enhancements)
 
 ### Git State
-Last commit: 623465a — feat(12): Phase 12 Hardening complete
+Last commit: feat(13): Phase 13 Release complete — Milestone v1.0 SHIPPED
 Branch: main
 Uncommitted: .claude/ (framework/skills config — intentionally untracked)
 
