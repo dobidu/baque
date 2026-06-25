@@ -11,7 +11,7 @@ about: "BAQUE"
 See: .paul/PROJECT.md (updated 2026-06-04)
 
 **Core value:** Producers build beats with authentic micro-timing feel — off-grid groove, lo-fi color, and controlled error as first-class features
-**Current focus:** Phase 13 (Release) — docs, installer, signing/notarization, packaging
+**Current focus:** Milestone v1.0 SHIPPED — GitHub Release v1.0.0 live; post-v1 work requires new milestone
 
 ## Current Position
 
